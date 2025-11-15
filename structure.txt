@@ -1,0 +1,36 @@
+src/
+│
+├── api/
+│   ├── adminAuth.ts                 # Admin auth API client
+│   └── index.ts                     # API exports
+│
+├── context/
+│   ├── AdminAuthContext.tsx         # Auth context provider
+│   └── index.ts                     # Context exports
+│
+├── pages/
+│   ├── AdminLogin.tsx               # Login page component
+│   ├── AdminDashboard.tsx           # Dashboard component
+│   └── index.tsx                    # Page exports
+│
+├── components/
+│   ├── common/
+│   │   └── index.tsx
+│   └── layout/
+│       └── index.tsx
+│
+├── routes/
+│   └── AppRoutes.tsx                # Route configuration
+│
+├── interfaces/
+│   └── index.ts                     # TypeScript interfaces
+│
+├── utils/
+│   └── index.ts                     # Utility functions
+│
+├── styles/
+│   └── globals.css                  # Global styles
+│
+├── App.tsx                          # Main app component
+├── App.css                          # App styles
+└── index.tsx                        # Entry point
