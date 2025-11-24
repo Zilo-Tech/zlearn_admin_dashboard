@@ -5,3 +5,5 @@ export { Card, CardHeader, CardTitle, CardContent } from './Card';
 export { Alert } from './Alert';
 export { Modal } from './Modal';
 export { Spinner, Loading } from './Spinner';
+export { DataTable } from './DataTable';
+export type { Column } from './DataTable';

@@ -1,9 +1,9 @@
 // src/pages/AdminDashboard.tsx
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { AdminLayout } from '../components/layout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/common';
 import { useAdminAuth } from '../context/AdminAuthContext';
-import { formatNumber, formatPercentage } from '../utils';
+import { formatNumber } from '../utils';
 
 interface StatCard {
   label: string;
@@ -14,12 +14,12 @@ interface StatCard {
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAdminAuth();
-  const [stats, setStats] = useState<StatCard[]>([
+  const stats: StatCard[] = [
     { label: 'Total Users', value: '12,543', change: '+12%', color: 'from-blue-500 to-blue-600' },
     { label: 'Active Courses', value: '342', change: '+8%', color: 'from-green-500 to-green-600' },
     { label: 'Revenue', value: '$45,231', change: '+23%', color: 'from-purple-500 to-purple-600' },
     { label: 'Completion Rate', value: '87%', change: '+5%', color: 'from-orange-500 to-orange-600' },
-  ]);
+  ];
 
   const recentUsers = [
     { id: 1, name: 'John Doe', email: 'john@example.com', time: '2h ago' },
