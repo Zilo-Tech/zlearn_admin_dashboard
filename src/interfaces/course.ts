@@ -25,11 +25,30 @@ export interface ContentCourse {
   priority_order?: number;
   is_published: boolean;
   is_free: boolean;
+  // Entrance exam fields
   exam_board?: string;
   exam_year?: number;
   passing_score?: number;
+  exam_format?: string;
+  // Media files
+  thumbnail?: string;
+  banner_image?: string;
+  video_intro?: string;
+  // Content
   learning_objectives?: string[];
+  requirements?: string;
+  learning_outcomes?: string;
   tags?: string[];
+  // Pricing
+  price?: string | number;
+  currency?: string;
+  // Enrollment
+  instructor?: string;
+  max_students?: number;
+  enrollment_deadline?: string;
+  // Metadata
+  language?: string;
+  // Computed fields
   module_count?: number;
   modules?: ContentModule[];
   created_at: string;

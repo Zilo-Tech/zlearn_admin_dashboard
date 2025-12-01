@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../store/store';
 import { AdminLayout } from '../../components/layout';
 import { DataTable, Column } from '../../components/common/DataTable';
 import { Modal } from '../../components/common/Modal';
@@ -11,12 +12,14 @@ import {
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,
+  coursesApi,
 } from '../../store/api/coursesApi';
 import type { Course } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
 
 export const CoursesPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { data: courses = [], isLoading } = useGetCoursesQuery({});
   const { data: categoriesData } = useGetCategoriesQuery();
   const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
@@ -71,58 +74,71 @@ export const CoursesPage: React.FC = () => {
     },
   });
 
-  const handleOpenModal = (course?: Course) => {
+  const handleOpenModal = async (course?: Course) => {
     if (course) {
-      setEditingCourse(course);
-      setFormData({
-        title: course.title,
-        description: course.description,
-        short_description: course.short_description || '',
-        course_code: course.course_code || '',
-        category: course.category ? String(course.category) : '',
-        level: course.level,
-        status: course.status,
-        thumbnail: null,
-        banner_image: null,
-        video_intro: null,
-        price: course.price,
-        currency: course.currency,
-        is_free: course.is_free,
-        discount_price: course.discount_price || '',
-        discount_start_date: course.discount_start_date
-          ? new Date(course.discount_start_date).toISOString().slice(0, 16)
-          : '',
-        discount_end_date: course.discount_end_date
-          ? new Date(course.discount_end_date).toISOString().slice(0, 16)
-          : '',
-        duration_hours: course.duration_hours || 0,
-        requirements: course.requirements || '',
-        learning_outcomes: course.learning_outcomes || '',
-        language: course.language || 'en',
-        tags: course.tags || [],
-        featured: course.featured,
-        featured_order: course.featured_order || 0,
-        target_audience: course.target_audience || '',
-        max_students: course.max_students ? String(course.max_students) : '',
-        enrollment_deadline: course.enrollment_deadline
-          ? new Date(course.enrollment_deadline).toISOString().slice(0, 16)
-          : '',
-        offers_certificate: course.offers_certificate,
-        certificate_requirements: (() => {
-          const certReqs = course.certificate_requirements;
-          return {
-            min_completion_percentage: certReqs?.min_completion_percentage
-              ? String(certReqs.min_completion_percentage)
-              : '',
-            min_assessment_score: certReqs?.min_assessment_score
-              ? String(certReqs.min_assessment_score)
-              : '',
-            min_time_spent_hours: certReqs?.min_time_spent_hours
-              ? String(certReqs.min_time_spent_hours)
-              : '',
-          };
-        })(),
-      });
+      // Fetch full course details for editing
+      try {
+        const result = await dispatch(coursesApi.endpoints.getCourse.initiate(course.id));
+        if ('data' in result && result.data) {
+          const fullCourse = result.data;
+          setEditingCourse(fullCourse);
+          setFormData({
+            title: fullCourse.title,
+          description: fullCourse.description,
+          short_description: fullCourse.short_description || '',
+          course_code: fullCourse.course_code || '',
+          category: fullCourse.category ? String(fullCourse.category) : '',
+          level: fullCourse.level,
+          status: fullCourse.status,
+          thumbnail: null,
+          banner_image: null,
+          video_intro: null,
+          price: fullCourse.price,
+          currency: fullCourse.currency,
+          is_free: fullCourse.is_free,
+          discount_price: fullCourse.discount_price || '',
+          discount_start_date: fullCourse.discount_start_date
+            ? new Date(fullCourse.discount_start_date).toISOString().slice(0, 16)
+            : '',
+          discount_end_date: fullCourse.discount_end_date
+            ? new Date(fullCourse.discount_end_date).toISOString().slice(0, 16)
+            : '',
+          duration_hours: fullCourse.duration_hours || 0,
+          requirements: fullCourse.requirements || '',
+          learning_outcomes: fullCourse.learning_outcomes || '',
+          language: fullCourse.language || 'en',
+          tags: fullCourse.tags || [],
+          featured: fullCourse.featured,
+          featured_order: fullCourse.featured_order || 0,
+          target_audience: fullCourse.target_audience || '',
+          max_students: fullCourse.max_students ? String(fullCourse.max_students) : '',
+          enrollment_deadline: fullCourse.enrollment_deadline
+            ? new Date(fullCourse.enrollment_deadline).toISOString().slice(0, 16)
+            : '',
+          offers_certificate: fullCourse.offers_certificate,
+          certificate_requirements: (() => {
+            const certReqs = fullCourse.certificate_requirements;
+            return {
+              min_completion_percentage: certReqs?.min_completion_percentage
+                ? String(certReqs.min_completion_percentage)
+                : '',
+              min_assessment_score: certReqs?.min_assessment_score
+                ? String(certReqs.min_assessment_score)
+                : '',
+              min_time_spent_hours: certReqs?.min_time_spent_hours
+                ? String(certReqs.min_time_spent_hours)
+                : '',
+            };
+          })(),
+          });
+        } else {
+          throw new Error('Failed to fetch course details');
+        }
+      } catch (err) {
+        console.error('Failed to fetch course details:', err);
+        setError('Failed to load course details');
+        return;
+      }
     } else {
       setEditingCourse(null);
       setFormData({
@@ -171,7 +187,7 @@ export const CoursesPage: React.FC = () => {
   };
 
   // Helper function to prepare data for API submission
-  const prepareCourseData = (data: typeof formData): FormData | any => {
+  const prepareCourseData = (data: typeof formData, isUpdate: boolean = false): FormData | any => {
     // Check if we have file uploads - if so, use FormData
     const hasFiles = data.thumbnail || data.banner_image || data.video_intro;
 
@@ -285,98 +301,153 @@ export const CoursesPage: React.FC = () => {
       description: data.description.trim(),
     };
 
-    // Optional fields
-    if (data.short_description?.trim()) {
-      payload.short_description = data.short_description.trim();
-    }
-    if (data.course_code?.trim()) {
-      payload.course_code = data.course_code.trim();
-    }
-
-    // Category
-    if (data.category && data.category !== '') {
-      payload.category = parseInt(data.category, 10) || null;
+    // For updates, include all fields (even empty ones) so they can be cleared
+    // For creates, only include fields with values
+    
+    // Optional text fields - always include for updates
+    if (isUpdate) {
+      payload.short_description = data.short_description?.trim() || '';
+      payload.course_code = data.course_code?.trim() || '';
     } else {
-      payload.category = null;
+      if (data.short_description?.trim()) {
+        payload.short_description = data.short_description.trim();
+      }
+      if (data.course_code?.trim()) {
+        payload.course_code = data.course_code.trim();
+      }
     }
 
-    // Course details
+    // Category - always include (can be null)
+    payload.category = data.category && data.category !== '' 
+      ? parseInt(data.category, 10) 
+      : null;
+
+    // Course details - always include
     payload.level = data.level;
     payload.status = data.status;
 
-    // Pricing
+    // Pricing - always include
     payload.price = parseFloat(data.price) || 0.00;
     payload.currency = data.currency || 'USD';
     payload.is_free = data.is_free ?? true;
-    if (data.discount_price?.trim()) {
-      payload.discount_price = parseFloat(data.discount_price);
-    }
-    if (data.discount_start_date) {
-      payload.discount_start_date = new Date(data.discount_start_date).toISOString();
-    }
-    if (data.discount_end_date) {
-      payload.discount_end_date = new Date(data.discount_end_date).toISOString();
+    
+    // Discount fields - always include for updates
+    if (isUpdate) {
+      payload.discount_price = data.discount_price?.trim() 
+        ? parseFloat(data.discount_price) 
+        : null;
+      payload.discount_start_date = data.discount_start_date
+        ? new Date(data.discount_start_date).toISOString()
+        : null;
+      payload.discount_end_date = data.discount_end_date
+        ? new Date(data.discount_end_date).toISOString()
+        : null;
+    } else {
+      // For creates, only include if has value
+      if (data.discount_price?.trim()) {
+        payload.discount_price = parseFloat(data.discount_price);
+      }
+      if (data.discount_start_date) {
+        payload.discount_start_date = new Date(data.discount_start_date).toISOString();
+      }
+      if (data.discount_end_date) {
+        payload.discount_end_date = new Date(data.discount_end_date).toISOString();
+      }
     }
 
-    // Course structure
-    if (data.duration_hours) {
-      payload.duration_hours = parseInt(String(data.duration_hours), 10) || 0;
+    // Course structure - always include
+    payload.duration_hours = parseInt(String(data.duration_hours), 10) || 0;
+
+    // Requirements & Outcomes - always include for updates
+    if (isUpdate) {
+      payload.requirements = data.requirements?.trim() || '';
+      payload.learning_outcomes = data.learning_outcomes?.trim() || '';
+    } else {
+      if (data.requirements?.trim()) {
+        payload.requirements = data.requirements.trim();
+      }
+      if (data.learning_outcomes?.trim()) {
+        payload.learning_outcomes = data.learning_outcomes.trim();
+      }
     }
 
-    // Requirements & Outcomes
-    if (data.requirements?.trim()) {
-      payload.requirements = data.requirements.trim();
-    }
-    if (data.learning_outcomes?.trim()) {
-      payload.learning_outcomes = data.learning_outcomes.trim();
-    }
-
-    // Metadata
+    // Metadata - always include
     payload.language = data.language || 'en';
-    if (data.tags && data.tags.length > 0) {
-      payload.tags = data.tags;
-    }
+    // Tags - always include (empty array if no tags)
+    payload.tags = data.tags && data.tags.length > 0 ? data.tags : [];
     payload.featured = data.featured ?? false;
-    if (data.featured_order) {
-      payload.featured_order = parseInt(String(data.featured_order), 10) || 0;
-    }
-    if (data.target_audience?.trim()) {
-      payload.target_audience = data.target_audience.trim();
-    }
-
-    // Enrollment
-    if (data.max_students?.trim()) {
-      payload.max_students = parseInt(data.max_students, 10);
-    }
-    if (data.enrollment_deadline) {
-      payload.enrollment_deadline = new Date(data.enrollment_deadline).toISOString();
+    payload.featured_order = parseInt(String(data.featured_order), 10) || 0;
+    
+    // Target audience - always include for updates
+    if (isUpdate) {
+      payload.target_audience = data.target_audience?.trim() || '';
+    } else {
+      if (data.target_audience?.trim()) {
+        payload.target_audience = data.target_audience.trim();
+      }
     }
 
-    // Certification
+    // Enrollment - always include for updates
+    if (isUpdate) {
+      payload.max_students = data.max_students?.trim()
+        ? parseInt(data.max_students, 10)
+        : null;
+      payload.enrollment_deadline = data.enrollment_deadline
+        ? new Date(data.enrollment_deadline).toISOString()
+        : null;
+    } else {
+      // For creates, only include if has value
+      if (data.max_students?.trim()) {
+        payload.max_students = parseInt(data.max_students, 10);
+      }
+      if (data.enrollment_deadline) {
+        payload.enrollment_deadline = new Date(data.enrollment_deadline).toISOString();
+      }
+    }
+
+    // Certification - always include
     payload.offers_certificate = data.offers_certificate ?? false;
     if (data.offers_certificate && data.certificate_requirements) {
       const certReqs: any = {};
-      if (data.certificate_requirements.min_completion_percentage) {
-        certReqs.min_completion_percentage = parseInt(
-          data.certificate_requirements.min_completion_percentage,
-          10
-        );
-      }
-      if (data.certificate_requirements.min_assessment_score) {
-        certReqs.min_assessment_score = parseInt(
-          data.certificate_requirements.min_assessment_score,
-          10
-        );
-      }
-      if (data.certificate_requirements.min_time_spent_hours) {
-        certReqs.min_time_spent_hours = parseInt(
-          data.certificate_requirements.min_time_spent_hours,
-          10
-        );
-      }
-      if (Object.keys(certReqs).length > 0) {
+      // Always include all fields for updates, even if empty
+      if (isUpdate) {
+        certReqs.min_completion_percentage = data.certificate_requirements.min_completion_percentage
+          ? parseInt(data.certificate_requirements.min_completion_percentage, 10)
+          : null;
+        certReqs.min_assessment_score = data.certificate_requirements.min_assessment_score
+          ? parseInt(data.certificate_requirements.min_assessment_score, 10)
+          : null;
+        certReqs.min_time_spent_hours = data.certificate_requirements.min_time_spent_hours
+          ? parseInt(data.certificate_requirements.min_time_spent_hours, 10)
+          : null;
         payload.certificate_requirements = certReqs;
+      } else {
+        // For creates, only include fields with values
+        if (data.certificate_requirements.min_completion_percentage) {
+          certReqs.min_completion_percentage = parseInt(
+            data.certificate_requirements.min_completion_percentage,
+            10
+          );
+        }
+        if (data.certificate_requirements.min_assessment_score) {
+          certReqs.min_assessment_score = parseInt(
+            data.certificate_requirements.min_assessment_score,
+            10
+          );
+        }
+        if (data.certificate_requirements.min_time_spent_hours) {
+          certReqs.min_time_spent_hours = parseInt(
+            data.certificate_requirements.min_time_spent_hours,
+            10
+          );
+        }
+        if (Object.keys(certReqs).length > 0) {
+          payload.certificate_requirements = certReqs;
+        }
       }
+    } else if (isUpdate && !data.offers_certificate) {
+      // If updating and offers_certificate is false, clear the requirements
+      payload.certificate_requirements = null;
     }
 
     return payload;
@@ -388,10 +459,10 @@ export const CoursesPage: React.FC = () => {
 
     try {
       if (editingCourse) {
-        const updateData = prepareCourseData(formData);
+        const updateData = prepareCourseData(formData, true);
         await updateCourse({ id: editingCourse.id, data: updateData }).unwrap();
       } else {
-        const createData = prepareCourseData(formData);
+        const createData = prepareCourseData(formData, false);
         await createCourse(createData).unwrap();
       }
       handleCloseModal();

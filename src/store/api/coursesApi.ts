@@ -372,6 +372,7 @@ export const {
   useDeleteCategoryMutation,
   useGetCoursesQuery,
   useGetCourseQuery,
+  useLazyGetCourseQuery,
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,

@@ -87,7 +87,7 @@ export const contentApi = createApi({
       query: (id) => `/content/admin/courses/${id}/`,
       providesTags: (result, error, id) => [{ type: 'ContentCourse', id }],
     }),
-    createCourse: builder.mutation<ContentCourse, Partial<ContentCourse>>({
+    createCourse: builder.mutation<ContentCourse, Partial<ContentCourse> | FormData>({
       query: (data) => ({
         url: '/content/admin/courses/',
         method: 'POST',
@@ -142,7 +142,7 @@ export const contentApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['ContentModule'],
+      invalidatesTags: ['ContentModule', 'ContentCourse'],
     }),
     deleteModule: builder.mutation<void, string>({
       query: (id) => ({
@@ -175,7 +175,7 @@ export const contentApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['ContentLesson', 'ContentModule'],
+      invalidatesTags: ['ContentLesson', 'ContentModule', 'ContentCourse'],
     }),
     updateLesson: builder.mutation<ContentLesson, { id: string; data: Partial<ContentLesson> }>({
       query: ({ id, data }) => ({
@@ -183,14 +183,14 @@ export const contentApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['ContentLesson'],
+      invalidatesTags: ['ContentLesson', 'ContentCourse'],
     }),
     deleteLesson: builder.mutation<void, string>({
       query: (id) => ({
         url: `/content/admin/lessons/${id}/`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['ContentLesson', 'ContentModule'],
+      invalidatesTags: ['ContentLesson', 'ContentModule', 'ContentCourse'],
     }),
     reorderLessons: builder.mutation<void, { lessons: Array<{ id: string; order: number }> }>({
       query: (data) => ({
@@ -216,7 +216,7 @@ export const contentApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['ContentSection', 'ContentLesson'],
+      invalidatesTags: ['ContentSection', 'ContentLesson', 'ContentCourse'],
     }),
     updateSection: builder.mutation<ContentSection, { id: string; data: Partial<ContentSection> }>({
       query: ({ id, data }) => ({
@@ -224,14 +224,14 @@ export const contentApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['ContentSection'],
+      invalidatesTags: ['ContentSection', 'ContentCourse'],
     }),
     deleteSection: builder.mutation<void, string>({
       query: (id) => ({
         url: `/content/admin/sections/${id}/`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['ContentSection', 'ContentLesson'],
+      invalidatesTags: ['ContentSection', 'ContentLesson', 'ContentCourse'],
     }),
     reorderSections: builder.mutation<void, { sections: Array<{ id: string; order: number }> }>({
       query: (data) => ({
@@ -358,6 +358,7 @@ export const {
   useDeleteSubjectMutation,
   useGetCoursesQuery,
   useGetCourseQuery,
+  useLazyGetCourseQuery,
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,
