@@ -318,9 +318,20 @@ export const CoursesPage: React.FC = () => {
     }
 
     // Category - always include (can be null)
-    payload.category = data.category && data.category !== '' 
-      ? parseInt(data.category, 10) 
-      : null;
+    // Category ID can be a number or UUID string
+    if (data.category && data.category !== '' && data.category !== 'null') {
+      // Try to parse as number first
+      const categoryId = parseInt(data.category, 10);
+      if (!isNaN(categoryId) && String(categoryId) === data.category) {
+        // It's a valid number
+        payload.category = categoryId;
+      } else {
+        // It's a UUID string or non-numeric string
+        payload.category = data.category;
+      }
+    } else {
+      payload.category = null;
+    }
 
     // Course details - always include
     payload.level = data.level;
