@@ -38,10 +38,10 @@ export const CourseDetailPage: React.FC = () => {
   const [createModule] = useCreateCourseModuleMutation();
   const [updateModule] = useUpdateCourseModuleMutation();
   const [deleteModule] = useDeleteCourseModuleMutation();
-  const [createLesson] = useCreateCourseLessonMutation();
+  const [createLesson, { isLoading: isCreatingLesson }] = useCreateCourseLessonMutation();
   const [updateLesson] = useUpdateCourseLessonMutation();
   const [deleteLesson] = useDeleteCourseLessonMutation();
-  const [createSection] = useCreateCourseSectionMutation();
+  const [createSection, { isLoading: isCreatingSection }] = useCreateCourseSectionMutation();
   const [updateSection] = useUpdateCourseSectionMutation();
   const [deleteSection] = useDeleteCourseSectionMutation();
 
@@ -298,6 +298,7 @@ export const CourseDetailPage: React.FC = () => {
                 setError(err?.data?.message || 'Failed to create lesson');
               }
             }}
+            isLoading={isCreatingLesson}
           />
         )}
 
@@ -319,6 +320,7 @@ export const CourseDetailPage: React.FC = () => {
                 setError(err?.data?.message || 'Failed to create section');
               }
             }}
+            isLoading={isCreatingSection}
           />
         )}
       </div>
@@ -1555,6 +1557,7 @@ interface LessonCreateModalProps {
   order: number;
   onClose: () => void;
   onSave: (data: Partial<CourseLesson>) => Promise<void>;
+  isLoading?: boolean;
 }
 
 const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
@@ -1562,6 +1565,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
   order,
   onSave,
   onClose,
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState({
     module: moduleId,
@@ -1672,10 +1676,10 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
           </label>
         </div>
         <div className="flex gap-3 pt-4">
-          <Button type="submit" fullWidth>
+          <Button type="submit" fullWidth loading={isLoading} disabled={isLoading}>
             Create Lesson
           </Button>
-          <Button type="button" variant="outline" onClick={onClose} fullWidth>
+          <Button type="button" variant="outline" onClick={onClose} fullWidth disabled={isLoading}>
             Cancel
           </Button>
         </div>
@@ -1689,6 +1693,7 @@ interface SectionCreateModalProps {
   order: number;
   onClose: () => void;
   onSave: (data: Partial<CourseSection>) => Promise<void>;
+  isLoading?: boolean;
 }
 
 const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
@@ -1696,6 +1701,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
   order,
   onSave,
   onClose,
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState({
     lesson: lessonId,
@@ -2338,10 +2344,10 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
           </label>
         </div>
         <div className="flex gap-3 pt-4">
-          <Button type="submit" fullWidth>
+          <Button type="submit" fullWidth loading={isLoading} disabled={isLoading}>
             Create Section
           </Button>
-          <Button type="button" variant="outline" onClick={onClose} fullWidth>
+          <Button type="button" variant="outline" onClick={onClose} fullWidth disabled={isLoading}>
             Cancel
           </Button>
         </div>

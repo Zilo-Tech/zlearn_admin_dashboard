@@ -87,12 +87,18 @@ export const coursesApi = createApi({
       query: (id) => `/courses/admin/courses/${id}/`,
       providesTags: (result, error, id) => [{ type: 'Course', id }],
     }),
-    createCourse: builder.mutation<Course, Partial<Course>>({
-      query: (data) => ({
-        url: '/courses/admin/courses/',
-        method: 'POST',
-        body: data,
-      }),
+    createCourse: builder.mutation<Course, Partial<Course> | FormData>({
+      query: (data) => {
+        // Check if data is FormData (for file uploads) or regular object
+        const isFormData = data instanceof FormData;
+        return {
+          url: '/courses/admin/courses/',
+          method: 'POST',
+          body: data,
+          // Don't set Content-Type header for FormData - browser will set it with boundary
+          ...(isFormData ? {} : {}),
+        };
+      },
       invalidatesTags: ['Course'],
     }),
     updateCourse: builder.mutation<Course, { id: string; data: Partial<Course> }>({
@@ -142,7 +148,7 @@ export const coursesApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['CourseModule'],
+      invalidatesTags: ['CourseModule', 'Course'],
     }),
     deleteCourseModule: builder.mutation<void, string>({
       query: (id) => ({
@@ -175,7 +181,7 @@ export const coursesApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['CourseLesson', 'CourseModule'],
+      invalidatesTags: ['CourseLesson', 'CourseModule', 'Course'],
     }),
     updateCourseLesson: builder.mutation<CourseLesson, { id: string; data: Partial<CourseLesson> }>({
       query: ({ id, data }) => ({
@@ -183,14 +189,14 @@ export const coursesApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['CourseLesson'],
+      invalidatesTags: ['CourseLesson', 'Course'],
     }),
     deleteCourseLesson: builder.mutation<void, string>({
       query: (id) => ({
         url: `/courses/admin/lessons/${id}/`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['CourseLesson', 'CourseModule'],
+      invalidatesTags: ['CourseLesson', 'CourseModule', 'Course'],
     }),
     duplicateCourseLesson: builder.mutation<CourseLesson, { id: string; data: any }>({
       query: ({ id, data }) => ({
@@ -224,7 +230,7 @@ export const coursesApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['CourseSection', 'CourseLesson'],
+      invalidatesTags: ['CourseSection', 'CourseLesson', 'Course'],
     }),
     updateCourseSection: builder.mutation<CourseSection, { id: string; data: Partial<CourseSection> }>({
       query: ({ id, data }) => ({
@@ -232,14 +238,14 @@ export const coursesApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['CourseSection'],
+      invalidatesTags: ['CourseSection', 'Course'],
     }),
     deleteCourseSection: builder.mutation<void, string>({
       query: (id) => ({
         url: `/courses/admin/sections/${id}/`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['CourseSection', 'CourseLesson'],
+      invalidatesTags: ['CourseSection', 'CourseLesson', 'Course'],
     }),
     reorderCourseSections: builder.mutation<void, { sections: Array<{ id: string; order: number }> }>({
       query: (data) => ({

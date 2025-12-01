@@ -19,8 +19,8 @@ export const CoursesPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: courses = [], isLoading } = useGetCoursesQuery({});
   const { data: categoriesData } = useGetCategoriesQuery();
-  const [createCourse] = useCreateCourseMutation();
-  const [updateCourse] = useUpdateCourseMutation();
+  const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
+  const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
   const [deleteCourse] = useDeleteCourseMutation();
 
   // Ensure categories is always an array
@@ -37,12 +37,38 @@ export const CoursesPage: React.FC = () => {
     category: '',
     level: 'beginner' as 'beginner' | 'intermediate' | 'advanced' | 'expert',
     status: 'draft' as 'draft' | 'published' | 'archived' | 'suspended',
+    // Media files
+    thumbnail: null as File | null,
+    banner_image: null as File | null,
+    video_intro: null as File | null,
+    // Pricing
     price: '0.00',
     currency: 'USD',
     is_free: false,
+    discount_price: '',
+    discount_start_date: '',
+    discount_end_date: '',
+    // Course Structure
     duration_hours: 0,
+    // Requirements & Outcomes
+    requirements: '',
+    learning_outcomes: '',
+    // Metadata
+    language: 'en',
+    tags: [] as string[],
     featured: false,
+    featured_order: 0,
+    target_audience: '',
+    // Enrollment
+    max_students: '',
+    enrollment_deadline: '',
+    // Certification
     offers_certificate: false,
+    certificate_requirements: {
+      min_completion_percentage: '',
+      min_assessment_score: '',
+      min_time_spent_hours: '',
+    },
   });
 
   const handleOpenModal = (course?: Course) => {
@@ -53,15 +79,49 @@ export const CoursesPage: React.FC = () => {
         description: course.description,
         short_description: course.short_description || '',
         course_code: course.course_code || '',
-        category: course.category,
+        category: course.category ? String(course.category) : '',
         level: course.level,
         status: course.status,
+        thumbnail: null,
+        banner_image: null,
+        video_intro: null,
         price: course.price,
         currency: course.currency,
         is_free: course.is_free,
+        discount_price: course.discount_price || '',
+        discount_start_date: course.discount_start_date
+          ? new Date(course.discount_start_date).toISOString().slice(0, 16)
+          : '',
+        discount_end_date: course.discount_end_date
+          ? new Date(course.discount_end_date).toISOString().slice(0, 16)
+          : '',
         duration_hours: course.duration_hours || 0,
+        requirements: course.requirements || '',
+        learning_outcomes: course.learning_outcomes || '',
+        language: course.language || 'en',
+        tags: course.tags || [],
         featured: course.featured,
+        featured_order: course.featured_order || 0,
+        target_audience: course.target_audience || '',
+        max_students: course.max_students ? String(course.max_students) : '',
+        enrollment_deadline: course.enrollment_deadline
+          ? new Date(course.enrollment_deadline).toISOString().slice(0, 16)
+          : '',
         offers_certificate: course.offers_certificate,
+        certificate_requirements: (() => {
+          const certReqs = course.certificate_requirements;
+          return {
+            min_completion_percentage: certReqs?.min_completion_percentage
+              ? String(certReqs.min_completion_percentage)
+              : '',
+            min_assessment_score: certReqs?.min_assessment_score
+              ? String(certReqs.min_assessment_score)
+              : '',
+            min_time_spent_hours: certReqs?.min_time_spent_hours
+              ? String(certReqs.min_time_spent_hours)
+              : '',
+          };
+        })(),
       });
     } else {
       setEditingCourse(null);
@@ -73,12 +133,31 @@ export const CoursesPage: React.FC = () => {
         category: '',
         level: 'beginner',
         status: 'draft',
+        thumbnail: null,
+        banner_image: null,
+        video_intro: null,
         price: '0.00',
         currency: 'USD',
         is_free: false,
+        discount_price: '',
+        discount_start_date: '',
+        discount_end_date: '',
         duration_hours: 0,
+        requirements: '',
+        learning_outcomes: '',
+        language: 'en',
+        tags: [],
         featured: false,
+        featured_order: 0,
+        target_audience: '',
+        max_students: '',
+        enrollment_deadline: '',
         offers_certificate: false,
+        certificate_requirements: {
+          min_completion_percentage: '',
+          min_assessment_score: '',
+          min_time_spent_hours: '',
+        },
       });
     }
     setError(null);
@@ -91,21 +170,252 @@ export const CoursesPage: React.FC = () => {
     setError(null);
   };
 
+  // Helper function to prepare data for API submission
+  const prepareCourseData = (data: typeof formData): FormData | any => {
+    // Check if we have file uploads - if so, use FormData
+    const hasFiles = data.thumbnail || data.banner_image || data.video_intro;
+
+    if (hasFiles) {
+      const formDataObj = new FormData();
+
+      // Required fields
+      formDataObj.append('title', data.title.trim());
+      formDataObj.append('description', data.description.trim());
+
+      // Optional text fields
+      if (data.short_description?.trim()) {
+        formDataObj.append('short_description', data.short_description.trim());
+      }
+      if (data.course_code?.trim()) {
+        formDataObj.append('course_code', data.course_code.trim());
+      }
+
+      // Category
+      if (data.category && data.category !== '') {
+        formDataObj.append('category', data.category);
+      }
+
+      // Course details
+      formDataObj.append('level', data.level);
+      formDataObj.append('status', data.status);
+
+      // Media files
+      if (data.thumbnail) formDataObj.append('thumbnail', data.thumbnail);
+      if (data.banner_image) formDataObj.append('banner_image', data.banner_image);
+      if (data.video_intro) formDataObj.append('video_intro', data.video_intro);
+
+      // Pricing
+      formDataObj.append('price', String(parseFloat(data.price) || 0.00));
+      formDataObj.append('currency', data.currency || 'USD');
+      formDataObj.append('is_free', String(data.is_free ?? true));
+      if (data.discount_price?.trim()) {
+        formDataObj.append('discount_price', String(parseFloat(data.discount_price)));
+      }
+      if (data.discount_start_date) {
+        formDataObj.append('discount_start_date', new Date(data.discount_start_date).toISOString());
+      }
+      if (data.discount_end_date) {
+        formDataObj.append('discount_end_date', new Date(data.discount_end_date).toISOString());
+      }
+
+      // Course structure
+      if (data.duration_hours) {
+        formDataObj.append('duration_hours', String(data.duration_hours));
+      }
+
+      // Requirements & Outcomes
+      if (data.requirements?.trim()) {
+        formDataObj.append('requirements', data.requirements.trim());
+      }
+      if (data.learning_outcomes?.trim()) {
+        formDataObj.append('learning_outcomes', data.learning_outcomes.trim());
+      }
+
+      // Metadata
+      formDataObj.append('language', data.language || 'en');
+      if (data.tags && data.tags.length > 0) {
+        data.tags.forEach((tag) => formDataObj.append('tags', tag));
+      }
+      formDataObj.append('featured', String(data.featured ?? false));
+      if (data.featured_order) {
+        formDataObj.append('featured_order', String(data.featured_order));
+      }
+      if (data.target_audience?.trim()) {
+        formDataObj.append('target_audience', data.target_audience.trim());
+      }
+
+      // Enrollment
+      if (data.max_students?.trim()) {
+        formDataObj.append('max_students', String(parseInt(data.max_students, 10)));
+      }
+      if (data.enrollment_deadline) {
+        formDataObj.append('enrollment_deadline', new Date(data.enrollment_deadline).toISOString());
+      }
+
+      // Certification
+      formDataObj.append('offers_certificate', String(data.offers_certificate ?? false));
+      if (data.offers_certificate && data.certificate_requirements) {
+        const certReqs = data.certificate_requirements;
+        if (certReqs.min_completion_percentage) {
+          formDataObj.append(
+            'certificate_requirements[min_completion_percentage]',
+            String(parseInt(certReqs.min_completion_percentage, 10))
+          );
+        }
+        if (certReqs.min_assessment_score) {
+          formDataObj.append(
+            'certificate_requirements[min_assessment_score]',
+            String(parseInt(certReqs.min_assessment_score, 10))
+          );
+        }
+        if (certReqs.min_time_spent_hours) {
+          formDataObj.append(
+            'certificate_requirements[min_time_spent_hours]',
+            String(parseInt(certReqs.min_time_spent_hours, 10))
+          );
+        }
+      }
+
+      return formDataObj;
+    }
+
+    // No files - use JSON
+    const payload: any = {
+      title: data.title.trim(),
+      description: data.description.trim(),
+    };
+
+    // Optional fields
+    if (data.short_description?.trim()) {
+      payload.short_description = data.short_description.trim();
+    }
+    if (data.course_code?.trim()) {
+      payload.course_code = data.course_code.trim();
+    }
+
+    // Category
+    if (data.category && data.category !== '') {
+      payload.category = parseInt(data.category, 10) || null;
+    } else {
+      payload.category = null;
+    }
+
+    // Course details
+    payload.level = data.level;
+    payload.status = data.status;
+
+    // Pricing
+    payload.price = parseFloat(data.price) || 0.00;
+    payload.currency = data.currency || 'USD';
+    payload.is_free = data.is_free ?? true;
+    if (data.discount_price?.trim()) {
+      payload.discount_price = parseFloat(data.discount_price);
+    }
+    if (data.discount_start_date) {
+      payload.discount_start_date = new Date(data.discount_start_date).toISOString();
+    }
+    if (data.discount_end_date) {
+      payload.discount_end_date = new Date(data.discount_end_date).toISOString();
+    }
+
+    // Course structure
+    if (data.duration_hours) {
+      payload.duration_hours = parseInt(String(data.duration_hours), 10) || 0;
+    }
+
+    // Requirements & Outcomes
+    if (data.requirements?.trim()) {
+      payload.requirements = data.requirements.trim();
+    }
+    if (data.learning_outcomes?.trim()) {
+      payload.learning_outcomes = data.learning_outcomes.trim();
+    }
+
+    // Metadata
+    payload.language = data.language || 'en';
+    if (data.tags && data.tags.length > 0) {
+      payload.tags = data.tags;
+    }
+    payload.featured = data.featured ?? false;
+    if (data.featured_order) {
+      payload.featured_order = parseInt(String(data.featured_order), 10) || 0;
+    }
+    if (data.target_audience?.trim()) {
+      payload.target_audience = data.target_audience.trim();
+    }
+
+    // Enrollment
+    if (data.max_students?.trim()) {
+      payload.max_students = parseInt(data.max_students, 10);
+    }
+    if (data.enrollment_deadline) {
+      payload.enrollment_deadline = new Date(data.enrollment_deadline).toISOString();
+    }
+
+    // Certification
+    payload.offers_certificate = data.offers_certificate ?? false;
+    if (data.offers_certificate && data.certificate_requirements) {
+      const certReqs: any = {};
+      if (data.certificate_requirements.min_completion_percentage) {
+        certReqs.min_completion_percentage = parseInt(
+          data.certificate_requirements.min_completion_percentage,
+          10
+        );
+      }
+      if (data.certificate_requirements.min_assessment_score) {
+        certReqs.min_assessment_score = parseInt(
+          data.certificate_requirements.min_assessment_score,
+          10
+        );
+      }
+      if (data.certificate_requirements.min_time_spent_hours) {
+        certReqs.min_time_spent_hours = parseInt(
+          data.certificate_requirements.min_time_spent_hours,
+          10
+        );
+      }
+      if (Object.keys(certReqs).length > 0) {
+        payload.certificate_requirements = certReqs;
+      }
+    }
+
+    return payload;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
       if (editingCourse) {
-        await updateCourse({ id: editingCourse.id, data: formData }).unwrap();
+        const updateData = prepareCourseData(formData);
+        await updateCourse({ id: editingCourse.id, data: updateData }).unwrap();
       } else {
-        await createCourse(formData).unwrap();
+        const createData = prepareCourseData(formData);
+        await createCourse(createData).unwrap();
       }
       handleCloseModal();
     } catch (err: any) {
-      setError(err?.data?.message || 'An error occurred');
+      // Handle validation errors from API
+      if (err?.data) {
+        const errorMessages: string[] = [];
+        Object.keys(err.data).forEach((key) => {
+          if (Array.isArray(err.data[key])) {
+            errorMessages.push(`${key}: ${err.data[key].join(', ')}`);
+          } else if (typeof err.data[key] === 'string') {
+            errorMessages.push(err.data[key]);
+          } else {
+            errorMessages.push(`${key}: ${JSON.stringify(err.data[key])}`);
+          }
+        });
+        setError(errorMessages.join(' | ') || 'An error occurred');
+      } else {
+        setError(err?.message || 'An error occurred');
+      }
     }
   };
+
+  const isSubmitting = isCreating || isUpdating;
 
   const handleDelete = async (course: Course) => {
     if (window.confirm(`Are you sure you want to delete "${course.title}"?`)) {
@@ -203,120 +513,215 @@ export const CoursesPage: React.FC = () => {
           title={editingCourse ? 'Edit Course' : 'Create Course'}
           size="xl"
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
-
-            <Input
-              label="Short Description"
-              value={formData.short_description}
-              onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-                rows={4}
+          <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
+            {/* Basic Information */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Basic Information</h3>
+              <Input
+                label="Title *"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Course Code"
-                value={formData.course_code}
-                onChange={(e) => setFormData({ ...formData, course_code: e.target.value })}
+                label="Short Description"
+                value={formData.short_description}
+                onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                placeholder="Brief overview (max 500 chars)"
               />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
+                  Description *
                 </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  rows={4}
                   required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Course Code"
+                  value={formData.course_code}
+                  onChange={(e) => setFormData({ ...formData, course_code: e.target.value })}
+                  placeholder="Auto-generated if not provided"
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  >
+                    <option value="">No Category</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Course Details */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Course Details</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                  <select
+                    value={formData.level}
+                    onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="expert">Expert</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="archived">Archived</option>
+                    <option value="suspended">Suspended</option>
+                  </select>
+                </div>
+                <Input
+                  label="Duration (Hours)"
+                  type="number"
+                  value={formData.duration_hours}
+                  onChange={(e) =>
+                    setFormData({ ...formData, duration_hours: parseInt(e.target.value) || 0 })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                <select
+                  value={formData.language}
+                  onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                 >
-                  <option value="">Select Category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
+                  <option value="en">English</option>
+                  <option value="fr">French</option>
+                  <option value="es">Spanish</option>
+                  <option value="ar">Arabic</option>
                 </select>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
-                <select
-                  value={formData.level}
-                  onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-                >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                  <option value="expert">Expert</option>
-                </select>
+            {/* Media Files */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Media Files</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Thumbnail</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        thumbnail: e.target.files?.[0] || null,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        banner_image: e.target.files?.[0] || null,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Video Intro</label>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        video_intro: e.target.files?.[0] || null,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="archived">Archived</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              </div>
-              <Input
-                label="Duration (Hours)"
-                type="number"
-                value={formData.duration_hours}
-                onChange={(e) =>
-                  setFormData({ ...formData, duration_hours: parseInt(e.target.value) || 0 })
-                }
-              />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-                >
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                </select>
+            {/* Pricing */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Pricing</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
+                <Input
+                  label="Price"
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  disabled={formData.is_free}
+                />
+                <Input
+                  label="Discount Price"
+                  type="number"
+                  step="0.01"
+                  value={formData.discount_price}
+                  onChange={(e) => setFormData({ ...formData, discount_price: e.target.value })}
+                  disabled={formData.is_free}
+                />
               </div>
-              <Input
-                label="Price"
-                type="number"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                disabled={formData.is_free}
-              />
-            </div>
-
-            <div className="flex gap-4 flex-wrap">
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Discount Start Date"
+                  type="datetime-local"
+                  value={formData.discount_start_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, discount_start_date: e.target.value })
+                  }
+                  disabled={formData.is_free || !formData.discount_price}
+                />
+                <Input
+                  label="Discount End Date"
+                  type="datetime-local"
+                  value={formData.discount_end_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, discount_end_date: e.target.value })
+                  }
+                  disabled={formData.is_free || !formData.discount_price}
+                />
+              </div>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -326,16 +731,115 @@ export const CoursesPage: React.FC = () => {
                 />
                 <span className="text-sm font-medium text-gray-700">Free Course</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                  className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+            </div>
+
+            {/* Requirements & Outcomes */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Requirements & Outcomes</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                <textarea
+                  value={formData.requirements}
+                  onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  rows={3}
+                  placeholder="Basic computer knowledge, etc."
                 />
-                <span className="text-sm font-medium text-gray-700">Featured</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Learning Outcomes
+                </label>
+                <textarea
+                  value={formData.learning_outcomes}
+                  onChange={(e) =>
+                    setFormData({ ...formData, learning_outcomes: e.target.value })
+                  }
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  rows={3}
+                  placeholder="You will learn: ..."
+                />
+              </div>
+            </div>
+
+            {/* Metadata */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Metadata</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                <input
+                  type="text"
+                  value={formData.tags.join(', ')}
+                  onChange={(e) => {
+                    const tags = e.target.value
+                      .split(',')
+                      .map((tag) => tag.trim())
+                      .filter((tag) => tag.length > 0);
+                    setFormData({ ...formData, tags });
+                  }}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  placeholder="python, programming, beginner (comma-separated)"
+                />
+                <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+              </div>
+              <Input
+                label="Target Audience"
+                value={formData.target_audience}
+                onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })}
+                placeholder="Students preparing for entrance exams"
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.featured}
+                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                    className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Featured</span>
+                </label>
+                {formData.featured && (
+                  <Input
+                    label="Featured Order"
+                    type="number"
+                    value={formData.featured_order}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        featured_order: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Enrollment */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Enrollment</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Max Students"
+                  type="number"
+                  value={formData.max_students}
+                  onChange={(e) => setFormData({ ...formData, max_students: e.target.value })}
+                  placeholder="Leave empty for unlimited"
+                />
+                <Input
+                  label="Enrollment Deadline"
+                  type="datetime-local"
+                  value={formData.enrollment_deadline}
+                  onChange={(e) =>
+                    setFormData({ ...formData, enrollment_deadline: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Certification */}
+            <div className="space-y-4 border-b pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Certification</h3>
+              <label className="flex items-center gap-2 cursor-pointer mb-4">
                 <input
                   type="checkbox"
                   checked={formData.offers_certificate}
@@ -346,13 +850,68 @@ export const CoursesPage: React.FC = () => {
                 />
                 <span className="text-sm font-medium text-gray-700">Offers Certificate</span>
               </label>
+              {formData.offers_certificate && (
+                <div className="grid grid-cols-3 gap-4 pl-6">
+                  <Input
+                    label="Min Completion %"
+                    type="number"
+                    value={formData.certificate_requirements.min_completion_percentage}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        certificate_requirements: {
+                          ...formData.certificate_requirements,
+                          min_completion_percentage: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="80"
+                  />
+                  <Input
+                    label="Min Assessment Score"
+                    type="number"
+                    value={formData.certificate_requirements.min_assessment_score}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        certificate_requirements: {
+                          ...formData.certificate_requirements,
+                          min_assessment_score: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="70"
+                  />
+                  <Input
+                    label="Min Time Spent (Hours)"
+                    type="number"
+                    value={formData.certificate_requirements.min_time_spent_hours}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        certificate_requirements: {
+                          ...formData.certificate_requirements,
+                          min_time_spent_hours: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="30"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" fullWidth>
+              <Button type="submit" fullWidth loading={isSubmitting} disabled={isSubmitting}>
                 {editingCourse ? 'Update' : 'Create'}
               </Button>
-              <Button type="button" variant="outline" onClick={handleCloseModal} fullWidth>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCloseModal}
+                fullWidth
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
             </div>
