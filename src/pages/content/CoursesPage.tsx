@@ -17,6 +17,7 @@ import {
 import {
   useGetProgramsQuery,
   useGetClassLevelsQuery,
+  useGetCurriculaQuery,
 } from '../../store/api/educationApi';
 import type { ContentCourse } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
@@ -27,26 +28,59 @@ export const CoursesPage: React.FC = () => {
   const { data: courses = [], isLoading } = useGetCoursesQuery({});
   const { data: subjectsData } = useGetSubjectsQuery();
   const { data: programsData } = useGetProgramsQuery({});
-  const { data: classLevelsData } = useGetClassLevelsQuery({});
+  const { data: classLevelsData } = useGetClassLevelsQuery({ ordering: 'order' });
+  // Fetch curricula with is_active filter
+  const { data: curriculaData, isLoading: isLoadingCurricula, error: curriculaError } = useGetCurriculaQuery({ is_active: true });
   const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
   const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
   const [deleteCourse] = useDeleteCourseMutation();
 
-  // Ensure arrays
+  // Ensure arrays and filter by is_active
   const subjects = Array.isArray(subjectsData) ? subjectsData : [];
-  const programs = Array.isArray(programsData) ? programsData : [];
-  const classLevels = Array.isArray(classLevelsData) ? classLevelsData : [];
+  const programs = Array.isArray(programsData) 
+    ? programsData.filter((p: any) => p.is_active !== false) 
+    : [];
+  const allClassLevels = Array.isArray(classLevelsData) 
+    ? classLevelsData.filter((c: any) => c.is_active !== false) 
+    : [];
+  // Debug: Log curricula data to help diagnose issues
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Curricula data:', curriculaData, 'Is array:', Array.isArray(curriculaData), 'Error:', curriculaError, 'Loading:', isLoadingCurricula);
+  }
+  
+  // Get curricula array - transformArrayResponse should handle paginated responses
+  const curricula = Array.isArray(curriculaData) ? curriculaData : [];
 
-  // Curriculum options from API docs
-  const curriculumOptions = [
-    'GCE_OL',
-    'GCE_AL',
-    'WAEC',
-    'NECO',
-    'BACCALAUREAT',
-    'JAMB',
-    'IGCSE',
-    'IB',
+  // Hardcoded options from content_admin_prepopulate.md
+  const COURSE_TYPE_OPTIONS = [
+    { value: 'entrance_exam', label: 'Entrance Exam Preparation', description: 'Prepare students for entrance exams' },
+    { value: 'regular', label: 'Regular Course Content', description: 'Standard curriculum courses' },
+    { value: 'advanced', label: 'Advanced Topics', description: 'Advanced level content' },
+    { value: 'review', label: 'Review & Revision', description: 'Review and practice materials' },
+  ];
+
+  const DIFFICULTY_OPTIONS = [
+    { value: 'beginner', label: 'Beginner', icon: '🟢' },
+    { value: 'intermediate', label: 'Intermediate', icon: '🟡' },
+    { value: 'advanced', label: 'Advanced', icon: '🟠' },
+    { value: 'expert', label: 'Expert', icon: '🔴' },
+  ];
+
+  const LANGUAGE_OPTIONS = [
+    { value: 'en', label: 'English', flag: '🇬🇧' },
+    { value: 'fr', label: 'French', flag: '🇫🇷' },
+    { value: 'es', label: 'Spanish', flag: '🇪🇸' },
+    { value: 'ar', label: 'Arabic', flag: '🇸🇦' },
+    { value: 'pt', label: 'Portuguese', flag: '🇵🇹' },
+  ];
+
+  const CURRENCY_OPTIONS = [
+    { value: 'USD', label: 'US Dollar', symbol: '$' },
+    { value: 'EUR', label: 'Euro', symbol: '€' },
+    { value: 'GBP', label: 'British Pound', symbol: '£' },
+    { value: 'NGN', label: 'Nigerian Naira', symbol: '₦' },
+    { value: 'XAF', label: 'Central African CFA Franc', symbol: 'FCFA' },
+    { value: 'XOF', label: 'West African CFA Franc', symbol: 'FCFA' },
   ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +95,7 @@ export const CoursesPage: React.FC = () => {
     program: '',
     class_level: '',
     curriculum: '',
-    difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
+    difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced' | 'expert',
     estimated_hours: 0,
     // Media files
     thumbnail: null as File | null,
@@ -91,6 +125,20 @@ export const CoursesPage: React.FC = () => {
     language: 'en',
   });
 
+  // Filter class levels based on selected program (cascade dropdown)
+  const filteredClassLevels = formData.program
+    ? allClassLevels.filter((c: any) => c.program === formData.program)
+    : allClassLevels;
+
+  // Filter curricula based on selected program (optional cascade)
+  // Show filtered list, but don't hide the selected curriculum even if it doesn't match the program
+  const filteredCurricula = formData.program
+    ? curricula.filter((c: any) => {
+        // Include if it matches the program OR if it's the currently selected curriculum
+        return c.program === formData.program || c.id === formData.curriculum;
+      })
+    : curricula;
+
   const handleOpenModal = async (course?: ContentCourse) => {
     if (course) {
       // Fetch full course details for editing
@@ -99,7 +147,7 @@ export const CoursesPage: React.FC = () => {
         if ('data' in result && result.data) {
           const fullCourse = result.data;
           setEditingCourse(fullCourse);
-          setFormData({
+      setFormData({
             code: fullCourse.code,
           title: fullCourse.title,
           description: fullCourse.description,
@@ -197,14 +245,34 @@ export const CoursesPage: React.FC = () => {
       formDataObj.append('title', data.title.trim());
       formDataObj.append('code', data.code.trim());
       formDataObj.append('description', data.description.trim());
-      formDataObj.append('subject', data.subject);
-      formDataObj.append('curriculum', data.curriculum);
+      
+      // Handle subject - can be UUID string or number
+      if (data.subject && data.subject !== '') {
+        const subjectId = parseInt(data.subject, 10);
+        formDataObj.append('subject', !isNaN(subjectId) && String(subjectId) === data.subject ? String(subjectId) : data.subject);
+      }
+      
+      // Handle curriculum - can be UUID string
+      if (data.curriculum && data.curriculum !== '') {
+        formDataObj.append('curriculum', data.curriculum);
+      }
       formDataObj.append('estimated_hours', String(data.estimated_hours));
 
       // Optional fields
       formDataObj.append('course_type', data.course_type);
-      if (data.program) formDataObj.append('program', data.program);
-      if (data.class_level) formDataObj.append('class_level', data.class_level);
+      
+      // Handle program - can be UUID string or number
+      if (data.program && data.program !== '') {
+        const programId = parseInt(data.program, 10);
+        formDataObj.append('program', !isNaN(programId) && String(programId) === data.program ? String(programId) : data.program);
+      }
+      
+      // Handle class_level - can be UUID string or number
+      if (data.class_level && data.class_level !== '') {
+        const classLevelId = parseInt(data.class_level, 10);
+        formDataObj.append('class_level', !isNaN(classLevelId) && String(classLevelId) === data.class_level ? String(classLevelId) : data.class_level);
+      }
+      
       formDataObj.append('difficulty', data.difficulty);
 
       // Media files
@@ -239,8 +307,14 @@ export const CoursesPage: React.FC = () => {
       formDataObj.append('priority_order', String(data.priority_order));
 
       // Enrollment
-      if (data.instructor) formDataObj.append('instructor', data.instructor);
-      if (data.max_students) formDataObj.append('max_students', data.max_students);
+      // Handle instructor - can be UUID string or number
+      if (data.instructor && data.instructor !== '') {
+        const instructorId = parseInt(data.instructor, 10);
+        formDataObj.append('instructor', !isNaN(instructorId) && String(instructorId) === data.instructor ? String(instructorId) : data.instructor);
+      }
+      if (data.max_students && data.max_students !== '') {
+        formDataObj.append('max_students', data.max_students);
+      }
       if (data.enrollment_deadline) {
         formDataObj.append('enrollment_deadline', new Date(data.enrollment_deadline).toISOString());
       }
@@ -256,8 +330,8 @@ export const CoursesPage: React.FC = () => {
       title: data.title.trim(),
       code: data.code.trim(),
       description: data.description.trim(),
-      subject: parseInt(data.subject, 10),
-      curriculum: data.curriculum,
+      // Handle curriculum - can be UUID string
+      curriculum: data.curriculum && data.curriculum !== '' ? data.curriculum : null,
       estimated_hours: data.estimated_hours,
       course_type: data.course_type,
       difficulty: data.difficulty,
@@ -269,8 +343,23 @@ export const CoursesPage: React.FC = () => {
       language: data.language || 'en',
     };
 
-    if (data.program) payload.program = parseInt(data.program, 10);
-    if (data.class_level) payload.class_level = parseInt(data.class_level, 10);
+    // Handle subject - can be UUID string or number
+    if (data.subject && data.subject !== '') {
+      const subjectId = parseInt(data.subject, 10);
+      payload.subject = !isNaN(subjectId) && String(subjectId) === data.subject ? subjectId : data.subject;
+    }
+
+    // Handle program - can be UUID string or number
+    if (data.program && data.program !== '') {
+      const programId = parseInt(data.program, 10);
+      payload.program = !isNaN(programId) && String(programId) === data.program ? programId : data.program;
+    }
+
+    // Handle class_level - can be UUID string or number
+    if (data.class_level && data.class_level !== '') {
+      const classLevelId = parseInt(data.class_level, 10);
+      payload.class_level = !isNaN(classLevelId) && String(classLevelId) === data.class_level ? classLevelId : data.class_level;
+    }
 
     // Entrance exam fields
     if (data.course_type === 'entrance_exam') {
@@ -291,8 +380,16 @@ export const CoursesPage: React.FC = () => {
     }
 
     // Enrollment
-    if (data.instructor) payload.instructor = parseInt(data.instructor, 10);
-    if (data.max_students) payload.max_students = parseInt(data.max_students, 10);
+    // Handle instructor - can be UUID string or number
+    if (data.instructor && data.instructor !== '') {
+      const instructorId = parseInt(data.instructor, 10);
+      payload.instructor = !isNaN(instructorId) && String(instructorId) === data.instructor ? instructorId : data.instructor;
+    }
+    
+    if (data.max_students && data.max_students !== '') {
+      payload.max_students = parseInt(data.max_students, 10);
+    }
+    
     if (data.enrollment_deadline) {
       payload.enrollment_deadline = new Date(data.enrollment_deadline).toISOString();
     }
@@ -476,9 +573,9 @@ export const CoursesPage: React.FC = () => {
                     required
                   >
                     <option value="">Select Subject</option>
-                    {subjects.map((subject) => (
+                    {subjects.map((subject: any) => (
                       <option key={subject.id} value={subject.id}>
-                        {subject.name}
+                        {subject.icon || '📚'} {subject.name}
                       </option>
                     ))}
                   </select>
@@ -493,10 +590,12 @@ export const CoursesPage: React.FC = () => {
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                     required
                   >
-                    <option value="">Select Curriculum</option>
-                    {curriculumOptions.map((cur) => (
-                      <option key={cur} value={cur}>
-                        {cur}
+                    <option value="">
+                      {isLoadingCurricula ? 'Loading curricula...' : filteredCurricula.length === 0 ? 'No curricula available' : 'Select Curriculum'}
+                    </option>
+                    {filteredCurricula.map((cur: any) => (
+                      <option key={cur.id} value={cur.id}>
+                        {cur.name} {cur.program_name ? `(${cur.program_name})` : ''}
                       </option>
                     ))}
                   </select>
@@ -507,13 +606,34 @@ export const CoursesPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Program</label>
                   <select
                     value={formData.program}
-                    onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                    onChange={(e) => {
+                      const newProgram = e.target.value;
+                      const updatedFormData: any = {
+                        ...formData,
+                        program: newProgram,
+                        class_level: '', // Reset class level when program changes
+                      };
+                      
+                      // Only reset curriculum if the currently selected curriculum doesn't belong to the new program
+                      if (newProgram && formData.curriculum) {
+                        const selectedCurriculum = curricula.find((c: any) => c.id === formData.curriculum);
+                        if (selectedCurriculum && selectedCurriculum.program !== newProgram) {
+                          // The selected curriculum doesn't belong to the new program, so clear it
+                          updatedFormData.curriculum = '';
+                        }
+                        // If the curriculum does belong to the new program, keep it selected
+                      } else if (!newProgram) {
+                        // Program cleared, keep curriculum (it might not have a program filter)
+                      }
+                      
+                      setFormData(updatedFormData);
+                    }}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                   >
                     <option value="">No Program</option>
                     {programs.map((program: any) => (
                       <option key={program.id} value={program.id}>
-                        {program.name}
+                        {program.name} {program.education_level_name ? `- ${program.education_level_name}` : ''}
                       </option>
                     ))}
                   </select>
@@ -525,12 +645,13 @@ export const CoursesPage: React.FC = () => {
                   <select
                     value={formData.class_level}
                     onChange={(e) => setFormData({ ...formData, class_level: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    disabled={!formData.program}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
-                    <option value="">No Class Level</option>
-                    {classLevels.map((level: any) => (
+                    <option value="">{formData.program ? 'Select Class Level' : 'Select Program First'}</option>
+                    {filteredClassLevels.map((level: any) => (
                       <option key={level.id} value={level.id}>
-                        {level.name}
+                        {level.name} {level.age_range_start && level.age_range_end ? `(Ages ${level.age_range_start}-${level.age_range_end})` : ''}
                       </option>
                     ))}
                   </select>
@@ -556,10 +677,11 @@ export const CoursesPage: React.FC = () => {
                   }
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                 >
-                  <option value="regular">Regular</option>
-                  <option value="entrance_exam">Entrance Exam</option>
-                  <option value="advanced">Advanced</option>
-                  <option value="review">Review</option>
+                  {COURSE_TYPE_OPTIONS.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -574,9 +696,11 @@ export const CoursesPage: React.FC = () => {
                   }
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                 >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
+                  {DIFFICULTY_OPTIONS.map((diff) => (
+                    <option key={diff.value} value={diff.value}>
+                      {diff.icon} {diff.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <Input
@@ -597,10 +721,11 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, language: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                 >
-                  <option value="en">English</option>
-                  <option value="fr">French</option>
-                  <option value="es">Spanish</option>
-                  <option value="ar">Arabic</option>
+                  {LANGUAGE_OPTIONS.map((lang) => (
+                    <option key={lang.value} value={lang.value}>
+                      {lang.flag} {lang.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -768,10 +893,11 @@ export const CoursesPage: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
                   >
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                    <option value="NGN">NGN</option>
+                    {CURRENCY_OPTIONS.map((curr) => (
+                      <option key={curr.value} value={curr.value}>
+                        {curr.symbol} {curr.label} ({curr.value})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <Input
@@ -793,7 +919,7 @@ export const CoursesPage: React.FC = () => {
                 />
               </div>
               <div className="flex gap-4 flex-wrap">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.is_published}

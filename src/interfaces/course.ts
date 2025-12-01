@@ -20,7 +20,7 @@ export interface ContentCourse {
   program?: string;
   class_level?: string;
   curriculum?: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
   estimated_hours?: number;
   priority_order?: number;
   is_published: boolean;

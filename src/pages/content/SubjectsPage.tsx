@@ -13,6 +13,35 @@ import {
 import type { Subject } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
 
+// Common emoji icons for subjects
+const SUBJECT_ICONS = [
+  { value: '📚', label: '📚 Books' },
+  { value: '📐', label: '📐 Mathematics' },
+  { value: '⚛️', label: '⚛️ Physics' },
+  { value: '🧪', label: '🧪 Chemistry' },
+  { value: '🔬', label: '🔬 Science' },
+  { value: '🌍', label: '🌍 Geography' },
+  { value: '📜', label: '📜 History' },
+  { value: '🎨', label: '🎨 Arts' },
+  { value: '🎵', label: '🎵 Music' },
+  { value: '🏃', label: '🏃 Physical Education' },
+  { value: '💻', label: '💻 Computer Science' },
+  { value: '🌐', label: '🌐 Languages' },
+  { value: '📖', label: '📖 Literature' },
+  { value: '🔢', label: '🔢 Numbers' },
+  { value: '🧮', label: '🧮 Calculator' },
+  { value: '🔭', label: '🔭 Astronomy' },
+  { value: '🌱', label: '🌱 Biology' },
+  { value: '⚖️', label: '⚖️ Law' },
+  { value: '💼', label: '💼 Business' },
+  { value: '🏥', label: '🏥 Medicine' },
+  { value: '🏗️', label: '🏗️ Engineering' },
+  { value: '🎭', label: '🎭 Drama' },
+  { value: '🎬', label: '🎬 Film' },
+  { value: '📷', label: '📷 Photography' },
+  { value: '✍️', label: '✍️ Writing' },
+];
+
 export const SubjectsPage: React.FC = () => {
   const { data: subjects = [], isLoading } = useGetSubjectsQuery();
   const [createSubject] = useCreateSubjectMutation();
@@ -157,12 +186,28 @@ export const SubjectsPage: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
               required
             />
-            <Input
-              label="Icon (Emoji)"
-              value={formData.icon}
-              onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-              placeholder="📚"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Icon (Emoji)
+              </label>
+              <select
+                value={formData.icon}
+                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200 text-lg"
+              >
+                <option value="">Select an icon</option>
+                {SUBJECT_ICONS.map((icon) => (
+                  <option key={icon.value} value={icon.value}>
+                    {icon.label}
+                  </option>
+                ))}
+              </select>
+              {formData.icon && (
+                <div className="mt-2 text-center">
+                  <span className="text-4xl">{formData.icon}</span>
+                </div>
+              )}
+            </div>
             <Input
               label="Color"
               type="color"

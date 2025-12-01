@@ -16,6 +16,35 @@ import {
 import type { Program, School, Faculty, ClassLevel } from '../../interfaces/education';
 import { Alert } from '../../components/common/Alert';
 
+// Common emoji icons for programs
+const PROGRAM_ICONS = [
+  { value: '📚', label: '📚 Books' },
+  { value: '📐', label: '📐 Mathematics' },
+  { value: '⚛️', label: '⚛️ Physics' },
+  { value: '🧪', label: '🧪 Chemistry' },
+  { value: '🔬', label: '🔬 Science' },
+  { value: '🌍', label: '🌍 Geography' },
+  { value: '📜', label: '📜 History' },
+  { value: '🎨', label: '🎨 Arts' },
+  { value: '🎵', label: '🎵 Music' },
+  { value: '🏃', label: '🏃 Physical Education' },
+  { value: '💻', label: '💻 Computer Science' },
+  { value: '🌐', label: '🌐 Languages' },
+  { value: '📖', label: '📖 Literature' },
+  { value: '🔢', label: '🔢 Numbers' },
+  { value: '🧮', label: '🧮 Calculator' },
+  { value: '🔭', label: '🔭 Astronomy' },
+  { value: '🌱', label: '🌱 Biology' },
+  { value: '⚖️', label: '⚖️ Law' },
+  { value: '💼', label: '💼 Business' },
+  { value: '🏥', label: '🏥 Medicine' },
+  { value: '🏗️', label: '🏗️ Engineering' },
+  { value: '🎭', label: '🎭 Drama' },
+  { value: '🎬', label: '🎬 Film' },
+  { value: '📷', label: '📷 Photography' },
+  { value: '✍️', label: '✍️ Writing' },
+];
+
 export const ProgramsPage: React.FC = () => {
   const { data: programs = [], isLoading } = useGetProgramsQuery({});
   const { data: schools = [] } = useGetSchoolsQuery({});
@@ -29,7 +58,6 @@ export const ProgramsPage: React.FC = () => {
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    id: '',
     name: '',
     school_id: '',
     faculty_id: '',
@@ -46,7 +74,6 @@ export const ProgramsPage: React.FC = () => {
     if (program) {
       setEditingProgram(program);
       setFormData({
-        id: program.id,
         name: program.name,
         school_id: program.school_id,
         faculty_id: program.faculty_id || '',
@@ -61,7 +88,6 @@ export const ProgramsPage: React.FC = () => {
     } else {
       setEditingProgram(null);
       setFormData({
-        id: '',
         name: '',
         school_id: '',
         faculty_id: '',
@@ -94,8 +120,7 @@ export const ProgramsPage: React.FC = () => {
         class_level_id: formData.class_level_id || null,
       };
       if (editingProgram) {
-        const { id, ...updateData } = submitData;
-        await updateProgram({ id: editingProgram.id, ...updateData }).unwrap();
+        await updateProgram({ id: editingProgram.id, ...submitData }).unwrap();
       } else {
         await createProgram(submitData).unwrap();
       }
@@ -179,14 +204,6 @@ export const ProgramsPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <Alert type="error" message={error} />}
             <Input
-              label="ID"
-              value={formData.id}
-              onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-              placeholder="computer-science-bsc"
-              required
-              disabled={!!editingProgram}
-            />
-            <Input
               label="Name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -265,12 +282,28 @@ export const ProgramsPage: React.FC = () => {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Icon (Emoji)"
-                value={formData.icon}
-                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                placeholder="💻"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Icon (Emoji)
+                </label>
+                <select
+                  value={formData.icon}
+                  onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200 text-lg"
+                >
+                  <option value="">Select an icon</option>
+                  {PROGRAM_ICONS.map((icon) => (
+                    <option key={icon.value} value={icon.value}>
+                      {icon.label}
+                    </option>
+                  ))}
+                </select>
+                {formData.icon && (
+                  <div className="mt-2 text-center">
+                    <span className="text-4xl">{formData.icon}</span>
+                  </div>
+                )}
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
                 <select
