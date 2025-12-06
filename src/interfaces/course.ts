@@ -18,8 +18,12 @@ export interface ContentCourse {
   subject: string;
   subject_name?: string;
   program?: string;
+  program_name?: string; // Read-only field
   class_level?: string;
+  class_level_name?: string; // Read-only field
   curriculum?: string;
+  curriculum_name?: string; // Read-only field
+  exam_system?: string; // New field: "GCE_OL", "WAEC", "BACCALAUREAT", "NECO", etc.
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
   estimated_hours?: number;
   priority_order?: number;

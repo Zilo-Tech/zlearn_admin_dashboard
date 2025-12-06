@@ -280,6 +280,39 @@ export const educationApi = createApi({
       transformResponse: transformArrayResponse,
       providesTags: ['Curriculum'],
     }),
+    // Get curricula by program (public endpoint)
+    getCurriculaByProgram: builder.query({
+      queryFn: async (programId) => {
+        const token = localStorage.getItem('admin_access_token');
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        if (token) {
+          headers['authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(
+          `${API_BASE_URL}/education/programs/${programId}/curricula/`,
+          {
+            method: 'GET',
+            headers,
+          }
+        );
+        
+        if (!response.ok) {
+          return {
+            error: {
+              status: response.status,
+              data: await response.json().catch(() => ({ message: 'Failed to fetch curricula' })),
+            },
+          };
+        }
+        
+        const data = await response.json();
+        return { data: transformArrayResponse(data) };
+      },
+      providesTags: (result, error, programId) => [{ type: 'Curriculum', id: `program-${programId}` }],
+    }),
     getCurriculum: builder.query({
       query: (id) => `curricula/${id}/`,
       providesTags: (result, error, id) => [{ type: 'Curriculum', id }],
@@ -380,6 +413,7 @@ export const {
   useUpdateProgramMutation,
   useDeleteProgramMutation,
   useGetCurriculaQuery,
+  useGetCurriculaByProgramQuery,
   useGetCurriculumQuery,
   useCreateCurriculumMutation,
   useUpdateCurriculumMutation,
