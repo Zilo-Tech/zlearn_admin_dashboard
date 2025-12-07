@@ -18,6 +18,7 @@ import {
   useGetProgramsQuery,
   useGetClassLevelsQuery,
   useGetCurriculaQuery,
+  useGetCurriculaByProgramQuery,
 } from '../../store/api/educationApi';
 import type { ContentCourse } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
@@ -29,8 +30,26 @@ export const CoursesPage: React.FC = () => {
   const { data: subjectsData } = useGetSubjectsQuery();
   const { data: programsData } = useGetProgramsQuery({});
   const { data: classLevelsData } = useGetClassLevelsQuery({ ordering: 'order' });
-  // Fetch curricula with is_active filter
-  const { data: curriculaData, isLoading: isLoadingCurricula, error: curriculaError } = useGetCurriculaQuery({ is_active: true });
+  
+  // State to track selected program for curricula filtering
+  const [selectedProgramForCurricula, setSelectedProgramForCurricula] = useState<string>('');
+  
+  // Fetch curricula by program using the public endpoint
+  const { data: curriculaByProgramData, isLoading: isLoadingCurriculaByProgram, error: curriculaByProgramError } = useGetCurriculaByProgramQuery(
+    selectedProgramForCurricula,
+    { skip: !selectedProgramForCurricula } // Skip query if no program is selected
+  );
+  
+  // Fallback: Fetch all curricula when no program is selected (for editing existing courses)
+  const { data: allCurriculaData, isLoading: isLoadingAllCurricula } = useGetCurriculaQuery(
+    { is_active: true },
+    { skip: !!selectedProgramForCurricula } // Skip if program is selected (use program-specific endpoint)
+  );
+  
+  // Use program-specific curricula if available, otherwise use all curricula
+  const curriculaData = selectedProgramForCurricula ? curriculaByProgramData : allCurriculaData;
+  const isLoadingCurricula = selectedProgramForCurricula ? isLoadingCurriculaByProgram : isLoadingAllCurricula;
+  const curriculaError = selectedProgramForCurricula ? curriculaByProgramError : undefined;
   const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
   const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
   const [deleteCourse] = useDeleteCourseMutation();
@@ -83,6 +102,17 @@ export const CoursesPage: React.FC = () => {
     { value: 'XOF', label: 'West African CFA Franc', symbol: 'FCFA' },
   ];
 
+  const EXAM_SYSTEM_OPTIONS = [
+    { value: 'GCE_OL', label: 'GCE O-Level' },
+    { value: 'WAEC', label: 'WAEC' },
+    { value: 'BACCALAUREAT', label: 'Baccalauréat' },
+    { value: 'NECO', label: 'NECO' },
+    { value: 'JAMB', label: 'JAMB' },
+    { value: 'SAT', label: 'SAT' },
+    { value: 'ACT', label: 'ACT' },
+    { value: 'IB', label: 'International Baccalaureate' },
+  ];
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<ContentCourse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +125,7 @@ export const CoursesPage: React.FC = () => {
     program: '',
     class_level: '',
     curriculum: '',
+    exam_system: '',
     difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced' | 'expert',
     estimated_hours: 0,
     // Media files
@@ -125,17 +156,19 @@ export const CoursesPage: React.FC = () => {
     language: 'en',
   });
 
-  // Filter class levels based on selected program (cascade dropdown)
-  const filteredClassLevels = formData.program
-    ? allClassLevels.filter((c: any) => c.program === formData.program)
-    : allClassLevels;
+  // Filter class levels - when no program is selected, show all class levels
+  // When program is selected, class level is not used (program has its own class level)
+  const filteredClassLevels = allClassLevels;
 
-  // Filter curricula based on selected program (optional cascade)
-  // Show filtered list, but don't hide the selected curriculum even if it doesn't match the program
+  // Filter curricula based on selected program
+  // The API already filters by program, but we also include the currently selected curriculum
+  // to prevent it from disappearing from the dropdown
   const filteredCurricula = formData.program
     ? curricula.filter((c: any) => {
+        // Check if program is an object (from new API) or a string (from old API)
+        const programId = typeof c.program === 'object' ? c.program?.id : c.program;
         // Include if it matches the program OR if it's the currently selected curriculum
-        return c.program === formData.program || c.id === formData.curriculum;
+        return programId === formData.program || c.id === formData.curriculum;
       })
     : curricula;
 
@@ -147,15 +180,16 @@ export const CoursesPage: React.FC = () => {
         if ('data' in result && result.data) {
           const fullCourse = result.data;
           setEditingCourse(fullCourse);
-      setFormData({
+          setFormData({
             code: fullCourse.code,
-          title: fullCourse.title,
-          description: fullCourse.description,
+            title: fullCourse.title,
+            description: fullCourse.description,
           course_type: fullCourse.course_type,
           subject: fullCourse.subject ? String(fullCourse.subject) : '',
           program: fullCourse.program ? String(fullCourse.program) : '',
           class_level: fullCourse.class_level ? String(fullCourse.class_level) : '',
           curriculum: fullCourse.curriculum || '',
+          exam_system: fullCourse.exam_system || '',
           difficulty: fullCourse.difficulty,
           estimated_hours: fullCourse.estimated_hours || 0,
           thumbnail: null,
@@ -179,8 +213,10 @@ export const CoursesPage: React.FC = () => {
           enrollment_deadline: fullCourse.enrollment_deadline
             ? new Date(fullCourse.enrollment_deadline).toISOString().slice(0, 16)
             : '',
-            language: fullCourse.language || 'en',
-          });
+          language: fullCourse.language || 'en',
+        });
+        // Set the program filter for curricula query
+        setSelectedProgramForCurricula(fullCourse.program ? String(fullCourse.program) : '');
         } else {
           throw new Error('Failed to fetch course details');
         }
@@ -200,6 +236,7 @@ export const CoursesPage: React.FC = () => {
         program: '',
         class_level: '',
         curriculum: '',
+        exam_system: '',
         difficulty: 'beginner',
         estimated_hours: 0,
         thumbnail: null,
@@ -223,6 +260,8 @@ export const CoursesPage: React.FC = () => {
         enrollment_deadline: '',
         language: 'en',
       });
+      // Reset the program filter for curricula query
+      setSelectedProgramForCurricula('');
     }
     setError(null);
     setIsModalOpen(true);
@@ -255,6 +294,10 @@ export const CoursesPage: React.FC = () => {
       // Handle curriculum - can be UUID string
       if (data.curriculum && data.curriculum !== '') {
         formDataObj.append('curriculum', data.curriculum);
+      }
+      // Handle exam_system
+      if (data.exam_system && data.exam_system !== '') {
+        formDataObj.append('exam_system', data.exam_system);
       }
       formDataObj.append('estimated_hours', String(data.estimated_hours));
 
@@ -332,6 +375,8 @@ export const CoursesPage: React.FC = () => {
       description: data.description.trim(),
       // Handle curriculum - can be UUID string
       curriculum: data.curriculum && data.curriculum !== '' ? data.curriculum : null,
+      // Handle exam_system
+      exam_system: data.exam_system && data.exam_system !== '' ? data.exam_system : null,
       estimated_hours: data.estimated_hours,
       course_type: data.course_type,
       difficulty: data.difficulty,
@@ -401,6 +446,12 @@ export const CoursesPage: React.FC = () => {
     e.preventDefault();
     setError(null);
 
+    // Validation: If curriculum is set, program must be set
+    if (formData.curriculum && !formData.program) {
+      setError('Curriculum requires a program to be specified.');
+      return;
+    }
+
     try {
       const preparedData = prepareCourseData(formData);
       if (editingCourse) {
@@ -447,6 +498,26 @@ export const CoursesPage: React.FC = () => {
       key: 'subject_name',
       header: 'Subject',
       render: (course) => course.subject_name || 'N/A',
+    },
+    {
+      key: 'program_name',
+      header: 'Program',
+      render: (course) => course.program_name || 'N/A',
+    },
+    {
+      key: 'class_level_name',
+      header: 'Class Level',
+      render: (course) => course.class_level_name || 'N/A',
+    },
+    {
+      key: 'curriculum_name',
+      header: 'Curriculum',
+      render: (course) => course.curriculum_name || 'N/A',
+    },
+    {
+      key: 'exam_system',
+      header: 'Exam System',
+      render: (course) => course.exam_system || 'N/A',
     },
     {
       key: 'course_type',
@@ -582,23 +653,42 @@ export const CoursesPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Curriculum *
+                    Curriculum {formData.program ? '*' : ''}
                   </label>
                   <select
                     value={formData.curriculum}
                     onChange={(e) => setFormData({ ...formData, curriculum: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-                    required
+                    disabled={!formData.program}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    required={!!formData.program}
                   >
                     <option value="">
-                      {isLoadingCurricula ? 'Loading curricula...' : filteredCurricula.length === 0 ? 'No curricula available' : 'Select Curriculum'}
+                      {!formData.program 
+                        ? 'Select Program First' 
+                        : isLoadingCurricula 
+                          ? 'Loading curricula...' 
+                          : filteredCurricula.length === 0 
+                            ? 'No curricula available' 
+                            : 'Select Curriculum'}
                     </option>
-                    {filteredCurricula.map((cur: any) => (
-                      <option key={cur.id} value={cur.id}>
-                        {cur.name} {cur.program_name ? `(${cur.program_name})` : ''}
-                      </option>
-                    ))}
+                    {filteredCurricula.map((cur: any) => {
+                      // Format display name: curriculum name already includes year, just add semester if not "both"
+                      let displayName = cur.name || 'Unnamed Curriculum';
+                      if (cur.semester && cur.semester !== 'both') {
+                        // Capitalize first letter of semester
+                        const semesterDisplay = cur.semester.charAt(0).toUpperCase() + cur.semester.slice(1);
+                        displayName += ` (${semesterDisplay} Semester)`;
+                      }
+                      return (
+                        <option key={cur.id} value={cur.id}>
+                          {displayName}
+                        </option>
+                      );
+                    })}
                   </select>
+                  {formData.curriculum && !formData.program && (
+                    <p className="text-xs text-red-600 mt-1">Curriculum requires a program to be specified.</p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -611,17 +701,28 @@ export const CoursesPage: React.FC = () => {
                       const updatedFormData: any = {
                         ...formData,
                         program: newProgram,
-                        class_level: '', // Reset class level when program changes
+                        // Reset class level when program is selected (program has its own class level)
+                        // Keep class level if program is cleared (for general class level courses)
+                        class_level: newProgram ? '' : formData.class_level,
                       };
+                      
+                      // Update the program filter for curricula query
+                      setSelectedProgramForCurricula(newProgram);
                       
                       // Only reset curriculum if the currently selected curriculum doesn't belong to the new program
                       if (newProgram && formData.curriculum) {
                         const selectedCurriculum = curricula.find((c: any) => c.id === formData.curriculum);
-                        if (selectedCurriculum && selectedCurriculum.program !== newProgram) {
-                          // The selected curriculum doesn't belong to the new program, so clear it
-                          updatedFormData.curriculum = '';
+                        if (selectedCurriculum) {
+                          // Check if program is an object (from new API) or a string (from old API)
+                          const curriculumProgramId = typeof selectedCurriculum.program === 'object' 
+                            ? selectedCurriculum.program?.id 
+                            : selectedCurriculum.program;
+                          if (curriculumProgramId !== newProgram) {
+                            // The selected curriculum doesn't belong to the new program, so clear it
+                            updatedFormData.curriculum = '';
+                          }
+                          // If the curriculum does belong to the new program, keep it selected
                         }
-                        // If the curriculum does belong to the new program, keep it selected
                       } else if (!newProgram) {
                         // Program cleared, keep curriculum (it might not have a program filter)
                       }
@@ -640,21 +741,50 @@ export const CoursesPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Class Level
+                    Class Level {!formData.program ? '(Optional)' : ''}
                   </label>
                   <select
                     value={formData.class_level}
                     onChange={(e) => setFormData({ ...formData, class_level: e.target.value })}
-                    disabled={!formData.program}
+                    disabled={!!formData.program}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
-                    <option value="">{formData.program ? 'Select Class Level' : 'Select Program First'}</option>
-                    {filteredClassLevels.map((level: any) => (
+                    <option value="">
+                      {formData.program 
+                        ? 'Not available when program is selected' 
+                        : 'Select Class Level (Optional)'}
+                    </option>
+                    {!formData.program && filteredClassLevels.map((level: any) => (
                       <option key={level.id} value={level.id}>
                         {level.name} {level.age_range_start && level.age_range_end ? `(Ages ${level.age_range_start}-${level.age_range_end})` : ''}
                       </option>
                     ))}
                   </select>
+                  {formData.program && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Class level is determined by the selected program. Clear the program to set a general class level.
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Exam System
+                  </label>
+                  <select
+                    value={formData.exam_system}
+                    onChange={(e) => setFormData({ ...formData, exam_system: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  >
+                    <option value="">No Exam System</option>
+                    {EXAM_SYSTEM_OPTIONS.map((system) => (
+                      <option key={system.value} value={system.value}>
+                        {system.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Optional: For filtering courses by exam system</p>
                 </div>
               </div>
             </div>
