@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001/api';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `${API_BASE_URL}/education/admin/`,
@@ -290,7 +290,7 @@ export const educationApi = createApi({
         if (token) {
           headers['authorization'] = `Bearer ${token}`;
         }
-        
+
         const response = await fetch(
           `${API_BASE_URL}/education/programs/${programId}/curricula/`,
           {
@@ -298,7 +298,7 @@ export const educationApi = createApi({
             headers,
           }
         );
-        
+
         if (!response.ok) {
           return {
             error: {
@@ -307,7 +307,7 @@ export const educationApi = createApi({
             },
           };
         }
-        
+
         const data = await response.json();
         return { data: transformArrayResponse(data) };
       },

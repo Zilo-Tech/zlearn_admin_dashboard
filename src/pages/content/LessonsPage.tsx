@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { AdminLayout } from '../../components/layout';
 import { DataTable, Column } from '../../components/common/DataTable';
 import { Modal } from '../../components/common/Modal';
@@ -10,7 +10,13 @@ import {
   useCreateLessonMutation,
   useUpdateLessonMutation,
   useDeleteLessonMutation,
+  useGetSectionsQuery,
+  useCreateSectionMutation,
+  useUpdateSectionMutation,
+  useDeleteSectionMutation,
 } from '../../store/api/contentApi';
+import { SectionCreateModal, SectionEditModal } from './CourseDetailPageModals';
+import SectionsManagerView from '../../components/common/SectionsManagerView';
 import type { ContentLesson } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
 
@@ -41,6 +47,27 @@ export const LessonsPage: React.FC = () => {
     is_free: true,
     is_preview: false,
   });
+
+  // Section management state
+  const [managingSectionsForLesson, setManagingSectionsForLesson] = useState<ContentLesson | null>(null);
+  const [creatingSection, setCreatingSection] = useState(false);
+  const [editingSection, setEditingSection] = useState<any>(null);
+
+  const { data: sectionsData } = useGetSectionsQuery(
+    managingSectionsForLesson ? { lesson: managingSectionsForLesson.id } : {},
+    { skip: !managingSectionsForLesson }
+  );
+  const sections = Array.isArray(sectionsData) ? sectionsData : [];
+  const [createSection] = useCreateSectionMutation();
+  const [updateSection] = useUpdateSectionMutation();
+  const [deleteSection] = useDeleteSectionMutation();
+
+  // Calculate the next order value for new sections
+  const nextSectionOrder = useMemo(() => {
+    if (sections.length === 0) return 1;
+    const maxOrder = Math.max(...sections.map(s => s.order));
+    return maxOrder + 1;
+  }, [sections]);
 
   const handleOpenModal = (lesson?: ContentLesson) => {
     if (lesson) {
@@ -96,6 +123,50 @@ export const LessonsPage: React.FC = () => {
     }
   };
 
+  const handleManageSections = (lesson: ContentLesson) => {
+    setManagingSectionsForLesson(lesson);
+  };
+
+  const handleCloseManageSections = () => {
+    setManagingSectionsForLesson(null);
+    setCreatingSection(false);
+    setEditingSection(null);
+  };
+
+  const handleCreateSection = async (data: any) => {
+    try {
+      console.log('Creating section with data:', data);
+      console.log('Current sections:', sections);
+      console.log('Next order should be:', nextSectionOrder);
+      await createSection(data).unwrap();
+      setCreatingSection(false);
+    } catch (err: any) {
+      console.error('Section creation error:', err);
+      const errorMessage = err?.data?.non_field_errors?.[0] || err?.data?.message || 'Failed to create section';
+      setError(errorMessage);
+      alert(errorMessage); // Show alert so user sees the error immediately
+    }
+  };
+
+  const handleUpdateSection = async (data: any) => {
+    if (!editingSection) return;
+    try {
+      await updateSection({ id: editingSection.id, data }).unwrap();
+      setEditingSection(null);
+    } catch (err: any) {
+      setError(err?.data?.message || 'Failed to update section');
+    }
+  };
+
+  const handleDeleteSection = async (sectionId: string) => {
+    if (!window.confirm('Are you sure you want to delete this section?')) return;
+    try {
+      await deleteSection(sectionId).unwrap();
+    } catch (err: any) {
+      setError(err?.data?.message || 'Failed to delete section');
+    }
+  };
+
   const handleDelete = async (lesson: ContentLesson) => {
     if (window.confirm(`Are you sure you want to delete "${lesson.title}"?`)) {
       try {
@@ -132,11 +203,10 @@ export const LessonsPage: React.FC = () => {
       header: 'Preview',
       render: (lesson) => (
         <span
-          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-            lesson.is_preview
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 text-xs font-semibold rounded-full ${lesson.is_preview
+            ? 'bg-green-100 text-green-800'
+            : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {lesson.is_preview ? 'Yes' : 'No'}
         </span>
@@ -144,8 +214,18 @@ export const LessonsPage: React.FC = () => {
     },
     {
       key: 'section_count',
-      header: 'Sections',
-      render: (lesson) => lesson.section_count || 0,
+      header: 'Content',
+      render: (lesson) => (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">{lesson.section_count || 0} sections</span>
+          <button
+            onClick={() => handleManageSections(lesson)}
+            className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors"
+          >
+            Manage Content
+          </button>
+        </div>
+      ),
     },
   ];
 
@@ -317,6 +397,44 @@ export const LessonsPage: React.FC = () => {
             </div>
           </form>
         </Modal>
+
+        {/* Manage Sections Modal */}
+        {managingSectionsForLesson && (
+          <Modal
+            isOpen={true}
+            onClose={handleCloseManageSections}
+            title={`Manage Sections - ${managingSectionsForLesson.title}`}
+            size="xl"
+          >
+            <SectionsManagerView
+              lessonId={managingSectionsForLesson.id}
+              sections={sections}
+              isLoading={false}
+              onAddSection={() => setCreatingSection(true)}
+              onEditSection={setEditingSection}
+              onDeleteSection={handleDeleteSection}
+            />
+          </Modal>
+        )}
+
+        {/* Create Section Modal */}
+        {creatingSection && managingSectionsForLesson && (
+          <SectionCreateModal
+            lessonId={managingSectionsForLesson.id}
+            order={nextSectionOrder}
+            onClose={() => setCreatingSection(false)}
+            onSave={handleCreateSection}
+          />
+        )}
+
+        {/* Edit Section Modal */}
+        {editingSection && (
+          <SectionEditModal
+            section={editingSection}
+            onClose={() => setEditingSection(null)}
+            onSave={handleUpdateSection}
+          />
+        )}
       </div>
     </AdminLayout>
   );

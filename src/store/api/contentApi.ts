@@ -10,7 +10,7 @@ import type {
   LearningResource,
 } from '../../interfaces/course';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001/api';
 
 // Helper function to extract array from API response
 // Handles: direct arrays, paginated responses {results: []}, or nested {data: []}
@@ -210,7 +210,7 @@ export const contentApi = createApi({
       transformResponse: transformArrayResponse<ContentSection>,
       providesTags: ['ContentSection'],
     }),
-    createSection: builder.mutation<ContentSection, Partial<ContentSection>>({
+    createSection: builder.mutation<ContentSection, Partial<ContentSection> | FormData>({
       query: (data) => ({
         url: '/content/admin/sections/',
         method: 'POST',
@@ -218,7 +218,7 @@ export const contentApi = createApi({
       }),
       invalidatesTags: ['ContentSection', 'ContentLesson', 'ContentCourse'],
     }),
-    updateSection: builder.mutation<ContentSection, { id: string; data: Partial<ContentSection> }>({
+    updateSection: builder.mutation<ContentSection, { id: string; data: Partial<ContentSection> | FormData }>({
       query: ({ id, data }) => ({
         url: `/content/admin/sections/${id}/`,
         method: 'PATCH',

@@ -10,7 +10,7 @@ import type {
   LearningResource,
 } from '../../interfaces/course';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001/api';
 
 // Helper function to extract array from API response
 // Handles: direct arrays, paginated responses {results: []}, or nested {data: []}
@@ -175,20 +175,28 @@ export const coursesApi = createApi({
       transformResponse: transformArrayResponse<CourseLesson>,
       providesTags: ['CourseLesson'],
     }),
-    createCourseLesson: builder.mutation<CourseLesson, Partial<CourseLesson>>({
-      query: (data) => ({
-        url: '/courses/admin/lessons/',
-        method: 'POST',
-        body: data,
-      }),
+    createCourseLesson: builder.mutation<CourseLesson, Partial<CourseLesson> | FormData>({
+      query: (data) => {
+        const isFormData = data instanceof FormData;
+        return {
+          url: '/courses/admin/lessons/',
+          method: 'POST',
+          body: data,
+          ...(isFormData ? {} : {}),
+        };
+      },
       invalidatesTags: ['CourseLesson', 'CourseModule', 'Course'],
     }),
-    updateCourseLesson: builder.mutation<CourseLesson, { id: string; data: Partial<CourseLesson> }>({
-      query: ({ id, data }) => ({
-        url: `/courses/admin/lessons/${id}/`,
-        method: 'PATCH',
-        body: data,
-      }),
+    updateCourseLesson: builder.mutation<CourseLesson, { id: string; data: Partial<CourseLesson> | FormData }>({
+      query: ({ id, data }) => {
+        const isFormData = data instanceof FormData;
+        return {
+          url: `/courses/admin/lessons/${id}/`,
+          method: 'PATCH',
+          body: data,
+          ...(isFormData ? {} : {}),
+        };
+      },
       invalidatesTags: ['CourseLesson', 'Course'],
     }),
     deleteCourseLesson: builder.mutation<void, string>({
@@ -224,20 +232,28 @@ export const coursesApi = createApi({
       transformResponse: transformArrayResponse<CourseSection>,
       providesTags: ['CourseSection'],
     }),
-    createCourseSection: builder.mutation<CourseSection, Partial<CourseSection>>({
-      query: (data) => ({
-        url: '/courses/admin/sections/',
-        method: 'POST',
-        body: data,
-      }),
+    createCourseSection: builder.mutation<CourseSection, Partial<CourseSection> | FormData>({
+      query: (data) => {
+        const isFormData = data instanceof FormData;
+        return {
+          url: '/courses/admin/sections/',
+          method: 'POST',
+          body: data,
+          ...(isFormData ? {} : {}),
+        };
+      },
       invalidatesTags: ['CourseSection', 'CourseLesson', 'Course'],
     }),
-    updateCourseSection: builder.mutation<CourseSection, { id: string; data: Partial<CourseSection> }>({
-      query: ({ id, data }) => ({
-        url: `/courses/admin/sections/${id}/`,
-        method: 'PATCH',
-        body: data,
-      }),
+    updateCourseSection: builder.mutation<CourseSection, { id: string; data: Partial<CourseSection> | FormData }>({
+      query: ({ id, data }) => {
+        const isFormData = data instanceof FormData;
+        return {
+          url: `/courses/admin/sections/${id}/`,
+          method: 'PATCH',
+          body: data,
+          ...(isFormData ? {} : {}),
+        };
+      },
       invalidatesTags: ['CourseSection', 'Course'],
     }),
     deleteCourseSection: builder.mutation<void, string>({
