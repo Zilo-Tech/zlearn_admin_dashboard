@@ -275,8 +275,10 @@ export interface CourseLesson {
   lesson_type: string;
   order: number;
   content?: string;
+  text_content?: string;
   video_url?: string;
   video_file?: string;
+  audio_file?: string;
   duration_minutes?: number;
   video_qualities?: Record<string, string>;
   video_thumbnail?: string;

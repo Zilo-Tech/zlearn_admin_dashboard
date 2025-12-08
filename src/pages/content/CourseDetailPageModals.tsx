@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
-import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Upload } from 'lucide-react';
 import type { ContentModule, ContentLesson, ContentSection, QuizQuestion } from '../../interfaces/course';
 
 // Module Edit Modal
@@ -201,7 +201,7 @@ export const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave
 interface SectionEditModalProps {
   section: ContentSection;
   onClose: () => void;
-  onSave: (data: Partial<ContentSection>) => Promise<void>;
+  onSave: (data: Partial<ContentSection> | FormData) => Promise<void>;
 }
 
 export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, onClose }) => {
@@ -243,67 +243,89 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
     quiz_questions: (section.quiz_questions || []) as QuizQuestion[],
   });
 
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const submitData: any = {
-      title: formData.title,
-      description: formData.description,
-      section_type: formData.section_type,
-      order: formData.order,
-      estimated_time_minutes: formData.estimated_time_minutes,
-      is_required: formData.is_required,
-      is_downloadable: formData.is_downloadable,
-      is_published: formData.is_published,
-    };
+    const submitFormData = new FormData();
+
+    // Append basic fields
+    submitFormData.append('title', formData.title);
+    submitFormData.append('description', formData.description);
+    submitFormData.append('section_type', formData.section_type);
+    submitFormData.append('order', formData.order.toString());
+    submitFormData.append('estimated_time_minutes', formData.estimated_time_minutes.toString());
+    submitFormData.append('is_required', formData.is_required.toString());
+    submitFormData.append('is_downloadable', formData.is_downloadable.toString());
+    submitFormData.append('is_published', formData.is_published.toString());
 
     // Add type-specific fields
     if (formData.section_type === 'text') {
-      submitData.text_content = formData.text_content;
+      submitFormData.append('text_content', formData.text_content);
     } else if (formData.section_type === 'video') {
-      submitData.video_url = formData.video_url;
+      submitFormData.append('video_url', formData.video_url);
+      if (videoFile) {
+        submitFormData.append('video_file', videoFile);
+      }
       if (formData.video_qualities) {
         try {
-          submitData.video_qualities = JSON.parse(formData.video_qualities);
+          // Validate JSON but send as string if API expects JSON string or object
+          // For FormData, we usually send JSON as string or individual fields
+          // Assuming backend handles JSON string for these fields
+          JSON.parse(formData.video_qualities);
+          submitFormData.append('video_qualities', formData.video_qualities);
         } catch {
-          submitData.video_qualities = {};
+          // ignore invalid JSON
         }
       }
       if (formData.video_subtitles) {
         try {
-          submitData.video_subtitles = JSON.parse(formData.video_subtitles);
+          JSON.parse(formData.video_subtitles);
+          submitFormData.append('video_subtitles', formData.video_subtitles);
         } catch {
-          submitData.video_subtitles = [];
+          // ignore
         }
       }
-      submitData.video_duration_seconds = formData.video_duration_seconds;
+      submitFormData.append('video_duration_seconds', formData.video_duration_seconds.toString());
     } else if (formData.section_type === 'image') {
-      submitData.image_url = formData.image_url;
-      submitData.image_caption = formData.image_caption;
+      submitFormData.append('image_url', formData.image_url);
+      submitFormData.append('image_caption', formData.image_caption);
+      if (imageFile) {
+        submitFormData.append('image_file', imageFile);
+      }
     } else if (formData.section_type === 'audio') {
-      submitData.audio_url = formData.audio_url;
-      submitData.audio_duration_seconds = formData.audio_duration_seconds;
+      submitFormData.append('audio_url', formData.audio_url);
+      submitFormData.append('audio_duration_seconds', formData.audio_duration_seconds.toString());
+      if (audioFile) {
+        submitFormData.append('audio_file', audioFile);
+      }
     } else if (formData.section_type === 'code') {
-      submitData.code_content = formData.code_content;
-      submitData.code_language = formData.code_language;
+      submitFormData.append('code_content', formData.code_content);
+      submitFormData.append('code_language', formData.code_language);
     } else if (formData.section_type === 'file') {
-      submitData.file_url = formData.file_url;
-      submitData.file_type = formData.file_type;
+      submitFormData.append('file_url', formData.file_url);
+      submitFormData.append('file_type', formData.file_type);
+      if (documentFile) {
+        submitFormData.append('file_resource', documentFile);
+      }
     } else if (formData.section_type === 'pdf') {
-      submitData.pdf_url = formData.pdf_url;
+      submitFormData.append('pdf_url', formData.pdf_url);
+      if (documentFile) {
+        submitFormData.append('file_resource', documentFile);
+      }
     } else if (formData.section_type === 'embed') {
-      submitData.embed_url = formData.embed_url;
-      submitData.embed_code = formData.embed_code;
+      submitFormData.append('embed_url', formData.embed_url);
+      submitFormData.append('embed_code', formData.embed_code);
     } else if (formData.section_type === 'combined') {
       if (formData.combined_content) {
-        try {
-          submitData.combined_content = JSON.parse(formData.combined_content);
-        } catch {
-          submitData.combined_content = {};
-        }
+        submitFormData.append('combined_content', formData.combined_content);
       }
     } else if (formData.section_type === 'quiz') {
-      // Transform quiz questions for submission (remove id if it's a new question)
-      submitData.quiz_questions = formData.quiz_questions.map((q, qIndex) => ({
+      // Transform quiz questions for submission
+      const questions = formData.quiz_questions.map((q, qIndex) => ({
         text: q.text,
         explanation: q.explanation || '',
         order: q.order || qIndex + 1,
@@ -314,9 +336,16 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
           order: opt.order || oIndex + 1,
         })),
       }));
+      submitFormData.append('quiz_questions', JSON.stringify(questions));
+    } else if (
+      formData.section_type === 'past_questions' ||
+      formData.section_type === 'exam_tips' ||
+      formData.section_type === 'mock_exam'
+    ) {
+      submitFormData.append('text_content', formData.text_content);
     }
 
-    await onSave(submitData);
+    await onSave(submitFormData);
   };
 
   const addQuizQuestion = () => {
@@ -492,6 +521,16 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
               placeholder="https://example.com/video.mp4"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload Video File</label>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+              <p className="text-xs text-gray-500">Uploading a file will override the URL.</p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Video Qualities (JSON)
@@ -525,7 +564,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               }
             />
             <p className="text-xs text-gray-500">
-              Note: Video file uploads are handled separately. Use video_url for external videos.
+              Note: Use video_url for external videos or upload a file.
             </p>
           </div>
         )}
@@ -539,6 +578,15 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
               placeholder="https://example.com/image.jpg"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload Image File</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <Input
               label="Image Caption"
               value={formData.image_caption}
@@ -546,7 +594,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               placeholder="Caption for the image"
             />
             <p className="text-xs text-gray-500">
-              Note: Image file uploads are handled separately. Use image_url for external images.
+              Note: Use image_url for external images or upload a file.
             </p>
           </div>
         )}
@@ -560,6 +608,15 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               onChange={(e) => setFormData({ ...formData, audio_url: e.target.value })}
               placeholder="https://example.com/audio.mp3"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload Audio File</label>
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <Input
               label="Audio Duration (Seconds)"
               type="number"
@@ -569,7 +626,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               }
             />
             <p className="text-xs text-gray-500">
-              Note: Audio file uploads are handled separately. Use audio_url for external audio.
+              Note: Use audio_url for external audio or upload a file.
             </p>
           </div>
         )}
@@ -605,6 +662,14 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
               placeholder="https://example.com/file.pdf"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload File</label>
+              <input
+                type="file"
+                onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <Input
               label="File Type"
               value={formData.file_type}
@@ -612,7 +677,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               placeholder="pdf, docx, xlsx, etc."
             />
             <p className="text-xs text-gray-500">
-              Note: File uploads are handled separately. Use file_url for external files.
+              Note: Use file_url for external files or upload a file.
             </p>
           </div>
         )}
@@ -626,8 +691,17 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
               onChange={(e) => setFormData({ ...formData, pdf_url: e.target.value })}
               placeholder="https://example.com/document.pdf"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload PDF File</label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <p className="text-xs text-gray-500">
-              Note: PDF file uploads are handled separately. Use pdf_url for external PDFs.
+              Note: Use pdf_url for external PDFs or upload a file.
             </p>
           </div>
         )}
@@ -812,17 +886,17 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onS
         {(formData.section_type === 'past_questions' ||
           formData.section_type === 'exam_tips' ||
           formData.section_type === 'mock_exam') && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-            <textarea
-              value={formData.text_content}
-              onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-              rows={6}
-              placeholder="Enter content here..."
-            />
-          </div>
-        )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+              <textarea
+                value={formData.text_content}
+                onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                rows={6}
+                placeholder="Enter content here..."
+              />
+            </div>
+          )}
 
         <div className="flex gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
@@ -1075,7 +1149,7 @@ interface SectionCreateModalProps {
   lessonId: string;
   order: number;
   onClose: () => void;
-  onSave: (data: Partial<ContentSection>) => Promise<void>;
+  onSave: (data: Partial<ContentSection> | FormData) => Promise<void>;
 }
 
 export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
@@ -1123,74 +1197,93 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
     quiz_questions: [] as QuizQuestion[],
   });
 
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const submitData: any = {
-      lesson: formData.lesson,
-      title: formData.title,
-      description: formData.description,
-      section_type: formData.section_type,
-      order: formData.order,
-      estimated_time_minutes: formData.estimated_time_minutes,
-      is_required: formData.is_required,
-      is_downloadable: formData.is_downloadable,
-      is_published: formData.is_published,
-    };
+    const submitFormData = new FormData();
+
+    // Append basic fields
+    submitFormData.append('lesson', formData.lesson);
+    submitFormData.append('title', formData.title);
+    submitFormData.append('description', formData.description);
+    submitFormData.append('section_type', formData.section_type);
+    submitFormData.append('order', formData.order.toString());
+    submitFormData.append('estimated_time_minutes', formData.estimated_time_minutes.toString());
+    submitFormData.append('is_required', formData.is_required.toString());
+    submitFormData.append('is_downloadable', formData.is_downloadable.toString());
+    submitFormData.append('is_published', formData.is_published.toString());
 
     // Add type-specific fields
     if (formData.section_type === 'text') {
-      submitData.text_content = formData.text_content;
+      submitFormData.append('text_content', formData.text_content);
     } else if (formData.section_type === 'video') {
-      submitData.video_url = formData.video_url;
+      submitFormData.append('video_url', formData.video_url);
+      if (videoFile) {
+        submitFormData.append('video_file', videoFile);
+      }
       if (formData.video_qualities) {
         try {
-          submitData.video_qualities = JSON.parse(formData.video_qualities);
+          JSON.parse(formData.video_qualities);
+          submitFormData.append('video_qualities', formData.video_qualities);
         } catch {
-          submitData.video_qualities = {};
+          // ignore
         }
       }
       if (formData.video_subtitles) {
         try {
-          submitData.video_subtitles = JSON.parse(formData.video_subtitles);
+          JSON.parse(formData.video_subtitles);
+          submitFormData.append('video_subtitles', formData.video_subtitles);
         } catch {
-          submitData.video_subtitles = [];
+          // ignore
         }
       }
-      submitData.video_duration_seconds = formData.video_duration_seconds;
+      submitFormData.append('video_duration_seconds', formData.video_duration_seconds.toString());
     } else if (formData.section_type === 'image') {
-      submitData.image_url = formData.image_url;
-      submitData.image_caption = formData.image_caption;
+      submitFormData.append('image_url', formData.image_url);
+      submitFormData.append('image_caption', formData.image_caption);
+      if (imageFile) {
+        submitFormData.append('image_file', imageFile);
+      }
     } else if (formData.section_type === 'audio') {
-      submitData.audio_url = formData.audio_url;
-      submitData.audio_duration_seconds = formData.audio_duration_seconds;
+      submitFormData.append('audio_url', formData.audio_url);
+      submitFormData.append('audio_duration_seconds', formData.audio_duration_seconds.toString());
+      if (audioFile) {
+        submitFormData.append('audio_file', audioFile);
+      }
     } else if (formData.section_type === 'code') {
-      submitData.code_content = formData.code_content;
-      submitData.code_language = formData.code_language;
+      submitFormData.append('code_content', formData.code_content);
+      submitFormData.append('code_language', formData.code_language);
     } else if (formData.section_type === 'file') {
-      submitData.file_url = formData.file_url;
-      submitData.file_type = formData.file_type;
+      submitFormData.append('file_url', formData.file_url);
+      submitFormData.append('file_type', formData.file_type);
+      if (documentFile) {
+        submitFormData.append('file_resource', documentFile);
+      }
     } else if (formData.section_type === 'pdf') {
-      submitData.pdf_url = formData.pdf_url;
+      submitFormData.append('pdf_url', formData.pdf_url);
+      if (documentFile) {
+        submitFormData.append('file_resource', documentFile);
+      }
     } else if (formData.section_type === 'embed') {
-      submitData.embed_url = formData.embed_url;
-      submitData.embed_code = formData.embed_code;
+      submitFormData.append('embed_url', formData.embed_url);
+      submitFormData.append('embed_code', formData.embed_code);
     } else if (formData.section_type === 'combined') {
       if (formData.combined_content) {
-        try {
-          submitData.combined_content = JSON.parse(formData.combined_content);
-        } catch {
-          submitData.combined_content = {};
-        }
+        submitFormData.append('combined_content', formData.combined_content);
       }
     } else if (
       formData.section_type === 'past_questions' ||
       formData.section_type === 'exam_tips' ||
       formData.section_type === 'mock_exam'
     ) {
-      submitData.text_content = formData.text_content;
+      submitFormData.append('text_content', formData.text_content);
     } else if (formData.section_type === 'quiz') {
-      // Transform quiz questions for submission (remove id if it's a new question)
-      submitData.quiz_questions = formData.quiz_questions.map((q, qIndex) => ({
+      // Transform quiz questions for submission
+      const questions = formData.quiz_questions.map((q, qIndex) => ({
         text: q.text,
         explanation: q.explanation || '',
         order: q.order || qIndex + 1,
@@ -1201,9 +1294,10 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
           order: opt.order || oIndex + 1,
         })),
       }));
+      submitFormData.append('quiz_questions', JSON.stringify(questions));
     }
 
-    await onSave(submitData);
+    await onSave(submitFormData);
   };
 
   const addQuizQuestion = () => {
@@ -1378,6 +1472,16 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
               placeholder="https://example.com/video.mp4"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload Video File</label>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+              <p className="text-xs text-gray-500">Uploading a file will override the URL.</p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Video Qualities (JSON)
@@ -1411,7 +1515,7 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               }
             />
             <p className="text-xs text-gray-500">
-              Note: Video file uploads are handled separately. Use video_url for external videos.
+              Note: Use video_url for external videos or upload a file.
             </p>
           </div>
         )}
@@ -1425,6 +1529,15 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
               placeholder="https://example.com/image.jpg"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload Image File</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <Input
               label="Image Caption"
               value={formData.image_caption}
@@ -1432,7 +1545,7 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               placeholder="Caption for the image"
             />
             <p className="text-xs text-gray-500">
-              Note: Image file uploads are handled separately. Use image_url for external images.
+              Note: Use image_url for external images or upload a file.
             </p>
           </div>
         )}
@@ -1446,6 +1559,15 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               onChange={(e) => setFormData({ ...formData, audio_url: e.target.value })}
               placeholder="https://example.com/audio.mp3"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload Audio File</label>
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <Input
               label="Audio Duration (Seconds)"
               type="number"
@@ -1455,7 +1577,7 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               }
             />
             <p className="text-xs text-gray-500">
-              Note: Audio file uploads are handled separately. Use audio_url for external audio.
+              Note: Use audio_url for external audio or upload a file.
             </p>
           </div>
         )}
@@ -1491,6 +1613,14 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
               placeholder="https://example.com/file.pdf"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload File</label>
+              <input
+                type="file"
+                onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <Input
               label="File Type"
               value={formData.file_type}
@@ -1498,7 +1628,7 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               placeholder="pdf, docx, xlsx, etc."
             />
             <p className="text-xs text-gray-500">
-              Note: File uploads are handled separately. Use file_url for external files.
+              Note: Use file_url for external files or upload a file.
             </p>
           </div>
         )}
@@ -1512,8 +1642,17 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               onChange={(e) => setFormData({ ...formData, pdf_url: e.target.value })}
               placeholder="https://example.com/document.pdf"
             />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Upload PDF File</label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#446D6D]/10 file:text-[#446D6D] hover:file:bg-[#446D6D]/20"
+              />
+            </div>
             <p className="text-xs text-gray-500">
-              Note: PDF file uploads are handled separately. Use pdf_url for external PDFs.
+              Note: Use pdf_url for external PDFs or upload a file.
             </p>
           </div>
         )}
@@ -1698,17 +1837,17 @@ export const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
         {(formData.section_type === 'past_questions' ||
           formData.section_type === 'exam_tips' ||
           formData.section_type === 'mock_exam') && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-            <textarea
-              value={formData.text_content}
-              onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
-              rows={6}
-              placeholder="Enter content here..."
-            />
-          </div>
-        )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+              <textarea
+                value={formData.text_content}
+                onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                rows={6}
+                placeholder="Enter content here..."
+              />
+            </div>
+          )}
 
         <div className="flex gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
