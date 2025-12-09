@@ -28,6 +28,7 @@ const SECTION_TYPES = [
 const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, section, order }) => {
     const [createSection, { isLoading: isCreating }] = useCreateCourseSectionMutation();
     const [updateSection, { isLoading: isUpdating }] = useUpdateCourseSectionMutation();
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState<{
         title: string;
@@ -148,6 +149,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, se
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const submissionData = new FormData();
             submissionData.append('lesson', lessonId);
@@ -197,10 +199,12 @@ const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, se
         } catch (err: any) {
             console.error('Failed to save section:', err);
             setError(err?.data?.message || 'Failed to save section. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const isLoading = isCreating || isUpdating;
+    const isLoading = loading || isCreating || isUpdating;
 
     return (
         <Modal
@@ -456,10 +460,10 @@ const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, se
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                    <Button type="submit" fullWidth disabled={isLoading || !formData.title}>
-                        {isLoading ? 'Saving...' : (section ? 'Update Section' : 'Create Section')}
+                    <Button type="submit" fullWidth loading={isLoading} disabled={isLoading || !formData.title}>
+                        {section ? 'Update Section' : 'Create Section'}
                     </Button>
-                    <Button type="button" variant="outline" onClick={onClose} fullWidth>
+                    <Button type="button" variant="outline" onClick={onClose} fullWidth loading={isLoading} disabled={isLoading}>
                         Cancel
                     </Button>
                 </div>

@@ -84,52 +84,52 @@ export const CoursesPage: React.FC = () => {
           setEditingCourse(fullCourse);
           setFormData({
             title: fullCourse.title,
-          description: fullCourse.description,
-          short_description: fullCourse.short_description || '',
-          course_code: fullCourse.course_code || '',
-          category: fullCourse.category ? String(fullCourse.category) : '',
-          level: fullCourse.level,
-          status: fullCourse.status,
-          thumbnail: null,
-          banner_image: null,
-          video_intro: null,
-          price: fullCourse.price,
-          currency: fullCourse.currency,
-          is_free: fullCourse.is_free,
-          discount_price: fullCourse.discount_price || '',
-          discount_start_date: fullCourse.discount_start_date
-            ? new Date(fullCourse.discount_start_date).toISOString().slice(0, 16)
-            : '',
-          discount_end_date: fullCourse.discount_end_date
-            ? new Date(fullCourse.discount_end_date).toISOString().slice(0, 16)
-            : '',
-          duration_hours: fullCourse.duration_hours || 0,
-          requirements: fullCourse.requirements || '',
-          learning_outcomes: fullCourse.learning_outcomes || '',
-          language: fullCourse.language || 'en',
-          tags: fullCourse.tags || [],
-          featured: fullCourse.featured,
-          featured_order: fullCourse.featured_order || 0,
-          target_audience: fullCourse.target_audience || '',
-          max_students: fullCourse.max_students ? String(fullCourse.max_students) : '',
-          enrollment_deadline: fullCourse.enrollment_deadline
-            ? new Date(fullCourse.enrollment_deadline).toISOString().slice(0, 16)
-            : '',
-          offers_certificate: fullCourse.offers_certificate,
-          certificate_requirements: (() => {
-            const certReqs = fullCourse.certificate_requirements;
-            return {
-              min_completion_percentage: certReqs?.min_completion_percentage
-                ? String(certReqs.min_completion_percentage)
-                : '',
-              min_assessment_score: certReqs?.min_assessment_score
-                ? String(certReqs.min_assessment_score)
-                : '',
-              min_time_spent_hours: certReqs?.min_time_spent_hours
-                ? String(certReqs.min_time_spent_hours)
-                : '',
-            };
-          })(),
+            description: fullCourse.description,
+            short_description: fullCourse.short_description || '',
+            course_code: fullCourse.course_code || '',
+            category: fullCourse.category ? String(fullCourse.category) : '',
+            level: fullCourse.level,
+            status: fullCourse.status,
+            thumbnail: null,
+            banner_image: null,
+            video_intro: null,
+            price: fullCourse.price,
+            currency: fullCourse.currency,
+            is_free: fullCourse.is_free,
+            discount_price: fullCourse.discount_price || '',
+            discount_start_date: fullCourse.discount_start_date
+              ? new Date(fullCourse.discount_start_date).toISOString().slice(0, 16)
+              : '',
+            discount_end_date: fullCourse.discount_end_date
+              ? new Date(fullCourse.discount_end_date).toISOString().slice(0, 16)
+              : '',
+            duration_hours: fullCourse.duration_hours || 0,
+            requirements: fullCourse.requirements || '',
+            learning_outcomes: fullCourse.learning_outcomes || '',
+            language: fullCourse.language || 'en',
+            tags: fullCourse.tags || [],
+            featured: fullCourse.featured,
+            featured_order: fullCourse.featured_order || 0,
+            target_audience: fullCourse.target_audience || '',
+            max_students: fullCourse.max_students ? String(fullCourse.max_students) : '',
+            enrollment_deadline: fullCourse.enrollment_deadline
+              ? new Date(fullCourse.enrollment_deadline).toISOString().slice(0, 16)
+              : '',
+            offers_certificate: fullCourse.offers_certificate,
+            certificate_requirements: (() => {
+              const certReqs = fullCourse.certificate_requirements;
+              return {
+                min_completion_percentage: certReqs?.min_completion_percentage
+                  ? String(certReqs.min_completion_percentage)
+                  : '',
+                min_assessment_score: certReqs?.min_assessment_score
+                  ? String(certReqs.min_assessment_score)
+                  : '',
+                min_time_spent_hours: certReqs?.min_time_spent_hours
+                  ? String(certReqs.min_time_spent_hours)
+                  : '',
+              };
+            })(),
           });
         } else {
           throw new Error('Failed to fetch course details');
@@ -303,7 +303,7 @@ export const CoursesPage: React.FC = () => {
 
     // For updates, include all fields (even empty ones) so they can be cleared
     // For creates, only include fields with values
-    
+
     // Optional text fields - always include for updates
     if (isUpdate) {
       payload.short_description = data.short_description?.trim() || '';
@@ -341,11 +341,11 @@ export const CoursesPage: React.FC = () => {
     payload.price = parseFloat(data.price) || 0.00;
     payload.currency = data.currency || 'USD';
     payload.is_free = data.is_free ?? true;
-    
+
     // Discount fields - always include for updates
     if (isUpdate) {
-      payload.discount_price = data.discount_price?.trim() 
-        ? parseFloat(data.discount_price) 
+      payload.discount_price = data.discount_price?.trim()
+        ? parseFloat(data.discount_price)
         : null;
       payload.discount_start_date = data.discount_start_date
         ? new Date(data.discount_start_date).toISOString()
@@ -388,7 +388,7 @@ export const CoursesPage: React.FC = () => {
     payload.tags = data.tags && data.tags.length > 0 ? data.tags : [];
     payload.featured = data.featured ?? false;
     payload.featured_order = parseInt(String(data.featured_order), 10) || 0;
-    
+
     // Target audience - always include for updates
     if (isUpdate) {
       payload.target_audience = data.target_audience?.trim() || '';
@@ -516,13 +516,12 @@ export const CoursesPage: React.FC = () => {
       header: 'Status',
       render: (course) => (
         <span
-          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-            course.status === 'published'
+          className={`px-2 py-1 text-xs font-semibold rounded-full ${course.status === 'published'
               ? 'bg-green-100 text-green-800'
               : course.status === 'draft'
-              ? 'bg-gray-100 text-gray-800'
-              : 'bg-red-100 text-red-800'
-          }`}
+                ? 'bg-gray-100 text-gray-800'
+                : 'bg-red-100 text-red-800'
+            }`}
         >
           {course.status}
         </span>
@@ -792,7 +791,7 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, discount_start_date: e.target.value })
                   }
-                  disabled={formData.is_free || !formData.discount_price}
+                  disabled={formData.is_free}
                 />
                 <Input
                   label="Discount End Date"
@@ -801,7 +800,7 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, discount_end_date: e.target.value })
                   }
-                  disabled={formData.is_free || !formData.discount_price}
+                  disabled={formData.is_free}
                 />
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -1003,4 +1002,3 @@ export const CoursesPage: React.FC = () => {
     </AdminLayout>
   );
 };
-
