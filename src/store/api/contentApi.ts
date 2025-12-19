@@ -95,7 +95,7 @@ export const contentApi = createApi({
       }),
       invalidatesTags: ['ContentCourse'],
     }),
-    updateCourse: builder.mutation<ContentCourse, { id: string; data: Partial<ContentCourse> }>({
+    updateCourse: builder.mutation<ContentCourse, { id: string; data: Partial<ContentCourse> | FormData }>({
       query: ({ id, data }) => ({
         url: `/content/admin/courses/${id}/`,
         method: 'PATCH',

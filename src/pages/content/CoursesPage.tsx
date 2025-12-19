@@ -296,9 +296,7 @@ export const CoursesPage: React.FC = () => {
         formDataObj.append('curriculum', data.curriculum);
       }
       // Handle exam_system
-      if (data.exam_system && data.exam_system !== '') {
-        formDataObj.append('exam_system', data.exam_system);
-      }
+      formDataObj.append('exam_system', data.exam_system || '');
       formDataObj.append('estimated_hours', String(data.estimated_hours));
 
       // Optional fields
@@ -376,7 +374,7 @@ export const CoursesPage: React.FC = () => {
       // Handle curriculum - can be UUID string
       curriculum: data.curriculum && data.curriculum !== '' ? data.curriculum : null,
       // Handle exam_system
-      exam_system: data.exam_system && data.exam_system !== '' ? data.exam_system : null,
+      exam_system: data.exam_system || '',
       estimated_hours: data.estimated_hours,
       course_type: data.course_type,
       difficulty: data.difficulty,
@@ -461,17 +459,27 @@ export const CoursesPage: React.FC = () => {
       }
       handleCloseModal();
     } catch (err: any) {
-      if (err?.data) {
+      const errorData = err?.data?.error || err?.data;
+      if (errorData) {
         const errorMessages: string[] = [];
-        Object.keys(err.data).forEach((key) => {
-          if (Array.isArray(err.data[key])) {
-            errorMessages.push(`${key}: ${err.data[key].join(', ')}`);
-          } else if (typeof err.data[key] === 'string') {
-            errorMessages.push(err.data[key]);
-          } else {
-            errorMessages.push(`${key}: ${JSON.stringify(err.data[key])}`);
-          }
-        });
+
+        // Handle structured details if available
+        const details = errorData.details || errorData;
+
+        if (typeof details === 'object' && details !== null) {
+          Object.keys(details).forEach((key) => {
+            if (Array.isArray(details[key])) {
+              errorMessages.push(`${key}: ${details[key].join(', ')}`);
+            } else if (typeof details[key] === 'string') {
+              errorMessages.push(details[key]);
+            } else {
+              errorMessages.push(`${key}: ${JSON.stringify(details[key])}`);
+            }
+          });
+        } else if (typeof errorData.message === 'string') {
+          errorMessages.push(errorData.message);
+        }
+
         setError(errorMessages.join(' | ') || 'An error occurred');
       } else {
         setError(err?.message || 'An error occurred');
@@ -543,8 +551,8 @@ export const CoursesPage: React.FC = () => {
       render: (course) => (
         <span
           className={`px-2 py-1 text-xs font-semibold rounded-full ${course.is_published
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
+            ? 'bg-green-100 text-green-800'
+            : 'bg-gray-100 text-gray-800'
             }`}
         >
           {course.is_published ? 'Published' : 'Draft'}
