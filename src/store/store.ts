@@ -3,18 +3,21 @@ import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import { contentApi } from './api/contentApi';
 import { coursesApi } from './api/coursesApi';
 import { educationApi } from './api/educationApi';
+import { aiCourseGenerationApi } from './api/aiCourseGenerationApi';
 
 export const store = configureStore({
   reducer: {
     [contentApi.reducerPath]: contentApi.reducer,
     [coursesApi.reducerPath]: coursesApi.reducer,
     [educationApi.reducerPath]: educationApi.reducer,
+    [aiCourseGenerationApi.reducerPath]: aiCourseGenerationApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       contentApi.middleware,
       coursesApi.middleware,
-      educationApi.middleware
+      educationApi.middleware,
+      aiCourseGenerationApi.middleware
     ),
 });
 

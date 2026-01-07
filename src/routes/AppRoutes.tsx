@@ -3,7 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { Loading } from '../components/common';
-import { AdminLogin, AdminDashboard } from '../pages';
+import { AdminLogin, AdminDashboard, AICourseGenerationPage, SessionsListPage } from '../pages';
 import {
   SubjectsPage,
   CoursesPage as ContentCoursesPage,
@@ -80,6 +80,22 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/ai/generate-course"
+        element={
+          <ProtectedRoute>
+            <AICourseGenerationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/ai/generate-course/sessions"
+        element={
+          <ProtectedRoute>
+            <SessionsListPage />
           </ProtectedRoute>
         }
       />
