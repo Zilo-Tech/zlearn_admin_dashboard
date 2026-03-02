@@ -1,12 +1,17 @@
 {
   "_comment": "Professional Course Import Example - Python Developer Bootcamp",
   "_documentation": "See DEPENDENCY_HANDLING.md for dependency resolution details",
+  "_IMPORTANT": "The 'course_type' field determines what type of course is created. Use: 'professional', 'academic', or 'exam_prep'",
   
   "course": {
     "title": "Complete Python Developer Bootcamp",
     "short_description": "Master Python from beginner to professional in 8 weeks with hands-on projects",
     "description": "Transform into a job-ready Python developer with hands-on projects and real-world applications.\n\n✅ What You'll Learn:\n- Python fundamentals to advanced\n- Web development with Django\n- RESTful API development\n- Database design & integration\n- Deployment & DevOps basics\n\n👥 Who This Is For:\n- Career changers new to programming\n- Developers learning Python\n- Anyone building a tech career\n\n🎓 What You'll Build:\n- 5 portfolio projects\n- Complete e-commerce application\n- REST API service\n- Deployment to production",
     "course_code": "PY-DEV-2026-001",
+    
+    "_comment_course_type": "REQUIRED! Determines the course type. Options: 'professional', 'academic', 'exam_prep'",
+    "course_type": "professional",
+    
     "level": "beginner",
     "status": "draft",
     
