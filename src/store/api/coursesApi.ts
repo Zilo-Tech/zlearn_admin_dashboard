@@ -10,7 +10,7 @@ import type {
   LearningResource,
 } from '../../interfaces/course';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 // Helper function to extract array from API response
 // Handles: direct arrays, paginated responses {results: []}, or nested {data: []}
@@ -122,6 +122,21 @@ export const coursesApi = createApi({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Course'],
+    }),
+    importCourse: builder.mutation<
+      { message: string; course: { id: string; title: string; course_code: string; status: string; price?: number; course_type?: string }; stats: { modules: number; lessons: number; sections: number; quizzes: number; resources: number } },
+      File
+    >({
+      query: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: '/courses/admin/courses/import_course/',
+          method: 'POST',
+          body: formData,
+        };
+      },
       invalidatesTags: ['Course'],
     }),
 
@@ -393,6 +408,7 @@ export const {
   useUpdateCourseMutation,
   useDeleteCourseMutation,
   useDuplicateCourseMutation,
+  useImportCourseMutation,
   useGetCourseModulesQuery,
   useCreateCourseModuleMutation,
   useUpdateCourseModuleMutation,

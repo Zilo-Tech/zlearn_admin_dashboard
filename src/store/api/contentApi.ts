@@ -10,7 +10,7 @@ import type {
   LearningResource,
 } from '../../interfaces/course';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 // Helper function to extract array from API response
 // Handles: direct arrays, paginated responses {results: []}, or nested {data: []}

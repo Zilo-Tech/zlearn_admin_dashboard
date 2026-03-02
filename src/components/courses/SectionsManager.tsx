@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useGetCourseSectionsQuery, useDeleteCourseSectionMutation } from '../../store/api/coursesApi';
 import { CourseSection } from '../../interfaces/course';
-import SectionModal from './SectionModal';
+import { SectionModal } from './SectionModal';
 import SectionsManagerView from '../common/SectionsManagerView';
 
 interface SectionsManagerProps {
     lessonId: string;
 }
 
-const SectionsManager: React.FC<SectionsManagerProps> = ({ lessonId }) => {
+export const SectionsManager: React.FC<SectionsManagerProps> = ({ lessonId }) => {
     const { data: sections, isLoading, error } = useGetCourseSectionsQuery({ lesson: lessonId });
     const [deleteSection] = useDeleteCourseSectionMutation();
 
@@ -66,4 +66,3 @@ const SectionsManager: React.FC<SectionsManagerProps> = ({ lessonId }) => {
     );
 };
 
-export default SectionsManager;

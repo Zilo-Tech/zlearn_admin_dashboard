@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
-import { Plus, Trash2, ChevronDown, ChevronUp, Upload } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ContentModule, ContentLesson, ContentSection, QuizQuestion } from '../../interfaces/course';
 
 // Module Edit Modal

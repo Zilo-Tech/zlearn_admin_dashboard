@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Plus,
-    Edit2,
-    Trash2,
     GripVertical,
     Type,
     Video,

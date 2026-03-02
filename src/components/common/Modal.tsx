@@ -25,7 +25,6 @@ export const Modal: React.FC<ModalProps> = ({
     } else {
       document.body.style.overflow = 'unset';
     }
-
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -42,57 +41,28 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn"
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn"
         onClick={onClose}
       />
-
-      {/* Modal */}
       <div
-        className={`relative bg-white rounded-2xl shadow-2xl ${sizes[size]} w-full max-h-[90vh] overflow-y-auto animate-slideUp`}
+        className={`relative bg-white rounded-zlearn-lg shadow-zlearn-lg ${sizes[size]} w-full max-h-[90vh] overflow-hidden flex flex-col animate-fadeInUp`}
       >
-        {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            {title && <h2 className="text-xl font-bold text-gray-800">{title}</h2>}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border flex-shrink-0">
+            {title && <h2 className="text-lg font-semibold text-gray-900">{title}</h2>}
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 -m-2 hover:bg-surface-muted rounded-lg transition-colors duration-150"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             )}
           </div>
         )}
-
-        {/* Content */}
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto flex-1">{children}</div>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

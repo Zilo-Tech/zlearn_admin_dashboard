@@ -25,7 +25,7 @@ const SECTION_TYPES = [
     { value: 'code', label: 'Code Block' },
 ];
 
-const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, section, order }) => {
+export const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, section, order }) => {
     const [createSection, { isLoading: isCreating }] = useCreateCourseSectionMutation();
     const [updateSection, { isLoading: isUpdating }] = useUpdateCourseSectionMutation();
 
@@ -468,4 +468,3 @@ const SectionModal: React.FC<SectionModalProps> = ({ open, onClose, lessonId, se
     );
 };
 
-export default SectionModal;

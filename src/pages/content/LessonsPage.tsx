@@ -57,12 +57,14 @@ export const LessonsPage: React.FC = () => {
     managingSectionsForLesson ? { lesson: managingSectionsForLesson.id } : {},
     { skip: !managingSectionsForLesson }
   );
-  const sections = Array.isArray(sectionsData) ? sectionsData : [];
   const [createSection] = useCreateSectionMutation();
   const [updateSection] = useUpdateSectionMutation();
   const [deleteSection] = useDeleteSectionMutation();
 
-  // Calculate the next order value for new sections
+  const sections = useMemo(() => {
+    return Array.isArray(sectionsData) ? sectionsData : [];
+  }, [sectionsData]);
+
   const nextSectionOrder = useMemo(() => {
     if (sections.length === 0) return 1;
     const maxOrder = Math.max(...sections.map(s => s.order));

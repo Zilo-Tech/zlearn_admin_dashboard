@@ -1,19 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Z-Learn Design System - 8px grid */
+  --zlearn-primary: #446D6D;
+  --zlearn-primary-hover: #5a8a8a;
+  --zlearn-radius: 8px;
+  --zlearn-radius-lg: 12px;
+  --zlearn-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --zlearn-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --zlearn-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --zlearn-transition: 150ms ease;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FAFBFC;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.animate-skeleton {
+  animation: skeleton 1.5s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+aside nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside nav::-webkit-scrollbar-thumb {
+  background: rgba(68, 109, 109, 0.15);
+  border-radius: 3px;
+}
+
+aside nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(68, 109, 109, 0.3);
+}
 

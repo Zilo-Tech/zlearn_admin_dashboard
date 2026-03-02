@@ -12,32 +12,26 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, icon: Icon, rightIcon, className = '', ...props }, ref) => {
     return (
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {label && (
-          <label className="block text-sm font-medium text-gray-700">
-            {label}
-          </label>
+          <label className="block text-sm font-medium text-gray-700">{label}</label>
         )}
-        <div className="relative group">
+        <div className="relative">
           {Icon && (
-            <Icon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#446D6D] transition-colors duration-200" />
+            <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           )}
           <input
             ref={ref}
-            className={`w-full ${Icon ? 'pl-12' : 'pl-4'} ${rightIcon ? 'pr-12' : 'pr-4'} py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200 bg-white/50 ${
+            className={`w-full ${Icon ? 'pl-10' : 'px-3'} ${rightIcon ? 'pr-10' : 'pr-3'} py-2.5 border border-surface-border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150 ${
               error ? 'border-red-500' : ''
             } ${className}`}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              {rightIcon}
-            </div>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">{rightIcon}</div>
           )}
         </div>
-        {error && (
-          <p className="text-sm text-red-600 mt-1">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     );
   }

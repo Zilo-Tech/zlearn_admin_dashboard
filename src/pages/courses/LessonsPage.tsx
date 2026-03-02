@@ -4,7 +4,7 @@ import { DataTable, Column } from '../../components/common/DataTable';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
-import SectionsManager from '../../components/courses/SectionsManager';
+import { SectionsManager } from '../../components/courses';
 import {
   useGetCourseLessonsQuery,
   useGetCourseModulesQuery,

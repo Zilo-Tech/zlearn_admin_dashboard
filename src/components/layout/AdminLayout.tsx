@@ -11,20 +11,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-surface flex">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-
-      {/* Main Content */}
       <main
-        className={`flex-1 ${
+        className={`flex-1 min-w-0 transition-all duration-200 ${
           sidebarOpen ? 'ml-64' : 'ml-20'
-        } transition-all duration-300`}
+        }`}
       >
-        {/* Header */}
         <Header />
-
-        {/* Page Content */}
         <div className="p-6">{children}</div>
       </main>
     </div>
