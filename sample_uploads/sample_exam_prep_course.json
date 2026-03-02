@@ -1,6 +1,7 @@
 {
   "_comment": "Exam Preparation Course Import Example - JAMB UTME 2026",
   "_IMPORTANT": "The 'course_type' field determines what type of course is created. This file creates an EXAM PREP course.",
+  "_NOTE": "For exam prep courses, you can optionally link to an Exam package and specify exam details.",
   
   "course": {
     "title": "JAMB UTME Complete Preparation 2026",
@@ -10,6 +11,19 @@
     
     "_comment_course_type": "REQUIRED! This is an EXAM PREP course. Options: 'professional', 'academic', 'exam_prep'",
     "course_type": "exam_prep",
+    
+    "_comment_exam_fields": "Exam-specific fields - link to exam package and specify exam details",
+    "exam": "jamb-2026",
+    "_comment_exam": "Optional. Link to Exam package by ID, slug, or exam_code. Example: 'jamb-2026', 'sat-2026'",
+    
+    "exam_board": "JAMB",
+    "_comment_exam_board": "Required for exam prep. Exam board/organization: 'JAMB', 'SAT', 'GRE', 'WAEC', etc.",
+    
+    "target_exam_date": "2026-05-15",
+    "_comment_target_exam_date": "Optional. Target exam date in YYYY-MM-DD format",
+    
+    "exam_subjects": ["Use of English", "Mathematics", "Physics", "Chemistry"],
+    "_comment_exam_subjects": "List of subjects covered in this exam prep course",
     
     "level": "intermediate",
     "status": "draft",
