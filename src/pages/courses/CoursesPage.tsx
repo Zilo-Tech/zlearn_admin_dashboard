@@ -6,6 +6,7 @@ import { DataTable, Column } from '../../components/common/DataTable';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
+import { BookOpen } from 'lucide-react';
 import {
   useGetCoursesQuery,
   useGetCategoriesQuery,
@@ -16,6 +17,7 @@ import {
 } from '../../store/api/coursesApi';
 import type { Course } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
+import { Badge } from '../../components/common/Badge';
 
 export const CoursesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -510,38 +512,52 @@ export const CoursesPage: React.FC = () => {
   };
 
   const columns: Column<Course>[] = [
-    { key: 'title', header: 'Title' },
+    {
+      key: 'course',
+      header: 'Course',
+      render: (course) => (
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-surface-muted flex-shrink-0 overflow-hidden">
+            {course.thumbnail ? (
+              <img
+                src={course.thumbnail}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <BookOpen className="w-6 h-6" />
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">{course.title}</p>
+            <p className="text-sm text-gray-500">{course.course_code || '—'}</p>
+          </div>
+        </div>
+      ),
+    },
     {
       key: 'status',
       header: 'Status',
       render: (course) => (
-        <span
-          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-            course.status === 'published'
-              ? 'bg-green-100 text-green-800'
-              : course.status === 'draft'
-              ? 'bg-gray-100 text-gray-800'
-              : 'bg-red-100 text-red-800'
-          }`}
-        >
+        <Badge variant={course.status as 'draft' | 'published' | 'archived' | 'suspended'}>
           {course.status}
-        </span>
+        </Badge>
       ),
     },
     {
       key: 'level',
       header: 'Level',
       render: (course) => (
-        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-          {course.level}
-        </span>
+        <span className="text-sm text-gray-600 capitalize">{course.level}</span>
       ),
     },
     {
       key: 'price',
       header: 'Price',
       render: (course) => (
-        <span className="font-semibold">
+        <span className="font-medium text-gray-900">
           {course.is_free ? 'Free' : `${course.currency} ${course.price}`}
         </span>
       ),
@@ -549,15 +565,17 @@ export const CoursesPage: React.FC = () => {
     {
       key: 'current_enrollments',
       header: 'Enrollments',
-      render: (course) => course.current_enrollments || 0,
+      render: (course) => (
+        <span className="text-gray-600">{course.current_enrollments ?? 0}</span>
+      ),
     },
     {
       key: 'actions',
-      header: 'Actions',
+      header: '',
       render: (course) => (
         <button
           onClick={() => navigate(`/admin/courses/courses/${course.id}`)}
-          className="text-[#446D6D] hover:text-[#5a8a8a] font-medium text-sm"
+          className="text-zlearn-primary hover:text-zlearn-primaryHover font-medium text-sm transition-colors duration-150"
         >
           Manage →
         </button>
@@ -568,11 +586,9 @@ export const CoursesPage: React.FC = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Professional Courses</h1>
-            <p className="text-gray-600 mt-1">Manage professional/skill-based courses</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Courses</h1>
+          <p className="text-gray-500 mt-1">Manage professional and skill-based courses</p>
         </div>
 
         {error && <Alert type="error" message={error} />}
@@ -618,7 +634,7 @@ export const CoursesPage: React.FC = () => {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   rows={4}
                   required
                 />
@@ -635,7 +651,7 @@ export const CoursesPage: React.FC = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   >
                     <option value="">No Category</option>
                     {categories.map((category) => (
@@ -657,7 +673,7 @@ export const CoursesPage: React.FC = () => {
                   <select
                     value={formData.level}
                     onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   >
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>
@@ -670,7 +686,7 @@ export const CoursesPage: React.FC = () => {
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   >
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>
@@ -692,7 +708,7 @@ export const CoursesPage: React.FC = () => {
                 <select
                   value={formData.language}
                   onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                 >
                   <option value="en">English</option>
                   <option value="fr">French</option>
@@ -717,7 +733,7 @@ export const CoursesPage: React.FC = () => {
                         thumbnail: e.target.files?.[0] || null,
                       })
                     }
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   />
                 </div>
                 <div>
@@ -731,7 +747,7 @@ export const CoursesPage: React.FC = () => {
                         banner_image: e.target.files?.[0] || null,
                       })
                     }
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   />
                 </div>
                 <div>
@@ -745,7 +761,7 @@ export const CoursesPage: React.FC = () => {
                         video_intro: e.target.files?.[0] || null,
                       })
                     }
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   />
                 </div>
               </div>
@@ -760,7 +776,7 @@ export const CoursesPage: React.FC = () => {
                   <select
                     value={formData.currency}
                     onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   >
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
@@ -792,7 +808,7 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, discount_start_date: e.target.value })
                   }
-                  disabled={formData.is_free || !formData.discount_price}
+                  disabled={formData.is_free}
                 />
                 <Input
                   label="Discount End Date"
@@ -801,7 +817,7 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, discount_end_date: e.target.value })
                   }
-                  disabled={formData.is_free || !formData.discount_price}
+                  disabled={formData.is_free}
                 />
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -809,7 +825,7 @@ export const CoursesPage: React.FC = () => {
                   type="checkbox"
                   checked={formData.is_free}
                   onChange={(e) => setFormData({ ...formData, is_free: e.target.checked })}
-                  className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+                  className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
                 />
                 <span className="text-sm font-medium text-gray-700">Free Course</span>
               </label>
@@ -823,7 +839,7 @@ export const CoursesPage: React.FC = () => {
                 <textarea
                   value={formData.requirements}
                   onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   rows={3}
                   placeholder="Basic computer knowledge, etc."
                 />
@@ -837,7 +853,7 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, learning_outcomes: e.target.value })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   rows={3}
                   placeholder="You will learn: ..."
                 />
@@ -859,7 +875,7 @@ export const CoursesPage: React.FC = () => {
                       .filter((tag) => tag.length > 0);
                     setFormData({ ...formData, tags });
                   }}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+                  className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
                   placeholder="python, programming, beginner (comma-separated)"
                 />
                 <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
@@ -876,7 +892,7 @@ export const CoursesPage: React.FC = () => {
                     type="checkbox"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+                    className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
                   />
                   <span className="text-sm font-medium text-gray-700">Featured</span>
                 </label>
@@ -928,7 +944,7 @@ export const CoursesPage: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, offers_certificate: e.target.checked })
                   }
-                  className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+                  className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
                 />
                 <span className="text-sm font-medium text-gray-700">Offers Certificate</span>
               </label>

@@ -11,7 +11,7 @@ import type { SessionListItem } from '../../interfaces/aiCourseGeneration';
 export const SessionsListPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: sessions = [], isLoading, refetch } = useListSessionsQuery();
-  const [cancelSession, { isLoading: isCancelling }] = useCancelSessionMutation();
+  const [cancelSession] = useCancelSessionMutation();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const handleResumeSession = (sessionId: string) => {

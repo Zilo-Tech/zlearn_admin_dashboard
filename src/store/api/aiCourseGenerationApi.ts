@@ -12,10 +12,9 @@ import type {
   SessionDetailsResponse,
   CancelSessionResponse,
   ListSessionsResponse,
-  SessionListItem,
 } from '../../interfaces/aiCourseGeneration';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 export const aiCourseGenerationApi = createApi({
   reducerPath: 'aiCourseGenerationApi',

@@ -1,0 +1,336 @@
+{
+  "_comment": "Professional Course Import Example - Python Developer Bootcamp",
+  "_documentation": "See DEPENDENCY_HANDLING.md for dependency resolution details",
+  
+  "course": {
+    "title": "Complete Python Developer Bootcamp",
+    "short_description": "Master Python from beginner to professional in 8 weeks with hands-on projects",
+    "description": "Transform into a job-ready Python developer with hands-on projects and real-world applications.\n\n✅ What You'll Learn:\n- Python fundamentals to advanced\n- Web development with Django\n- RESTful API development\n- Database design & integration\n- Deployment & DevOps basics\n\n👥 Who This Is For:\n- Career changers new to programming\n- Developers learning Python\n- Anyone building a tech career\n\n🎓 What You'll Build:\n- 5 portfolio projects\n- Complete e-commerce application\n- REST API service\n- Deployment to production",
+    "course_code": "PY-DEV-2026-001",
+    "level": "beginner",
+    "status": "draft",
+    
+    "_comment_category": "Category can be: ID, name, slug, or inline object. System auto-creates if name/slug provided.",
+    "category": "Programming",
+    
+    "_alternative_category_formats": {
+      "_by_slug": "programming",
+      "_by_id": "uuid-if-you-have-it",
+      "_inline_object": {
+        "name": "Programming",
+        "slug": "programming",
+        "description": "Programming and software development courses",
+        "color": "#3498db"
+      }
+    },
+    
+    "_comment_instructor": "Instructor defaults to current user if omitted. Can specify by email or ID.",
+    "_instructor_examples": {
+      "_by_email": "instructor@example.com",
+      "_by_id": 123,
+      "_flexible": "instructor@example.com or 123"
+    },
+    
+    "_comment_prerequisites": "Prerequisites are courses that must exist. Use course_code (recommended) or ID.",
+    "_prerequisite_examples": {
+      "_by_course_code": ["INTRO-PROGRAMMING-2026", "CS-FUNDAMENTALS-2026"],
+      "_by_id": ["uuid-of-course-1", "uuid-of-course-2"],
+      "_mixed": [
+        {"course_code": "INTRO-PROGRAMMING"},
+        {"id": "uuid-here"}
+      ]
+    },
+    "language": "en",
+    "tags": ["python", "programming", "web-development", "backend", "django", "career"],
+    "duration_hours": 60,
+    "price": 99.00,
+    "currency": "USD",
+    "is_free": false,
+    "discount_price": 79.00,
+    "requirements": "- Basic computer skills\n- No programming experience required\n- Computer with 8GB RAM minimum\n- Commitment: 10-15 hours/week",
+    "learning_outcomes": "✓ Write professional Python code\n✓ Build web applications with Django\n✓ Create and consume RESTful APIs\n✓ Deploy applications to production\n✓ Complete 5 portfolio projects\n✓ Pass technical interviews",
+    "target_audience": "career changers, aspiring developers, professionals seeking automation skills",
+    "offers_certificate": true,
+    "certificate_requirements": {
+      "min_completion_percentage": 90,
+      "min_quiz_score": 70,
+      "required_projects": 5
+    },
+    "featured": false,
+    "max_students": 500
+  },
+  "modules": [
+    {
+      "title": "Module 1: Python Fundamentals",
+      "description": "Master the basics - syntax, data types, control flow, and functions",
+      "order": 0,
+      "is_published": true,
+      "duration_minutes": 360,
+      "difficulty": "beginner",
+      "learning_objectives": [
+        "Understand Python syntax and conventions",
+        "Work with variables, data types, and operators",
+        "Use conditional statements and loops effectively",
+        "Write and call functions with parameters"
+      ],
+      "lessons": [
+        {
+          "title": "Understanding Python Variables and Data Types",
+          "description": "Learn to work with variables, strings, numbers, and booleans",
+          "lesson_type": "video",
+          "order": 0,
+          "content": "In this lesson, you'll learn the foundation of Python programming - how to store and manipulate data using variables.",
+          "video_url": "https://example.com/videos/python-variables",
+          "duration_minutes": 18,
+          "is_published": true,
+          "is_preview": true,
+          "difficulty": "beginner",
+          "learning_objectives": [
+            "Declare and use variables",
+            "Understand different data types",
+            "Perform type conversion"
+          ],
+          "estimated_time_minutes": 25,
+          "requires_completion": true,
+          "sections": [
+            {
+              "title": "What Are Variables?",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Variables in Python\n\nVariables are containers for storing data values. In Python, you don't need to declare the type explicitly.\n\n## Key Points:\n- Use descriptive names\n- Variables are case sensitive\n- Cannot start with numbers\n- Use snake_case naming convention",
+              "estimated_time_minutes": 5,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Variable Declaration Demo",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/variable-demo",
+              "video_duration_seconds": 480,
+              "description": "Watch as I demonstrate variable declaration and usage",
+              "estimated_time_minutes": 10,
+              "is_published": true
+            },
+            {
+              "title": "Code Example: Variable Types",
+              "section_type": "code",
+              "order": 2,
+              "code_content": "# String variable\nname = 'John Doe'\n\n# Integer variable\nage = 30\n\n# Float variable\nprice = 99.99\n\n# Boolean variable\nis_student = True\n\nprint(f'{name} is {age} years old')\nprint(f'Price: ${price}')\nprint(f'Is student: {is_student}')",
+              "code_language": "python",
+              "description": "Different variable types in action",
+              "estimated_time_minutes": 5,
+              "is_published": true
+            },
+            {
+              "title": "Quick Knowledge Check",
+              "section_type": "quiz",
+              "order": 3,
+              "estimated_time_minutes": 5,
+              "is_required": true,
+              "is_published": true,
+              "quiz_questions": [
+                {
+                  "text": "Which is the correct way to create a string variable in Python?",
+                  "explanation": "Python accepts both single and double quotes for strings. The syntax 'name = value' is correct.",
+                  "order": 1,
+                  "points": 5,
+                  "options": [
+                    {
+                      "text": "name = 'John'",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "String name = 'John'",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "var name = 'John'",
+                      "is_correct": false,
+                      "order": 3
+                    }
+                  ]
+                },
+                {
+                  "text": "What will print: x = 5; print(type(x))?",
+                  "explanation": "The number 5 without a decimal point is an integer in Python.",
+                  "order": 2,
+                  "points": 5,
+                  "options": [
+                    {
+                      "text": "<class 'int'>",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "<class 'float'>",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "<class 'str'>",
+                      "is_correct": false,
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "title": "Python Variables Cheat Sheet",
+              "description": "Quick reference for Python variable types and naming conventions",
+              "resource_type": "pdf",
+              "url": "https://example.com/resources/python-variables-cheatsheet.pdf",
+              "download_allowed": true,
+              "is_primary": true,
+              "order": 0
+            },
+            {
+              "title": "Practice Exercises - Variables",
+              "description": "20 practice problems to master variables",
+              "resource_type": "link",
+              "url": "https://example.com/practice/variables",
+              "text_content": "Complete these exercises to reinforce your learning",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Project: Building a Calculator App",
+          "description": "Apply what you've learned by building a functional calculator",
+          "lesson_type": "practical",
+          "order": 1,
+          "content": "Build a command-line calculator that performs basic arithmetic operations. This project will help you practice functions, user input, and conditional logic.",
+          "duration_minutes": 45,
+          "is_published": true,
+          "difficulty": "beginner",
+          "learning_objectives": [
+            "Implement functions for arithmetic operations",
+            "Handle user input",
+            "Apply error handling",
+            "Write clean, readable code"
+          ],
+          "requires_completion": true,
+          "sections": [
+            {
+              "title": "Demo: The Final Calculator",
+              "section_type": "video",
+              "order": 0,
+              "video_url": "https://example.com/videos/calculator-demo",
+              "description": "See the calculator in action before you build it",
+              "estimated_time_minutes": 5,
+              "is_published": true
+            },
+            {
+              "title": "Project Requirements",
+              "section_type": "text",
+              "order": 1,
+              "text_content": "# Calculator Project Requirements\n\n## Features to Implement:\n1. Addition (+)\n2. Subtraction (-)\n3. Multiplication (*)\n4. Division (/)\n5. Error handling for division by zero\n6. User-friendly menu\n7. Loop to allow multiple calculations\n\n## Bonus Challenges:\n- Add power (exponent) operation\n- Add square root function\n- Keep calculation history",
+              "estimated_time_minutes": 5,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Starter Code",
+              "section_type": "code",
+              "order": 2,
+              "code_content": "# Calculator Starter Code\n\ndef add(x, y):\n    # TODO: Implement addition\n    pass\n\ndef subtract(x, y):\n    # TODO: Implement subtraction\n    pass\n\ndef multiply(x, y):\n    # TODO: Implement multiplication\n    pass\n\ndef divide(x, y):\n    # TODO: Implement division with error handling\n    pass\n\n# Main program\nif __name__ == '__main__':\n    # TODO: Implement menu and user interaction\n    pass",
+              "code_language": "python",
+              "description": "Start with this template",
+              "estimated_time_minutes": 2,
+              "is_published": true
+            },
+            {
+              "title": "Step-by-Step Guide",
+              "section_type": "video",
+              "order": 3,
+              "video_url": "https://example.com/videos/calculator-walkthrough",
+              "video_duration_seconds": 1200,
+              "description": "Follow along as I build the calculator",
+              "estimated_time_minutes": 25,
+              "is_published": true
+            }
+          ],
+          "resources": [
+            {
+              "title": "Project Starter Files",
+              "description": "Download the starter code and requirements",
+              "resource_type": "archive",
+              "url": "https://example.com/projects/calculator-starter.zip",
+              "download_allowed": true,
+              "is_required": true,
+              "order": 0
+            },
+            {
+              "title": "Solution Code (View After Completing)",
+              "description": "Reference solution - try on your own first!",
+              "resource_type": "link",
+              "url": "https://github.com/example/calculator-solution",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Module 2: Object-Oriented Programming",
+      "description": "Learn OOP concepts - classes, objects, inheritance, and polymorphism",
+      "order": 1,
+      "is_published": true,
+      "duration_minutes": 420,
+      "difficulty": "intermediate",
+      "learning_objectives": [
+        "Understand OOP principles",
+        "Create and use classes",
+        "Implement inheritance",
+        "Apply polymorphism"
+      ],
+      "lessons": [
+        {
+          "title": "Introduction to Classes and Objects",
+          "description": "Understanding the concept of classes and how to create objects",
+          "lesson_type": "video",
+          "order": 0,
+          "video_url": "https://example.com/videos/oop-intro",
+          "duration_minutes": 25,
+          "is_published": true,
+          "difficulty": "intermediate",
+          "sections": [
+            {
+              "title": "Real-World Analogy",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Classes: The Blueprint\n\nThink of a class as a blueprint for a house. The blueprint defines:\n- Number of rooms\n- Size dimensions\n- Features and amenities\n\nBut the blueprint itself is not a house. When you build a house from the blueprint, that's an object (instance).\n\n## Example:\n- Class: Car (blueprint)\n- Objects: Your Toyota, My Honda, Their Tesla\n\nEach car object has the same structure (4 wheels, engine, etc.) but different values (color, model, year).",
+              "estimated_time_minutes": 5,
+              "is_published": true
+            },
+            {
+              "title": "Creating Your First Class",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/first-class",
+              "video_duration_seconds": 600,
+              "description": "Watch me create a simple Car class",
+              "estimated_time_minutes": 12,
+              "is_published": true
+            },
+            {
+              "title": "Class Syntax Example",
+              "section_type": "code",
+              "order": 2,
+              "code_content": "class Car:\n    def __init__(self, brand, model, year):\n        self.brand = brand\n        self.model = model\n        self.year = year\n        self.speed = 0\n    \n    def accelerate(self, increment):\n        self.speed += increment\n        print(f'{self.brand} is now going {self.speed} mph')\n    \n    def brake(self):\n        self.speed = 0\n        print(f'{self.brand} has stopped')\n\n# Creating objects\nmy_car = Car('Toyota', 'Camry', 2022)\nyour_car = Car('Honda', 'Civic', 2021)\n\n# Using methods\nmy_car.accelerate(30)\nmy_car.accelerate(20)\nmy_car.brake()",
+              "code_language": "python",
+              "description": "Complete class definition with methods",
+              "estimated_time_minutes": 8,
+              "is_published": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

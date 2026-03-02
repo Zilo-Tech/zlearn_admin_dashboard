@@ -28,6 +28,8 @@ import {
   Layers,
   FileText,
   Folder,
+  DollarSign,
+  Settings,
 } from 'lucide-react';
 import type { CourseModule, CourseLesson, CourseSection, SectionQuizQuestion } from '../../interfaces/course';
 
@@ -54,12 +56,13 @@ export const CourseDetailPage: React.FC = () => {
   const [creatingLesson, setCreatingLesson] = useState<string | null>(null);
   const [creatingSection, setCreatingSection] = useState<{ lessonId: string; moduleId: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'curriculum' | 'pricing' | 'settings'>('overview');
 
   if (isLoading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#446D6D]"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-surface-border border-t-zlearn-primary rounded-full"></div>
         </div>
       </AdminLayout>
     );
@@ -122,72 +125,177 @@ export const CourseDetailPage: React.FC = () => {
     }
   };
 
+  const tabs = [
+    { id: 'overview' as const, label: 'Overview', icon: FileText },
+    { id: 'curriculum' as const, label: 'Curriculum', icon: Layers },
+    { id: 'pricing' as const, label: 'Pricing', icon: DollarSign },
+    { id: 'settings' as const, label: 'Settings', icon: Settings },
+  ];
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-gray-500">
           <button
             onClick={() => navigate('/admin/courses/courses')}
-            className="hover:text-[#446D6D] transition-colors"
+            className="hover:text-zlearn-primary transition-colors duration-150"
           >
             Courses
           </button>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-800 font-medium">{course.title}</span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-900 font-medium truncate max-w-[200px]">{course.title}</span>
         </div>
 
         {/* Course Header */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl">{course.title}</CardTitle>
-                <p className="text-gray-600 mt-1">{course.description}</p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/admin/courses/courses')}
-              >
-                Back to Courses
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">Code:</span>
-                <span className="ml-2 font-medium">{course.course_code || 'N/A'}</span>
+        <Card padding="lg">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex gap-4">
+              <div className="w-16 h-16 rounded-lg bg-surface-muted flex-shrink-0 overflow-hidden">
+                {course.thumbnail ? (
+                  <img src={course.thumbnail} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <Layers className="w-8 h-8" />
+                  </div>
+                )}
               </div>
               <div>
-                <span className="text-gray-600">Level:</span>
-                <span className="ml-2 font-medium">{course.level}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Status:</span>
-                <span className="ml-2 font-medium">{course.status}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Price:</span>
-                <span className="ml-2 font-medium">
-                  {course.is_free ? 'Free' : `${course.currency} ${course.price}`}
-                </span>
+                <h1 className="text-xl font-semibold text-gray-900">{course.title}</h1>
+                <p className="text-gray-500 text-sm mt-1 line-clamp-2">{course.short_description || course.description}</p>
+                <div className="flex items-center gap-3 mt-3">
+                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-md bg-zlearn-primaryMuted text-zlearn-primary">
+                    {course.status}
+                  </span>
+                  <span className="text-xs text-gray-500">{course.level}</span>
+                  <span className="text-xs text-gray-500">
+                    {course.is_free ? 'Free' : `${course.currency} ${course.price}`}
+                  </span>
+                </div>
               </div>
             </div>
-          </CardContent>
+            <Button variant="outline" onClick={() => navigate('/admin/courses/courses')} size="sm">
+              Back to Courses
+            </Button>
+          </div>
         </Card>
+
+        {/* Tabs */}
+        <div className="border-b border-surface-border">
+          <nav className="flex gap-6" aria-label="Course sections">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors duration-150 -mb-px ${
+                  activeTab === tab.id
+                    ? 'border-zlearn-primary text-zlearn-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
         {error && <Alert type="error" message={error} />}
 
-        {/* Modules */}
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Course Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Description</p>
+                  <p className="text-gray-900">{course.description}</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-surface-borderLight">
+                  <div>
+                    <p className="text-xs text-gray-500">Code</p>
+                    <p className="font-medium">{course.course_code || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Level</p>
+                    <p className="font-medium capitalize">{course.level}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Duration</p>
+                    <p className="font-medium">{course.duration_hours ? `${course.duration_hours}h` : '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Enrollments</p>
+                    <p className="font-medium">{course.current_enrollments ?? 0}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'pricing' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-semibold text-gray-900">
+                    {course.is_free ? 'Free' : `${course.currency} ${course.price}`}
+                  </span>
+                  {course.discount_price && (
+                    <span className="text-sm text-gray-500 line-through">{course.currency} {course.price}</span>
+                  )}
+                </div>
+                {course.discount_price && (
+                  <p className="text-sm text-gray-500">
+                    Discount: {course.currency} {course.discount_price}
+                    {course.discount_end_date && ` until ${new Date(course.discount_end_date).toLocaleDateString()}`}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'settings' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Certificate</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {course.offers_certificate ? 'This course offers a certificate' : 'No certificate'}
+                  </p>
+                </div>
+                {course.max_students && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Max Students</p>
+                    <p className="text-sm text-gray-500 mt-1">{course.max_students}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'curriculum' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
               <Layers className="w-5 h-5" />
               Modules ({modules.length})
             </h2>
             <Button onClick={handleCreateModule} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               Add Module
             </Button>
           </div>
@@ -219,6 +327,7 @@ export const CourseDetailPage: React.FC = () => {
             ))
           )}
         </div>
+        )}
 
         {/* Edit Modals */}
         {editingModule && (
@@ -589,7 +698,7 @@ const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onSave, onClo
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             rows={3}
           />
         </div>
@@ -615,7 +724,7 @@ const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onSave, onClo
             <select
               value={formData.difficulty}
               onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
@@ -627,7 +736,7 @@ const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onSave, onClo
             <select
               value={formData.learning_path}
               onChange={(e) => setFormData({ ...formData, learning_path: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="sequential">Sequential</option>
               <option value="flexible">Flexible</option>
@@ -639,7 +748,7 @@ const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onSave, onClo
             type="checkbox"
             checked={formData.is_published}
             onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-            className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+            className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
           />
           <span className="text-sm font-medium text-gray-700">Published</span>
         </label>
@@ -694,7 +803,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave, onClo
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             rows={3}
           />
         </div>
@@ -710,7 +819,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave, onClo
             <select
               value={formData.lesson_type}
               onChange={(e) => setFormData({ ...formData, lesson_type: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="video">Video</option>
               <option value="text">Text</option>
@@ -732,7 +841,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave, onClo
           <select
             value={formData.difficulty}
             onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -745,7 +854,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave, onClo
               type="checkbox"
               checked={formData.is_published}
               onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Published</span>
           </label>
@@ -754,7 +863,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave, onClo
               type="checkbox"
               checked={formData.is_preview}
               onChange={(e) => setFormData({ ...formData, is_preview: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Preview</span>
           </label>
@@ -765,7 +874,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onSave, onClo
               onChange={(e) =>
                 setFormData({ ...formData, requires_completion: e.target.checked })
               }
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Requires Completion</span>
           </label>
@@ -1014,7 +1123,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             rows={2}
           />
         </div>
@@ -1024,7 +1133,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
             <select
               value={formData.section_type}
               onChange={(e) => setFormData({ ...formData, section_type: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="text">Text</option>
               <option value="video">Video</option>
@@ -1059,7 +1168,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
             <textarea
               value={formData.text_content}
               onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
               rows={6}
               placeholder="Enter text content (supports markdown)"
             />
@@ -1370,7 +1479,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
                                         type="checkbox"
                                         checked={option.is_correct}
                                         onChange={(e) => updateQuizOption(qIndex, oIndex, 'is_correct', e.target.checked)}
-                                        className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+                                        className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
                                       />
                                       <span className="text-xs font-medium text-gray-700">Correct</span>
                                     </label>
@@ -1405,7 +1514,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
               type="checkbox"
               checked={formData.is_required}
               onChange={(e) => setFormData({ ...formData, is_required: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Required</span>
           </label>
@@ -1414,7 +1523,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
               type="checkbox"
               checked={formData.is_downloadable}
               onChange={(e) => setFormData({ ...formData, is_downloadable: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Downloadable</span>
           </label>
@@ -1423,7 +1532,7 @@ const SectionEditModal: React.FC<SectionEditModalProps> = ({ section, onSave, on
               type="checkbox"
               checked={formData.is_published}
               onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Published</span>
           </label>
@@ -1485,7 +1594,7 @@ const ModuleCreateModal: React.FC<ModuleCreateModalProps> = ({
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             rows={3}
           />
         </div>
@@ -1511,7 +1620,7 @@ const ModuleCreateModal: React.FC<ModuleCreateModalProps> = ({
             <select
               value={formData.difficulty}
               onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
@@ -1523,7 +1632,7 @@ const ModuleCreateModal: React.FC<ModuleCreateModalProps> = ({
             <select
               value={formData.learning_path}
               onChange={(e) => setFormData({ ...formData, learning_path: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="sequential">Sequential</option>
               <option value="flexible">Flexible</option>
@@ -1535,7 +1644,7 @@ const ModuleCreateModal: React.FC<ModuleCreateModalProps> = ({
             type="checkbox"
             checked={formData.is_published}
             onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-            className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+            className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
           />
           <span className="text-sm font-medium text-gray-700">Published</span>
         </label>
@@ -1599,7 +1708,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             rows={3}
           />
         </div>
@@ -1615,7 +1724,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
             <select
               value={formData.lesson_type}
               onChange={(e) => setFormData({ ...formData, lesson_type: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="video">Video</option>
               <option value="text">Text</option>
@@ -1637,7 +1746,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
           <select
             value={formData.difficulty}
             onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -1650,7 +1759,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
               type="checkbox"
               checked={formData.is_published}
               onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Published</span>
           </label>
@@ -1659,7 +1768,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
               type="checkbox"
               checked={formData.is_preview}
               onChange={(e) => setFormData({ ...formData, is_preview: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Preview</span>
           </label>
@@ -1670,7 +1779,7 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, requires_completion: e.target.checked })
               }
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Requires Completion</span>
           </label>
@@ -1929,7 +2038,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+            className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             rows={2}
           />
         </div>
@@ -1939,7 +2048,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
             <select
               value={formData.section_type}
               onChange={(e) => setFormData({ ...formData, section_type: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
             >
               <option value="text">Text</option>
               <option value="video">Video</option>
@@ -1974,7 +2083,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
             <textarea
               value={formData.text_content}
               onChange={(e) => setFormData({ ...formData, text_content: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#446D6D] focus:ring-4 focus:ring-[#446D6D]/10 outline-none transition-all duration-200"
+              className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
               rows={6}
               placeholder="Enter text content (supports markdown)"
             />
@@ -2285,7 +2394,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
                                         type="checkbox"
                                         checked={option.is_correct}
                                         onChange={(e) => updateQuizOption(qIndex, oIndex, 'is_correct', e.target.checked)}
-                                        className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+                                        className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
                                       />
                                       <span className="text-xs font-medium text-gray-700">Correct</span>
                                     </label>
@@ -2320,7 +2429,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               type="checkbox"
               checked={formData.is_required}
               onChange={(e) => setFormData({ ...formData, is_required: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Required</span>
           </label>
@@ -2329,7 +2438,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               type="checkbox"
               checked={formData.is_downloadable}
               onChange={(e) => setFormData({ ...formData, is_downloadable: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Downloadable</span>
           </label>
@@ -2338,7 +2447,7 @@ const SectionCreateModal: React.FC<SectionCreateModalProps> = ({
               type="checkbox"
               checked={formData.is_published}
               onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-              className="w-4 h-4 text-[#446D6D] border-gray-300 rounded focus:ring-[#446D6D]"
+              className="w-4 h-4 text-zlearn-primary border-gray-300 rounded focus:ring-zlearn-primary/20"
             />
             <span className="text-sm font-medium text-gray-700">Published</span>
           </label>

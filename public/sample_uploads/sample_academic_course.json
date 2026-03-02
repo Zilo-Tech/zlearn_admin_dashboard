@@ -1,0 +1,347 @@
+{
+  "course": {
+    "title": "Mathematics - Grade 10 (WAEC Syllabus)",
+    "short_description": "Complete Grade 10 Mathematics aligned with WAEC curriculum for 2025-2026",
+    "description": "Master Grade 10 Mathematics with comprehensive coverage of the WAEC syllabus.\n\n📚 Curriculum Coverage:\n- Algebra & Equations\n- Geometry & Mensuration\n- Trigonometry\n- Statistics & Probability\n- Sets & Logic\n\n🎯 Aligned With:\n- WAEC syllabus 2025-2026\n- National curriculum standards\n- School term structure\n\n✅ Includes:\n- Video lessons for every topic\n- Practice worksheets with answers\n- Past WAEC questions (2019-2024)\n- Progress tracking\n- Termly assessments\n\n👥 Perfect For:\n- Grade 10 students\n- Homeschoolers\n- Exam retakers\n- Students needing extra support",
+    "course_code": "MATH-G10-WAEC-2026",
+    "level": "intermediate",
+    "status": "draft",
+    "language": "en",
+    "tags": ["mathematics", "grade-10", "waec", "secondary-school", "algebra", "geometry", "curriculum"],
+    "duration_hours": 120,
+    "price": 0.00,
+    "is_free": true,
+    "requirements": "- Completed Grade 9 Mathematics\n- Scientific calculator\n- Notebook for practice\n- Geometry set (compass, protractor, ruler)",
+    "learning_outcomes": "✓ Master all WAEC Grade 10 Math topics\n✓ Solve WAEC-style exam questions\n✓ Score 70%+ in school exams\n✓ Build strong foundation for Grade 11\n✓ Improve problem-solving speed\n✓ Understand real-world applications",
+    "target_audience": "Grade 10 students, homeschoolers, students preparing for WAEC, exam retakers",
+    "offers_certificate": false,
+    "featured": false,
+    "max_students": 10000
+  },
+  "modules": [
+    {
+      "title": "Term 1 - Unit 1: Algebraic Expressions",
+      "description": "Learn to simplify, expand and factorize algebraic expressions. WAEC syllabus topics 1.1-1.3",
+      "order": 0,
+      "is_published": true,
+      "duration_minutes": 600,
+      "difficulty": "intermediate",
+      "learning_objectives": [
+        "Simplify algebraic expressions using BODMAS",
+        "Expand brackets using distributive law",
+        "Factorize expressions using common factors",
+        "Solve linear equations in one variable"
+      ],
+      "completion_requirements": {
+        "min_lessons_completed": 8,
+        "quiz_required": true,
+        "min_quiz_score": 60
+      },
+      "lessons": [
+        {
+          "title": "Introduction to Algebraic Expressions",
+          "description": "What are algebraic expressions and why do we use them?",
+          "lesson_type": "reading",
+          "order": 0,
+          "content": "Learn the fundamentals of algebraic expressions and their real-world applications",
+          "duration_minutes": 15,
+          "is_published": true,
+          "is_preview": true,
+          "difficulty": "intermediate",
+          "learning_objectives": [
+            "Define algebraic expressions",
+            "Identify terms, coefficients, and variables",
+            "Understand the importance of algebra in mathematics"
+          ],
+          "estimated_time_minutes": 20,
+          "requires_completion": true,
+          "sections": [
+            {
+              "title": "What is an Algebraic Expression?",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Algebraic Expressions\n\nAn algebraic expression is a mathematical phrase that can contain:\n- Numbers (called constants)\n- Variables (letters like x, y, a, b)\n- Operations (+, -, ×, ÷)\n\n## Examples:\n- 3x + 5\n- 2a - 4b + 7\n- x² + 2xy - y²\n\n## Key Terms:\n- **Term**: A single part of the expression (e.g., 3x, 5, -4b)\n- **Coefficient**: The number multiplying the variable (e.g., 3 in 3x)\n- **Variable**: The letter representing an unknown value (e.g., x, y)\n- **Constant**: A number without a variable (e.g., 5, 7)\n\n## Why Learn Algebra?\nAlgebra helps us:\n- Solve real-world problems\n- Find unknown values\n- Model relationships between quantities\n- Prepare for advanced mathematics",
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Visual Explanation",
+              "section_type": "image",
+              "order": 1,
+              "image_url": "https://example.com/images/algebra-breakdown.png",
+              "image_caption": "Breaking down an algebraic expression: 5x + 3y - 2",
+              "description": "Visual guide showing terms, coefficients, and variables",
+              "estimated_time_minutes": 5,
+              "is_published": true
+            },
+            {
+              "title": "Quick Check: Understanding Terms",
+              "section_type": "quiz",
+              "order": 2,
+              "estimated_time_minutes": 5,
+              "is_required": true,
+              "is_published": true,
+              "quiz_questions": [
+                {
+                  "text": "In the expression 7x + 3, what is the coefficient?",
+                  "explanation": "The coefficient is the number multiplying the variable. In 7x, the coefficient is 7.",
+                  "order": 1,
+                  "points": 5,
+                  "options": [
+                    {
+                      "text": "7",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "x",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "3",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "7x",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "How many terms are in: 4a - 2b + 5?",
+                  "explanation": "Terms are separated by + or - signs. This expression has 3 terms: 4a, -2b, and 5.",
+                  "order": 2,
+                  "points": 5,
+                  "options": [
+                    {
+                      "text": "3",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "2",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "4",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "1",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "title": "Algebra Terminology Reference Sheet",
+              "description": "Definitions of all key algebra terms",
+              "resource_type": "pdf",
+              "url": "https://example.com/resources/algebra-terms.pdf",
+              "download_allowed": true,
+              "is_primary": true,
+              "order": 0
+            }
+          ]
+        },
+        {
+          "title": "Simplifying Algebraic Expressions",
+          "description": "Learn to combine like terms and simplify expressions",
+          "lesson_type": "video",
+          "order": 1,
+          "video_url": "https://example.com/videos/simplifying-expressions",
+          "duration_minutes": 20,
+          "is_published": true,
+          "difficulty": "intermediate",
+          "learning_objectives": [
+            "Identify like terms",
+            "Combine like terms correctly",
+            "Simplify complex expressions"
+          ],
+          "requires_completion": true,
+          "sections": [
+            {
+              "title": "Worked Example 1",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "## Example: Simplify 3x + 5x - 2x\n\n**Step 1:** Identify like terms\n- All terms have the variable 'x'\n- Coefficients: 3, 5, -2\n\n**Step 2:** Combine the coefficients\n3 + 5 - 2 = 6\n\n**Step 3:** Write the simplified expression\n6x\n\n**Answer:** 3x + 5x - 2x = 6x",
+              "estimated_time_minutes": 5,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Video: Multiple Examples",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/simplify-examples",
+              "video_duration_seconds": 720,
+              "description": "Watch me simplify 5 different expressions step-by-step",
+              "estimated_time_minutes": 15,
+              "is_published": true
+            },
+            {
+              "title": "Practice Problems",
+              "section_type": "quiz",
+              "order": 2,
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true,
+              "quiz_questions": [
+                {
+                  "text": "Simplify: 5a + 3a - 2a",
+                  "explanation": "Combine like terms: (5 + 3 - 2)a = 6a",
+                  "order": 1,
+                  "points": 5,
+                  "options": [
+                    {
+                      "text": "6a",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "10a",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "a",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "6",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "Simplify: 4x + 2y - x + 3y",
+                  "explanation": "Group like terms: (4x - x) + (2y + 3y) = 3x + 5y",
+                  "order": 2,
+                  "points": 5,
+                  "options": [
+                    {
+                      "text": "3x + 5y",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "5x + 5y",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "3x + 2y",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "8xy",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Download: Practice Worksheet",
+              "section_type": "pdf",
+              "order": 3,
+              "pdf_url": "https://example.com/worksheets/simplifying-expressions.pdf",
+              "description": "30 problems to practice at home",
+              "is_downloadable": true,
+              "estimated_time_minutes": 30,
+              "is_published": true
+            }
+          ],
+          "resources": [
+            {
+              "title": "Practice Worksheet - Simplifying Expressions",
+              "description": "30 problems with varying difficulty",
+              "resource_type": "pdf",
+              "url": "https://example.com/worksheets/simplify-30problems.pdf",
+              "download_allowed": true,
+              "is_required": true,
+              "order": 0
+            },
+            {
+              "title": "Answer Key with Solutions",
+              "description": "Detailed solutions for all 30 problems",
+              "resource_type": "pdf",
+              "url": "https://example.com/worksheets/simplify-answers.pdf",
+              "download_allowed": true,
+              "order": 1
+            },
+            {
+              "title": "WAEC Past Questions - Algebra (2020-2024)",
+              "description": "Real WAEC exam questions on this topic",
+              "resource_type": "pdf",
+              "url": "https://example.com/pastpapers/waec-algebra-2020-2024.pdf",
+              "download_allowed": true,
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Term 1 - Unit 2: Quadratic Equations",
+      "description": "Master solving quadratic equations using multiple methods",
+      "order": 1,
+      "is_published": true,
+      "duration_minutes": 480,
+      "difficulty": "intermediate",
+      "learning_objectives": [
+        "Recognize quadratic equations",
+        "Solve by factorization",
+        "Use the quadratic formula",
+        "Apply to word problems"
+      ],
+      "lessons": [
+        {
+          "title": "Introduction to Quadratic Equations",
+          "description": "Understanding what makes an equation quadratic",
+          "lesson_type": "video",
+          "order": 0,
+          "video_url": "https://example.com/videos/quadratic-intro",
+          "duration_minutes": 15,
+          "is_published": true,
+          "difficulty": "intermediate",
+          "sections": [
+            {
+              "title": "Definition and Standard Form",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Quadratic Equations\n\nA quadratic equation is an equation of the form:\n\n**ax² + bx + c = 0**\n\nWhere:\n- a, b, c are constants (numbers)\n- a ≠ 0 (if a = 0, it becomes linear)\n- x is the variable (unknown)\n\n## Examples:\n1. x² - 5x + 6 = 0 (a=1, b=-5, c=6)\n2. 2x² + 3x - 2 = 0 (a=2, b=3, c=-2)\n3. x² = 16 (which is x² - 16 = 0)\n\n## Why a ≠ 0?\nIf a = 0, the equation becomes:\n0x² + bx + c = 0\nbx + c = 0\n\nThis is linear, not quadratic!",
+              "estimated_time_minutes": 8,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Video Lesson",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/quadratic-definition",
+              "video_duration_seconds": 420,
+              "description": "Visual explanation with graphs",
+              "estimated_time_minutes": 10,
+              "is_published": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

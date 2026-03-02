@@ -3,7 +3,17 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { Loading } from '../components/common';
-import { AdminLogin, AdminDashboard, AICourseGenerationPage, SessionsListPage } from '../pages';
+import {
+  AdminLogin,
+  AdminDashboard,
+  AICourseGenerationPage,
+  SessionsListPage,
+  StudentsPage,
+  UserDetailPage,
+  AnalyticsPage,
+  SettingsPage,
+} from '../pages';
+import { ExamsPage, ExamDetailPage, MockExamsPage, PastPapersPage } from '../pages/exams';
 import {
   SubjectsPage,
   CoursesPage as ContentCoursesPage,
@@ -15,6 +25,7 @@ import {
   CategoriesPage,
   CoursesPage as ProfessionalCoursesPage,
   CourseDetailPage as ProfessionalCourseDetailPage,
+  CourseImportPage,
   CourseModulesPage,
   CourseLessonsPage,
 } from '../pages/courses';
@@ -99,6 +110,72 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <StudentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users/:id"
+        element={
+          <ProtectedRoute>
+            <UserDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <ProtectedRoute>
+            <AnalyticsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Exams Routes */}
+      <Route
+        path="/admin/exams/exams"
+        element={
+          <ProtectedRoute>
+            <ExamsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/exams/exams/:id"
+        element={
+          <ProtectedRoute>
+            <ExamDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/exams/mocks"
+        element={
+          <ProtectedRoute>
+            <MockExamsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/exams/papers"
+        element={
+          <ProtectedRoute>
+            <PastPapersPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Content App Routes */}
       <Route
@@ -164,6 +241,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <ProfessionalCourseDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/courses/import"
+        element={
+          <ProtectedRoute>
+            <CourseImportPage />
           </ProtectedRoute>
         }
       />

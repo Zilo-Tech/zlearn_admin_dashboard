@@ -1,0 +1,550 @@
+{
+  "course": {
+    "title": "JAMB UTME Complete Preparation 2026",
+    "short_description": "Score 300+ in JAMB UTME with comprehensive coverage, mock exams, and proven strategies",
+    "description": "Achieve your target score with Nigeria's most comprehensive JAMB UTME preparation course.\n\n🎯 What's Included:\n- Complete coverage of all 4 subjects\n- 20+ full-length mock exams\n- 5,000+ practice questions\n- Time management strategies\n- Exam day tactics\n- Score improvement tracking\n\n✅ Study Approach:\n- Diagnostic test (find weak areas)\n- Focused topic review\n- Practice drills with timers\n- Mock exams (JAMB format)\n- Performance analytics\n- Final sprint revision\n\n📊 Proven Results:\n- 87% of students score 250+\n- Average improvement: 45 points\n- 10,000+ successful students\n\n🎓 Subjects Covered:\n- Use of English\n- Mathematics\n- Physics\n- Chemistry\n\n⏰ Study Plan:\n- 8-week intensive program\n- Daily practice sessions\n- Weekly mock exams\n- Progress tracking dashboard",
+    "course_code": "JAMB-UTME-2026-001",
+    "level": "intermediate",
+    "status": "draft",
+    "language": "en",
+    "tags": ["jamb", "utme", "exam-prep", "university-admission", "test-prep", "nigeria"],
+    "duration_hours": 80,
+    "price": 15000.00,
+    "currency": "NGN",
+    "is_free": false,
+    "discount_price": 12000.00,
+    "requirements": "- Completed secondary school or in SS3\n- Basic knowledge of exam subjects\n- Commitment: 2 hours daily study\n- Computer or smartphone for mock exams\n- JAMB registration (or planning to register)",
+    "learning_outcomes": "✓ Score 300+ in JAMB UTME (with dedicated study)\n✓ Complete exam in 75% of allotted time\n✓ Master all high-yield topics\n✓ Eliminate careless mistakes\n✓ Manage exam anxiety\n✓ Use proven test-taking strategies\n✓ Identify and plug knowledge gaps",
+    "target_audience": "SS3 students, UTME candidates, gap year students, exam retakers seeking score improvement",
+    "offers_certificate": true,
+    "certificate_requirements": {
+      "min_completion_percentage": 85,
+      "min_quiz_score": 75,
+      "mock_exams_completed": 15
+    },
+    "featured": true,
+    "max_students": 50000
+  },
+  "modules": [
+    {
+      "title": "Week 1: Diagnostic & Strategy Setup",
+      "description": "Take diagnostic test, identify weak areas, create your personalized study plan",
+      "order": 0,
+      "is_published": true,
+      "duration_minutes": 480,
+      "difficulty": "intermediate",
+      "learning_objectives": [
+        "Complete full diagnostic mock exam",
+        "Identify your 3 weakest topics per subject",
+        "Create 8-week personalized study schedule",
+        "Learn proven test-taking strategies",
+        "Set realistic target score"
+      ],
+      "completion_requirements": {
+        "min_lessons_completed": 5,
+        "quiz_required": true,
+        "mock_exam_required": true
+      },
+      "lessons": [
+        {
+          "title": "Welcome & How to Use This Course",
+          "description": "Get oriented and set yourself up for success",
+          "lesson_type": "video",
+          "order": 0,
+          "video_url": "https://example.com/videos/jamb-welcome",
+          "duration_minutes": 10,
+          "is_published": true,
+          "is_preview": true,
+          "difficulty": "beginner",
+          "learning_objectives": [
+            "Understand the course structure",
+            "Set up your study schedule",
+            "Know what to expect"
+          ],
+          "sections": [
+            {
+              "title": "Course Overview",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Welcome to JAMB UTME Prep 2026!\n\n## What Makes This Course Different?\n\n✅ **Comprehensive Coverage**: Every topic in all 4 subjects\n✅ **20+ Mock Exams**: Practice in real exam conditions\n✅ **Performance Tracking**: See your improvement week by week\n✅ **Flexible Learning**: Study at your own pace\n✅ **Expert Strategies**: Learn shortcuts and time-saving techniques\n\n## Course Structure:\n\n**Weeks 1-2:** English Language mastery\n**Weeks 3-4:** Mathematics intensive\n**Weeks 5-6:** Science subjects (Physics & Chemistry)\n**Week 7:** Speed & accuracy training\n**Week 8:** Final revision & mock exams\n\n## How to Succeed:\n\n1. **Follow the schedule**: 2 hours daily minimum\n2. **Take all mock exams**: They reveal your weak areas\n3. **Review mistakes**: Learn from every error\n4. **Practice timed drills**: Build speed\n5. **Stay consistent**: Daily practice beats cramming",
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Download: 8-Week Study Timetable",
+              "section_type": "pdf",
+              "order": 1,
+              "pdf_url": "https://example.com/timetables/jamb-8week-plan.pdf",
+              "description": "Your personalized study schedule",
+              "is_downloadable": true,
+              "estimated_time_minutes": 5,
+              "is_published": true
+            }
+          ],
+          "resources": [
+            {
+              "title": "8-Week Study Timetable",
+              "description": "Daily breakdown of what to study",
+              "resource_type": "pdf",
+              "url": "https://example.com/resources/study-timetable.pdf",
+              "download_allowed": true,
+              "is_primary": true,
+              "order": 0
+            },
+            {
+              "title": "JAMB Exam Format Guide",
+              "description": "Everything about the exam structure",
+              "resource_type": "pdf",
+              "url": "https://example.com/resources/jamb-format.pdf",
+              "download_allowed": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Test-Taking Strategies: The Fundamentals",
+          "description": "Master the strategies that boost scores by 30-50 points",
+          "lesson_type": "video",
+          "order": 1,
+          "video_url": "https://example.com/videos/test-strategies",
+          "duration_minutes": 25,
+          "is_published": true,
+          "difficulty": "intermediate",
+          "learning_objectives": [
+            "Use the elimination strategy effectively",
+            "Manage your time (1 minute per question)",
+            "Identify questions to skip",
+            "Avoid common traps"
+          ],
+          "requires_completion": true,
+          "sections": [
+            {
+              "title": "Strategy 1: The Elimination Method",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# The Elimination Strategy\n\n## When to Use:\n- You don't know the answer immediately\n- Multiple options seem possible\n- Time is running out\n\n## How It Works:\n\n**Step 1:** Remove obviously wrong answers\n- Too extreme (always, never, all, none)\n- Contradicts the question\n- Contains unfamiliar terms\n\n**Step 2:** Analyze remaining options\n- Look for similarities\n- Apply logic\n- Make educated guess\n\n## Example:\n\n**Question:** Which of the following is NOT a programming language?\n\nA) Python\nB) JavaScript\nC) Microsoft\nD) Java\n\n**Process:**\n- A, B, D are known programming languages ✓\n- C is a company, not a language ✗\n\n**Answer:** C\n\n⏱️ **Time Saved:** 30 seconds vs. overthinking\n\n## Practice This Strategy:\nYou'll use this in 40-50% of questions!",
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Video: Strategies in Action",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/elimination-demo",
+              "video_duration_seconds": 600,
+              "description": "Watch me solve 10 questions using elimination",
+              "estimated_time_minutes": 12,
+              "is_published": true
+            },
+            {
+              "title": "Strategy Practice Drill",
+              "section_type": "quiz",
+              "order": 2,
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true,
+              "metadata": {
+                "is_timed": true,
+                "time_limit_seconds": 600,
+                "show_timer": true
+              },
+              "quiz_questions": [
+                {
+                  "text": "In a class of 40 students, 25 play football and 20 play basketball. If 10 play both games, how many play neither?",
+                  "explanation": "Use set theory: Total = (Football only) + (Basketball only) + (Both) + (Neither). 40 = (25-10) + (20-10) + 10 + x. Solving: x = 5",
+                  "order": 1,
+                  "points": 2,
+                  "time_allocation_seconds": 60,
+                  "options": [
+                    {
+                      "text": "5",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "10",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "15",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "0",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "If 2x + 3 = 11, what is x?",
+                  "explanation": "Solve: 2x = 11 - 3 = 8, so x = 4. Should take 20 seconds.",
+                  "order": 2,
+                  "points": 2,
+                  "time_allocation_seconds": 30,
+                  "options": [
+                    {
+                      "text": "4",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "7",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "3",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "8",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "The synonym of 'BENEVOLENT' is:",
+                  "explanation": "Benevolent means kind and generous. Eliminate harsh (opposite), indifferent (neutral), hostile (opposite). Choose kind.",
+                  "order": 3,
+                  "points": 2,
+                  "time_allocation_seconds": 45,
+                  "options": [
+                    {
+                      "text": "Kind",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "Harsh",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "Indifferent",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "Hostile",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "title": "Test-Taking Strategies Cheat Sheet",
+              "description": "All strategies on one page",
+              "resource_type": "pdf",
+              "url": "https://example.com/resources/strategies-cheatsheet.pdf",
+              "download_allowed": true,
+              "is_primary": true,
+              "order": 0
+            }
+          ]
+        },
+        {
+          "title": "Diagnostic Mock Exam - Full JAMB Simulation",
+          "description": "Take your first full mock exam to establish baseline score",
+          "lesson_type": "quiz",
+          "order": 2,
+          "duration_minutes": 180,
+          "is_published": true,
+          "difficulty": "intermediate",
+          "learning_objectives": [
+            "Experience real exam pressure",
+            "Identify your current level",
+            "Discover weak topics",
+            "Set improvement targets"
+          ],
+          "requires_completion": true,
+          "metadata": {
+            "is_mock_exam": true,
+            "exam_code": "DIAGNOSTIC-001",
+            "total_questions": 180,
+            "time_limit_minutes": 180,
+            "subjects": ["english", "mathematics", "physics", "chemistry"]
+          },
+          "sections": [
+            {
+              "title": "Before You Begin",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Diagnostic Mock Exam Instructions\n\n## Important Rules:\n\n1. ✅ **Find a quiet place** - No distractions for 3 hours\n2. ⏱️ **Set 180 minutes timer** - Real exam timing\n3. 🚫 **No breaks** - Complete in one sitting\n4. 📱 **No external help** - No Google, no notes\n5. 📝 **Answer all questions** - No penalty for wrong answers\n\n## Exam Structure:\n\n- **English Language:** 60 questions\n- **Mathematics:** 60 questions\n- **Physics:** 40 questions\n- **Chemistry:** 40 questions\n\n**Total:** 180 questions in 180 minutes (1 question/minute)\n\n## After the Exam:\n\nYou'll receive:\n- Overall score\n- Score per subject\n- Weak topics identified\n- Personalized study recommendations\n\n## Ready?\n\nWhen you click 'Start Exam', the timer begins. Good luck! 🍀",
+              "estimated_time_minutes": 5,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "🎯 DIAGNOSTIC MOCK EXAM (180 Questions)",
+              "section_type": "quiz",
+              "order": 1,
+              "estimated_time_minutes": 180,
+              "is_required": true,
+              "is_published": true,
+              "metadata": {
+                "is_timed": true,
+                "time_limit_minutes": 180,
+                "show_timer": true,
+                "auto_submit": true,
+                "exam_mode": true,
+                "allow_review": true
+              },
+              "quiz_questions": [
+                {
+                  "text": "[ENGLISH] Choose the option nearest in meaning to: 'The manager VINDICATED his decision.'",
+                  "explanation": "Vindicated means justified or defended. The manager defended/justified his decision.",
+                  "order": 1,
+                  "points": 1,
+                  "subject": "english",
+                  "topic": "lexis_and_structure",
+                  "options": [
+                    {
+                      "text": "Justified",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "Condemned",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "Revised",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "Withdrew",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "[MATHEMATICS] If 3x - 2 = 10, find the value of x",
+                  "explanation": "Add 2 to both sides: 3x = 12. Divide by 3: x = 4",
+                  "order": 2,
+                  "points": 1,
+                  "subject": "mathematics",
+                  "topic": "algebra",
+                  "options": [
+                    {
+                      "text": "4",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "3",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "6",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "12",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "[PHYSICS] The SI unit of force is:",
+                  "explanation": "Force = mass × acceleration. Unit: kg × m/s² = Newton (N)",
+                  "order": 3,
+                  "points": 1,
+                  "subject": "physics",
+                  "topic": "mechanics",
+                  "options": [
+                    {
+                      "text": "Newton",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "Joule",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "Watt",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "Pascal",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                },
+                {
+                  "text": "[CHEMISTRY] The atomic number of an element is determined by the number of:",
+                  "explanation": "Atomic number = number of protons in the nucleus",
+                  "order": 4,
+                  "points": 1,
+                  "subject": "chemistry",
+                  "topic": "atomic_structure",
+                  "options": [
+                    {
+                      "text": "Protons",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "Neutrons",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "Electrons",
+                      "is_correct": false,
+                      "order": 3
+                    },
+                    {
+                      "text": "Nucleons",
+                      "is_correct": false,
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "📊 Your Diagnostic Results",
+              "section_type": "text",
+              "order": 2,
+              "text_content": "# Diagnostic Exam Complete!\n\n## What Happens Next?\n\nAfter submitting, you'll see:\n\n1. **Overall Score** - Your total out of 400\n2. **Subject Breakdown** - Score per subject\n3. **Topic Analysis** - Which topics need work\n4. **Percentile Rank** - How you compare to others\n5. **Study Recommendations** - Personalized plan\n\n## Interpreting Your Score:\n\n- **300-400:** Excellent! Focus on maintaining consistency\n- **250-299:** Good foundation, target weak areas\n- **200-249:** Solid start, significant room for improvement\n- **150-199:** Need intensive study, follow plan closely\n- **Below 150:** Don't worry! Average improvement is 45+ points\n\n## Remember:\n\nThis is your BASELINE. Most students score 30-50 points lower on their first attempt compared to the real exam. The course will help you improve!\n\n**Next Step:** Review your results and start Week 2 lessons.",
+              "estimated_time_minutes": 10,
+              "is_published": true
+            }
+          ],
+          "resources": [
+            {
+              "title": "Diagnostic Exam - Printable Version",
+              "description": "PDF version for offline practice",
+              "resource_type": "pdf",
+              "url": "https://example.com/exams/diagnostic-exam.pdf",
+              "download_allowed": true,
+              "order": 0
+            },
+            {
+              "title": "Answer Key with Explanations",
+              "description": "Detailed solutions for all 180 questions",
+              "resource_type": "pdf",
+              "url": "https://example.com/exams/diagnostic-answers.pdf",
+              "download_allowed": true,
+              "order": 1
+            },
+            {
+              "title": "Topic Coverage Analysis",
+              "description": "Which topics each question tests",
+              "resource_type": "pdf",
+              "url": "https://example.com/exams/diagnostic-topics.pdf",
+              "download_allowed": true,
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Week 2-3: English Language Mastery",
+      "description": "Master all aspects of JAMB English - comprehension, lexis, structure, and oral forms",
+      "order": 1,
+      "is_published": true,
+      "duration_minutes": 720,
+      "difficulty": "intermediate",
+      "learning_objectives": [
+        "Master comprehension strategies",
+        "Build vocabulary (1000+ words)",
+        "Perfect grammar rules",
+        "Score 50+ in English section"
+      ],
+      "lessons": [
+        {
+          "title": "Comprehension Strategies",
+          "description": "Learn to answer comprehension questions quickly and accurately",
+          "lesson_type": "video",
+          "order": 0,
+          "video_url": "https://example.com/videos/comprehension-strategies",
+          "duration_minutes": 30,
+          "is_published": true,
+          "difficulty": "intermediate",
+          "sections": [
+            {
+              "title": "The 3-Step Method",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Comprehension: The 3-Step Method\n\n## Step 1: Skim First (30 seconds)\n- Read only the first and last paragraph\n- Identify the main idea\n- Don't read the whole passage yet!\n\n## Step 2: Read Questions (1 minute)\n- Read all questions carefully\n- Underline key words in questions\n- Know what to look for\n\n## Step 3: Targeted Reading (4 minutes)\n- Now read the passage\n- When you find an answer, mark it immediately\n- Don't re-read unnecessarily\n\n**Total Time:** ~5-6 minutes for 5 questions = Success!\n\nVs.\n\n**Wrong Method:** Read passage, then questions, then re-read = 10 minutes wasted ❌",
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true
+            },
+            {
+              "title": "Video: Method in Action",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/comprehension-demo",
+              "video_duration_seconds": 900,
+              "description": "Watch me solve a full comprehension passage in 6 minutes",
+              "estimated_time_minutes": 18,
+              "is_published": true
+            },
+            {
+              "title": "⏱️ Timed Practice",
+              "section_type": "quiz",
+              "order": 2,
+              "estimated_time_minutes": 10,
+              "is_required": true,
+              "is_published": true,
+              "metadata": {
+                "is_timed": true,
+                "time_limit_seconds": 360,
+                "show_timer": true
+              },
+              "quiz_questions": [
+                {
+                  "text": "Read the passage and answer: What is the main idea?",
+                  "explanation": "The passage focuses on climate change effects. Key phrases: 'global warming', 'rising temperatures', 'environmental impact'",
+                  "order": 1,
+                  "points": 2,
+                  "options": [
+                    {
+                      "text": "Climate change and its environmental effects",
+                      "is_correct": true,
+                      "order": 1
+                    },
+                    {
+                      "text": "Economic development strategies",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "Political solutions to poverty",
+                      "is_correct": false,
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
