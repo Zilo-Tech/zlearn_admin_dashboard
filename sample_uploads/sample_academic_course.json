@@ -1,9 +1,16 @@
 {
+  "_comment": "Academic Course Import Example - Grade 10 Mathematics",
+  "_IMPORTANT": "The 'course_type' field determines what type of course is created. This file creates an ACADEMIC course.",
+  
   "course": {
     "title": "Mathematics - Grade 10 (WAEC Syllabus)",
     "short_description": "Complete Grade 10 Mathematics aligned with WAEC curriculum for 2025-2026",
     "description": "Master Grade 10 Mathematics with comprehensive coverage of the WAEC syllabus.\n\n📚 Curriculum Coverage:\n- Algebra & Equations\n- Geometry & Mensuration\n- Trigonometry\n- Statistics & Probability\n- Sets & Logic\n\n🎯 Aligned With:\n- WAEC syllabus 2025-2026\n- National curriculum standards\n- School term structure\n\n✅ Includes:\n- Video lessons for every topic\n- Practice worksheets with answers\n- Past WAEC questions (2019-2024)\n- Progress tracking\n- Termly assessments\n\n👥 Perfect For:\n- Grade 10 students\n- Homeschoolers\n- Exam retakers\n- Students needing extra support",
     "course_code": "MATH-G10-WAEC-2026",
+    
+    "_comment_course_type": "REQUIRED! This is an ACADEMIC course. Options: 'professional', 'academic', 'exam_prep'",
+    "course_type": "academic",
+    
     "level": "intermediate",
     "status": "draft",
     "language": "en",
