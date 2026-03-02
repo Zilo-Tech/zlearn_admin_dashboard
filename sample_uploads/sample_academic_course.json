@@ -1,6 +1,7 @@
 {
   "_comment": "Academic Course Import Example - Grade 10 Mathematics",
   "_IMPORTANT": "The 'course_type' field determines what type of course is created. This file creates an ACADEMIC course.",
+  "_NOTE": "For academic courses, you must specify school, faculty, and class_level. These must exist in the database.",
   
   "course": {
     "title": "Mathematics - Grade 10 (WAEC Syllabus)",
@@ -10,6 +11,25 @@
     
     "_comment_course_type": "REQUIRED! This is an ACADEMIC course. Options: 'professional', 'academic', 'exam_prep'",
     "course_type": "academic",
+    
+    "_comment_academic_fields": "Academic-specific fields - school, faculty, class_level must exist in database",
+    "school": "university-of-buea",
+    "_comment_school": "Use school ID or exact name. Example IDs: 'university-of-buea', 'mit', 'harvard-university'",
+    
+    "faculty": "faculty-of-science",
+    "_comment_faculty": "Use faculty ID or exact name. Example IDs: 'faculty-of-science', 'school-of-engineering'",
+    
+    "class_level": "cm-secondary-form4",
+    "_comment_class_level": "Use class level ID or exact name. Example IDs: 'cm-secondary-form4', 'us-grade-10'",
+    
+    "academic_year": "2025/2026",
+    "_comment_academic_year": "Format: 'YYYY/YYYY' or 'Semester Year' like 'Fall 2025'",
+    
+    "semester": "1",
+    "_comment_semester": "Options: 'fall', 'spring', 'summer', '1', '2', '3' depending on school system",
+    
+    "course_credits": 3,
+    "_comment_course_credits": "Number of academic credits (optional, typically for university courses)",
     
     "level": "intermediate",
     "status": "draft",

@@ -34,13 +34,17 @@ const SAMPLE_TEMPLATES = [
 const getSampleUrl = (filename: string) =>
   `${process.env.PUBLIC_URL || ''}/sample_uploads/${filename}`;
 
-const COURSE_CREATION_PROMPT = `Z-Learn Premium Course Creation Prompt (Reusable Template)
+const COURSE_PROMPTS = {
+  professional: {
+    label: 'Professional Course',
+    filename: 'zlearn_professional_course_prompt.txt',
+    content: `Z-Learn Professional Course Creation Prompt (Reusable Template)
 
 I want to upload a very high-standard, professional course on the Z-Learn platform. This course will be paid for by students, so the content must be comprehensive, detailed, practical, and structured at a premium level. The material must provide enough depth to ensure students fully understand the concepts and feel that the course is worth the investment.
 
 Z-Learn uses a flexible dynamic sections structure (text, video, code, image, embed, quiz, pdf, downloadable resources, etc.). The course must be designed to maximize clarity, engagement, and real-world application. Use this flexibility intelligently to improve comprehension by combining explanations, demonstrations, practical exercises, quizzes, and case studies within each lesson.
 
-I will attach a sample JSON structure format. You must strictly follow that structure when generating the course content.
+I will attach a sample JSON structure format (sample_professional_course.json). You must strictly follow that structure when generating the course content.
 
 When creating the course:
 
@@ -79,14 +83,119 @@ Include Capstone Project: [Yes/No]
 Include Certification Criteria: [Yes/No]
 Geographic or Industry Context (if any): [e.g., Africa, Global, Fintech, Healthcare, etc.]
 
-Generate the full course accordingly.`;
+Generate the full course accordingly.`,
+  },
+  academic: {
+    label: 'Academic Course',
+    filename: 'zlearn_academic_course_prompt.txt',
+    content: `Z-Learn Academic Course Creation Prompt (Reusable Template)
 
-const downloadPrompt = () => {
-  const blob = new Blob([COURSE_CREATION_PROMPT], { type: 'text/plain' });
+I want to upload a high-standard, curriculum-aligned academic course on the Z-Learn platform. The content must be comprehensive, accurate, and structured for formal education (school/university). It must align with syllabus requirements and support student progression.
+
+Z-Learn uses a flexible dynamic sections structure (text, video, code, image, embed, quiz, pdf, downloadable resources, etc.). Use this flexibility to maximize clarity and learning outcomes for academic delivery.
+
+I will attach a sample JSON structure format (sample_academic_course.json). You must strictly follow that structure when generating the course content.
+
+When creating the course:
+
+Provide complete modules and lessons (not summaries).
+
+Include detailed, teachable content aligned with curriculum.
+
+Insert real, valid links only where necessary.
+
+Include practice exercises and assessments.
+
+Add quizzes with correct answers and explanations.
+
+Maintain logical progression according to syllabus.
+
+Ensure the course is suitable for academic certification or exam preparation.
+
+Avoid unnecessary emojis or informal language.
+
+Keep formatting clean and ready for dashboard upload.
+
+For academic courses, you MUST include school, faculty, and class_level (these must exist in the database).
+
+Now create the course using the following details:
+
+Course Title: [INSERT COURSE TITLE]
+Short Description: [INSERT SHORT DESCRIPTION]
+Target Audience: [INSERT TARGET AUDIENCE]
+Difficulty Level: [Beginner / Intermediate / Advanced]
+Estimated Duration: [INSERT HOURS OR WEEKS]
+Primary Goal of the Course: [INSERT LEARNING OUTCOMES]
+
+Academic-specific fields (REQUIRED — must exist in database):
+School: [INSERT SCHOOL ID or exact name, e.g., university-of-buea, mit, harvard-university]
+Faculty: [INSERT FACULTY ID or exact name, e.g., faculty-of-science, school-of-engineering]
+Class Level: [INSERT CLASS LEVEL ID or exact name, e.g., cm-secondary-form4, us-grade-10]
+Academic Year: [Format: YYYY/YYYY or Semester Year, e.g., 2025/2026 or Fall 2025]
+Semester: [fall / spring / summer / 1 / 2 / 3 — depending on school system]
+Course Credits: [NUMBER — optional, typically for university courses]
+
+Generate the full course accordingly.`,
+  },
+  exam_prep: {
+    label: 'Exam Prep Course',
+    filename: 'zlearn_exam_prep_course_prompt.txt',
+    content: `Z-Learn Exam Prep Course Creation Prompt (Reusable Template)
+
+I want to upload a comprehensive exam preparation course on the Z-Learn platform. The course must help students prepare for a specific exam (JAMB, SAT, GRE, WAEC, etc.) with targeted content, practice questions, mock exams, and test-taking strategies.
+
+Z-Learn uses a flexible dynamic sections structure (text, video, code, image, embed, quiz, pdf, downloadable resources, etc.). Use this to create exam-style questions, timed drills, and diagnostic content.
+
+I will attach a sample JSON structure format (sample_exam_prep_course.json). You must strictly follow that structure when generating the course content. The course object must include exam-specific fields: course_type, exam, exam_board, target_exam_date, exam_subjects.
+
+When creating the course:
+
+Provide complete modules and lessons (not summaries).
+
+Include exam-style practice questions with correct answers and explanations.
+
+Add timed mock exam sections where appropriate.
+
+Include test-taking strategies and time management tips.
+
+Cover all exam subjects comprehensively.
+
+Include diagnostic content to identify weak areas.
+
+Maintain logical progression aligned with exam syllabus.
+
+Avoid unnecessary emojis or informal language.
+
+Keep formatting clean and ready for dashboard upload.
+
+Now create the course using the following details:
+
+Course Title: [INSERT COURSE TITLE]
+Short Description: [INSERT SHORT DESCRIPTION]
+Target Exam: [e.g., JAMB UTME 2026, SAT, GRE]
+Target Audience: [INSERT TARGET AUDIENCE]
+Difficulty Level: [Beginner / Intermediate / Advanced]
+Estimated Duration: [INSERT HOURS OR WEEKS]
+
+Exam-specific fields (REQUIRED):
+Exam: [INSERT EXAM ID or slug, e.g., jamb-2026, sat-2026 — link to Exam package if exists]
+Exam Board: [JAMB, SAT, GRE, WAEC, GCE, etc.]
+Target Exam Date: [YYYY-MM-DD, e.g., 2026-05-15]
+Exam Subjects: [List of subjects, e.g., Use of English, Mathematics, Physics, Chemistry]
+
+Generate the full course accordingly.`,
+  },
+} as const;
+
+type CoursePromptType = keyof typeof COURSE_PROMPTS;
+
+const downloadPrompt = (type: CoursePromptType) => {
+  const prompt = COURSE_PROMPTS[type];
+  const blob = new Blob([prompt.content], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'zlearn_course_creation_prompt.txt';
+  a.download = prompt.filename;
   a.click();
   URL.revokeObjectURL(url);
 };
@@ -135,6 +244,7 @@ export const CourseImportPage: React.FC = () => {
   const [importCourse, { isLoading: isImporting }] = useImportCourseMutation();
 
   const [promptExpanded, setPromptExpanded] = useState(false);
+  const [selectedPromptType, setSelectedPromptType] = useState<CoursePromptType>('professional');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [jsonPreview, setJsonPreview] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -234,21 +344,40 @@ export const CourseImportPage: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-zlearn-primary" />
-                <CardTitle>AI Course Creation Prompt</CardTitle>
+                <CardTitle>AI Course Creation Prompts</CardTitle>
               </div>
-              <Button variant="outline" size="sm" onClick={downloadPrompt}>
+              <Button variant="outline" size="sm" onClick={() => downloadPrompt(selectedPromptType)}>
                 <Download className="w-4 h-4" />
-                Download Prompt
+                Download {COURSE_PROMPTS[selectedPromptType].label} Prompt
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-3">
-              Use this reusable prompt with an AI assistant to generate course content in the correct JSON structure. Fill in the placeholders and attach a sample template.
+              Use these prompts with an AI assistant to generate course content. Choose the type that matches your sample template, fill in the placeholders, and attach the corresponding sample.
             </p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {(Object.keys(COURSE_PROMPTS) as CoursePromptType[]).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    setSelectedPromptType(type);
+                    setPromptExpanded(true);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedPromptType === type
+                      ? 'bg-zlearn-primary text-white'
+                      : 'bg-surface-muted text-gray-600 hover:bg-surface-border hover:text-gray-900'
+                  }`}
+                >
+                  {COURSE_PROMPTS[type].label}
+                </button>
+              ))}
+            </div>
             <button
               type="button"
               onClick={() => setPromptExpanded(!promptExpanded)}
@@ -259,7 +388,7 @@ export const CourseImportPage: React.FC = () => {
             </button>
             {promptExpanded && (
               <pre className="mt-2 p-4 bg-surface-muted rounded-lg text-xs text-gray-700 overflow-x-auto max-h-80 overflow-y-auto whitespace-pre-wrap font-sans border border-surface-borderLight">
-                {COURSE_CREATION_PROMPT}
+                {COURSE_PROMPTS[selectedPromptType].content}
               </pre>
             )}
           </CardContent>

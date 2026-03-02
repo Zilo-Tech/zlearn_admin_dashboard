@@ -1,5 +1,18 @@
 {
   "course": {
+    "_comment_academic_fields": "Academic-specific fields - school, faculty, class_level must exist in database",
+    "school": "university-of-buea",
+    "_comment_school": "Use school ID or exact name. Example IDs: 'university-of-buea', 'mit', 'harvard-university'",
+    "faculty": "faculty-of-science",
+    "_comment_faculty": "Use faculty ID or exact name. Example IDs: 'faculty-of-science', 'school-of-engineering'",
+    "class_level": "cm-secondary-form4",
+    "_comment_class_level": "Use class level ID or exact name. Example IDs: 'cm-secondary-form4', 'us-grade-10'",
+    "academic_year": "2025/2026",
+    "_comment_academic_year": "Format: 'YYYY/YYYY' or 'Semester Year' like 'Fall 2025'",
+    "semester": "1",
+    "_comment_semester": "Options: 'fall', 'spring', 'summer', '1', '2', '3' depending on school system",
+    "course_credits": 3,
+    "_comment_course_credits": "Number of academic credits (optional, typically for university courses)",
     "title": "Mathematics - Grade 10 (WAEC Syllabus)",
     "short_description": "Complete Grade 10 Mathematics aligned with WAEC curriculum for 2025-2026",
     "description": "Master Grade 10 Mathematics with comprehensive coverage of the WAEC syllabus.\n\n📚 Curriculum Coverage:\n- Algebra & Equations\n- Geometry & Mensuration\n- Trigonometry\n- Statistics & Probability\n- Sets & Logic\n\n🎯 Aligned With:\n- WAEC syllabus 2025-2026\n- National curriculum standards\n- School term structure\n\n✅ Includes:\n- Video lessons for every topic\n- Practice worksheets with answers\n- Past WAEC questions (2019-2024)\n- Progress tracking\n- Termly assessments\n\n👥 Perfect For:\n- Grade 10 students\n- Homeschoolers\n- Exam retakers\n- Students needing extra support",
