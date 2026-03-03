@@ -1,0 +1,307 @@
+{
+  "_comment": "CONTENT APP - Academic Course Import Example",
+  "_IMPORTANT": "This imports to the CONTENT app (content.Course model) - for educational/academic courses",
+  "_ENDPOINT": "POST /api/content/admin/courses/import_course/",
+  "_NOTE": "This is different from /api/courses/admin/courses/import_course/ which imports to courses.Course",
+  
+  "title": "Mathematics - Form 1 (Secondary School)",
+  "code": "MATH_FORM1_2026",
+  "description": "Complete Form 1 Mathematics aligned with Cameroon GCE O-Level curriculum.\n\n📚 Curriculum Coverage:\n- Number Systems\n- Basic Algebra\n- Geometry Fundamentals\n- Introduction to Statistics\n\n🎯 Aligned With:\n- Cameroon GCE O-Level syllabus\n- National curriculum standards\n\n✅ Includes:\n- Video lessons for every topic\n- Practice exercises with solutions\n- Past GCE questions\n- Progress tracking",
+  
+  "_comment_course_type": "REQUIRED! Options: 'regular', 'entrance_exam', 'advanced', 'review'",
+  "course_type": "regular",
+  
+  "_comment_subject": "Subject - will auto-create if doesn't exist. Can be string name or subject object",
+  "subject": "Mathematics",
+  
+  "_comment_program": "Optional - Program code or ID (e.g., 'secondary_bilingual', 'university_stem')",
+  "program": null,
+  
+  "_comment_class_level": "Optional - Class level name or ID (e.g., 'Form 1', 'cm-secondary-form1')",
+  "class_level": "Form 1",
+  
+  "_comment_curriculum": "Optional - Curriculum code or ID (requires program)",
+  "curriculum": null,
+  
+  "_comment_exam_system": "Optional - Exam system for filtering (e.g., 'GCE_OL', 'WAEC', 'BACCALAUREAT')",
+  "exam_system": "GCE_OL",
+  
+  "difficulty": "beginner",
+  "estimated_hours": 80,
+  
+  "_comment_instructor": "Optional - instructor user ID or email",
+  "instructor": null,
+  
+  "_comment_access_control": "Enrollment and pricing settings",
+  "max_students": null,
+  "enrollment_deadline": null,
+  "is_free": true,
+  "price": 0.00,
+  "currency": "XAF",
+  
+  "_comment_media": "Optional media fields",
+  "thumbnail": null,
+  "banner_image": null,
+  "video_intro": null,
+  
+  "_comment_entrance_exam_fields": "Only for course_type='entrance_exam'",
+  "exam_board": "",
+  "exam_year": null,
+  "passing_score": null,
+  "exam_format": "",
+  
+  "_comment_learning_content": "Learning objectives (JSON array) and outcomes (text)",
+  "learning_objectives": [
+    "Master basic number operations",
+    "Understand algebraic expressions",
+    "Apply geometric principles",
+    "Interpret statistical data"
+  ],
+  
+  "requirements": "Completed primary school education\nBasic arithmetic skills\nAccess to notebook and calculator",
+  
+  "learning_outcomes": "By the end of this course, students will:\n✓ Solve complex number problems\n✓ Work confidently with algebraic expressions\n✓ Apply geometric principles to real-world problems\n✓ Analyze and interpret statistical data\n✓ Be prepared for GCE O-Level Mathematics exam",
+  
+  "language": "en",
+  "tags": ["mathematics", "form-1", "gce-o-level", "algebra", "geometry", "secondary-school"],
+  
+  "is_published": false,
+  "priority_order": 100,
+  "rating": 0.0,
+  "enrollment_count": 0,
+  
+  "_comment_modules": "Module - course organization structure",
+  "_module_fields": "Module: title, description, order, estimated_hours, is_optional, unlock_after",
+  "modules": [
+    {
+      "_comment": "Module - chapter/unit in the course",
+      "title": "Module 1: Number Systems",
+      "description": "Understanding different types of numbers and their operations",
+      "order": 0,
+      "estimated_hours": 20,
+      "is_optional": false,
+      "learning_objectives": [
+        "Identify natural, whole, and rational numbers",
+        "Perform operations on integers",
+        "Work with fractions and decimals"
+      ],
+      "is_published": true,
+      
+      "_comment_lessons": "Lesson - individual lessons within the module",
+      "_lesson_fields": "Lesson: title, description,order, content_type, duration (HH:MM:SS format), difficulty, is_free, is_preview, learning_objectives, keywords",
+      "_content_types": "Options: 'video', 'interactive', 'reading', 'practice', 'quiz', 'assignment', 'discussion', 'exam_prep', 'past_questions', 'mock_exam', 'study_guide', 'exam_tips'",
+      "lessons": [
+        {
+          "_comment": "Lesson - individual learning unit",
+          "title": "Introduction to Number Systems",
+          "description": "Learn about different types of numbers",
+          "order": 0,
+          "content_type": "video",
+          "duration": "00:30:00",
+          "_duration_note": "Duration format: HH:MM:SS or timedelta string",
+          "difficulty": "easy",
+          "is_free": true,
+          "is_preview": true,
+          "learning_objectives": [
+            "Define natural numbers, whole numbers, and integers",
+            "Understand the number line",
+            "Compare and order numbers"
+          ],
+          "keywords": ["numbers", "integers", "number line", "counting"],
+          
+          "_comment_sections": "LessonSection - granular content sections within lesson",
+          "_section_fields": "LessonSection: title, section_type, order, text_content, image, image_url, video_url, video_file, audio_url, code_content, file_attachment, pdf_file, embed_url, is_required, is_published, estimated_time_minutes",
+          "_IMPORTANT": "Use specific content fields based on section_type: text_content for text, video_url for video, etc.",
+          "_section_types": "Options: 'text', 'image', 'video', 'audio', 'code', 'file', 'pdf', 'embed', 'combined', 'interactive', 'quiz', 'practice', 'assignment', 'reading', 'discussion', 'exam_prep', 'past_questions', 'mock_exam', 'study_guide', 'exam_tips'",
+          "sections": [
+            {
+              "_comment": "LessonSection - text content",
+              "title": "What are Numbers?",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Number Systems\n\n## Types of Numbers:\n\n### Natural Numbers (ℕ)\n- Also called counting numbers\n- Start from 1: {1, 2, 3, 4, 5, ...}\n- Used for counting objects\n\n### Whole Numbers (W)\n- Natural numbers plus zero\n- {0, 1, 2, 3, 4, 5, ...}\n\n### Integers (ℤ)\n- Whole numbers and their negatives\n- {..., -3, -2, -1, 0, 1, 2, 3, ...}\n\n### Rational Numbers (ℚ)\n- Numbers that can be expressed as fractions\n- Examples: 1/2, 3/4, 0.5, -2/3\n\n## Why Learn Number Systems?\n- Foundation for all mathematics\n- Essential for everyday calculations\n- Required for GCE O-Level exams",
+              "is_required": true,
+              "is_published": true,
+              "estimated_time_minutes": 15
+            },
+            {
+              "_comment": "LessonSection - video content",
+              "title": "Video: Understanding Number Systems",
+              "section_type": "video",
+              "order": 1,
+              "video_url": "https://example.com/videos/number-systems-intro.mp4",
+              "video_duration_seconds": 900,
+              "_video_note": "Can also use video_file for uploaded videos, video_qualities for multiple resolutions",
+              "is_required": true,
+              "is_published": true,
+              "estimated_time_minutes": 15
+            },
+            {
+              "_comment": "LessonSection - quiz section with questions",
+              "title": "Practice Quiz",
+              "section_type": "quiz",
+              "order": 2,
+              "description": "Test your understanding of number systems",
+              "is_required": true,
+              "is_published": true,
+              "estimated_time_minutes": 10,
+              
+              "_comment_quiz": "QuizQuestion - attached to this section",
+              "quiz_questions": [
+                {
+                  "text": "Which set includes zero?",
+                  "order": 0,
+                  "explanation": "Whole numbers include all natural numbers plus zero",
+                  "options": [
+                    {
+                      "text": "Natural numbers",
+                      "is_correct": false,
+                      "order": 0
+                    },
+                    {
+                      "text": "Whole numbers",
+                      "is_correct": true,
+                      "explanation": "Correct! Whole numbers = {0, 1, 2, 3, ...}",
+                      "order": 1
+                    },
+                    {
+                      "text": "Prime numbers",
+                      "is_correct": false,
+                      "order": 2
+                    },
+                    {
+                      "text": "Composite numbers",
+                      "is_correct": false,
+                      "order": 3
+                    }
+                  ]
+                },
+                {
+                  "text": "Which of the following is NOT an integer?",
+                  "order": 1,
+                  "explanation": "Integers do not include fractions or decimals",
+                  "options": [
+                    {
+                      "text": "-5",
+                      "is_correct": false,
+                      "order": 0
+                    },
+                    {
+                      "text": "0",
+                      "is_correct": false,
+                      "order": 1
+                    },
+                    {
+                      "text": "1/2",
+                      "is_correct": true,
+                      "explanation": "Correct! 1/2 is a rational number, not an integer",
+                      "order": 2
+                    },
+                    {
+                      "text": "10",
+                      "is_correct": false,
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          
+          "_comment_resources": "LearningResource - additional learning materials for the lesson",
+          "_resource_fields": "LearningResource: title, description, resource_type, file, url, text_content, embed_code, order",
+          "_resource_types": "Options: 'video', 'audio', 'pdf', 'image', 'url', 'embed', 'text', 'interactive'",
+          "resources": [
+            {
+              "_comment": "LearningResource - downloadable PDF",
+              "title": "Number Systems Worksheet",
+              "description": "Practice exercises on number types",
+              "resource_type": "pdf",
+              "url": "https://example.com/resources/number-systems-worksheet.pdf",
+              "order": 0
+            }
+          ]
+        },
+        {
+          "_comment": "Second lesson - practice exercises",
+          "title": "Operations with Integers",
+          "description": "Learn to add, subtract, multiply, and divide integers",
+          "order": 1,
+          "content_type": "practice",
+          "duration": "00:45:00",
+          "difficulty": "easy",
+          "is_free": true,
+          "learning_objectives": [
+            "Add and subtract positive and negative integers",
+            "Multiply and divide integers",
+            "Apply order of operations"
+          ],
+          "keywords": ["integers", "addition", "subtraction", "multiplication", "division"],
+          "sections": [
+            {
+              "_comment": "Practice section - text-based exercises",
+              "title": "Adding and Subtracting Integers",
+              "section_type": "reading",
+              "order": 0,
+              "text_content": "# Integer Operations\n\n## Addition Rules:\n- Same signs: Add and keep the sign\n  - (+5) + (+3) = +8\n  - (-5) + (-3) = -8\n\n- Different signs: Subtract smaller from larger, use sign of larger\n  - (+5) + (-3) = +2\n  - (-5) + (+3) = -2\n\n## Subtraction Rules:\n- Subtracting is the same as adding the opposite\n  - 5 - 3 = 5 + (-3) = 2\n  - 5 - (-3) = 5 + 3 = 8",
+              "is_required": true,
+              "is_published": true,
+              "estimated_time_minutes": 20
+            },
+            {
+              "_comment": "Practice exercises section",
+              "title": "Practice Exercises",
+              "section_type": "practice",
+              "order": 1,
+              "text_content": "## Practice Problems:\n\n1. (-8) + (-12) = ?\n2. 15 + (-7) = ?\n3. (-10) - (-4) = ?\n4. 6 - 9 = ?\n5. (-3) × 4 = ?\n\n### Answers:\n1. -20\n2. 8\n3. -6\n4. -3\n5. -12",
+              "is_required": true,
+              "is_published": true,
+              "estimated_time_minutes": 25
+            }
+          ],
+          "resources": []
+        }
+      ]
+    },
+    {
+      "_comment": "Second module - Algebra",
+      "title": "Module 2: Introduction to Algebra",
+      "description": "Basic algebraic concepts and expressions",
+      "order": 1,
+      "estimated_hours": 25,
+      "is_optional": false,
+      "learning_objectives": [
+        "Understand variables and constants",
+        "Simplify algebraic expressions",
+        "Solve simple equations"
+      ],
+      "is_published": true,
+      "lessons": [
+        {
+          "title": "What is Algebra?",
+          "description": "Introduction to algebraic thinking",
+          "order": 0,
+          "content_type": "reading",
+          "duration": "00:20:00",
+          "difficulty": "easy",
+          "is_free": true,
+          "is_preview": true,
+          "learning_objectives": ["Understand variables and algebraic notation"],
+          "keywords": ["algebra", "variables", "expressions", "equations"],
+          "sections": [
+            {
+              "title": "Understanding Algebra",
+              "section_type": "text",
+              "order": 0,
+              "text_content": "# Introduction to Algebra\n\nAlgebra uses letters (variables) to represent unknown numbers.\n\n## Key Concepts:\n- **Variable**: A letter representing an unknown (x, y, a, b)\n- **Constant**: A fixed number (5, -3, 10)\n- **Expression**: Combination of variables and constants (3x + 5)\n- **Equation**: Expression with an equals sign (3x + 5 = 14)\n\n## Why Learn Algebra?\n- Solve real-world problems\n- Foundation for advanced math\n- Required for GCE O-Level",
+              "is_required": true,
+              "is_published": true,
+              "estimated_time_minutes": 20
+            }
+          ],
+          "resources": []
+        }
+      ]
+    }
+  ]
+}

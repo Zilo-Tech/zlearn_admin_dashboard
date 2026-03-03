@@ -11,9 +11,38 @@ import {
 } from '../../store/api/examsApi';
 import type { Exam } from '../../interfaces/exam';
 
+const EXAM_STATUS_OPTIONS = [
+  { value: '', label: 'All statuses' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+  { value: 'archived', label: 'Archived' },
+  { value: 'suspended', label: 'Suspended' },
+];
+const EXAM_TYPE_OPTIONS = [
+  { value: '', label: 'All types' },
+  { value: 'university', label: 'University' },
+  { value: 'professional', label: 'Professional' },
+  { value: 'language', label: 'Language' },
+  { value: 'standardized', label: 'Standardized' },
+  { value: 'secondary', label: 'Secondary' },
+  { value: 'other', label: 'Other' },
+];
+
 export const ExamsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: exams = [], isLoading } = useGetExamsQuery({});
+  const [filters, setFilters] = useState<{ status: string; exam_type: string; search: string }>({
+    status: '',
+    exam_type: '',
+    search: '',
+  });
+  const [page, setPage] = useState(1);
+  const params: Record<string, string | number> = { page, page_size: 20 };
+  if (filters.status) params.status = filters.status;
+  if (filters.exam_type) params.exam_type = filters.exam_type;
+  if (filters.search.trim()) params.search = filters.search.trim();
+  const { data, isLoading } = useGetExamsQuery(params);
+  const exams = data?.results ?? [];
+  const pagination = data?.pagination;
   const [createExam, { isLoading: isCreating }] = useCreateExamMutation();
   const [updateExam, { isLoading: isUpdating }] = useUpdateExamMutation();
   const [deleteExam] = useDeleteExamMutation();
@@ -322,6 +351,33 @@ export const ExamsPage: React.FC = () => {
 
         {error && <Alert type="error" message={error} />}
 
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <Input
+            placeholder="Search title, description, exam code..."
+            value={filters.search}
+            onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value })); setPage(1); }}
+            className="min-w-[200px] max-w-xs"
+          />
+          <select
+            value={filters.status}
+            onChange={(e) => { setFilters((f) => ({ ...f, status: e.target.value })); setPage(1); }}
+            className="px-3 py-2 border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary"
+          >
+            {EXAM_STATUS_OPTIONS.map((o) => (
+              <option key={o.value || 'all'} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+          <select
+            value={filters.exam_type}
+            onChange={(e) => { setFilters((f) => ({ ...f, exam_type: e.target.value })); setPage(1); }}
+            className="px-3 py-2 border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary"
+          >
+            {EXAM_TYPE_OPTIONS.map((o) => (
+              <option key={o.value || 'all'} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
         <DataTable
           data={exams}
           columns={columns}
@@ -333,6 +389,31 @@ export const ExamsPage: React.FC = () => {
           addButtonLabel="Add Exam Package"
           keyExtractor={(item) => item.id}
         />
+        {pagination && pagination.total_pages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-gray-500">
+              Page {pagination.current_page} of {pagination.total_pages} ({pagination.count} total)
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={!pagination.has_previous}
+                className="px-3 py-1.5 text-sm border border-surface-border rounded-lg disabled:opacity-50 hover:bg-surface-muted"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.has_next}
+                className="px-3 py-1.5 text-sm border border-surface-border rounded-lg disabled:opacity-50 hover:bg-surface-muted"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
 
         <Modal
           isOpen={isModalOpen}

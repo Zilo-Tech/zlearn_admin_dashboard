@@ -1,0 +1,398 @@
+{
+  "_comment": "EXAMS APP - Exam Package Import Example",
+  "_IMPORTANT": "This imports to the EXAMS app (exams.Exam model) - for exam preparation packages",
+  "_ENDPOINT": "POST /api/exams/admin/exams/import_exam/",
+  "_NOTE": "This creates an exam PACKAGE (e.g., JAMB 2026) with multiple subject courses",
+  
+  "title": "JAMB UTME 2026 Preparation",
+  "exam_code": "JAMB_UTME_2026",
+  "description": "Complete preparation package for the 2026 JAMB Unified Tertiary Matriculation Examination.\n\n📚 Package Includes:\n- All 4 JAMB subjects\n- Video lessons for every topic\n- Practice questions from past JAMB exams\n- Mock exams with timing\n- Performance analytics\n\n🎯 Exam Details:\n- Total: 400 marks (100 per subject)\n- Duration: 3 hours\n- Format: Multiple choice\n- Exam Date: May 15, 2026",
+  "short_description": "Complete JAMB UTME 2026 preparation with all subjects, practice questions, and mock exams",
+  
+  "_comment_exam_type": "Options: 'university', 'professional', 'language', 'standardized', 'secondary', 'other'",
+  "exam_type": "university",
+  
+  "exam_board": "JAMB",
+  "_comment_exam_board": "e.g., 'JAMB', 'College Board', 'Cambridge', 'WAEC'",
+  
+  "exam_date": "2026-05-15",
+  "registration_start": "2026-01-15",
+  "registration_deadline": "2026-04-30",
+  
+  "exam_duration_minutes": 180,
+  "total_marks": 400,
+  "passing_score": 200,
+  "scoring_system": "400 points total (100 per subject)",
+  
+  "exam_format": "Computer-Based Test (CBT) with 4 subjects:\n1. Use of English (100 marks)\n2. Mathematics (100 marks)\n3. Physics (100 marks)\n4. Chemistry (100 marks)\n\nEach subject has 40 questions @ 2.5 marks each",
+  
+  "number_of_sections": 4,
+  "section_details": [
+    {"name": "Use of English", "duration": 45, "questions": 40, "marks": 100},
+    {"name": "Mathematics", "duration": 45, "questions": 40, "marks": 100},
+    {"name": "Physics", "duration": 45, "questions": 40, "marks": 100},
+    {"name": "Chemistry", "duration": 45, "questions": 40, "marks": 100}
+  ],
+  
+  "is_free": false,
+  "price": 5000.00,
+  "currency": "NGN",
+  
+  "_comment_instructor": "Optional - will default to current user if not provided",
+  "instructor": null,
+  
+  "status": "draft",
+  "is_published": false,
+  
+  "max_students": 50000,
+  "language": "en",
+  "tags": ["jamb", "utme", "university-entrance", "nigeria", "2026"],
+  
+  "requirements": "- Completed secondary school (O-Level)\n- Valid JAMB registration\n- Basic computer skills for CBT\n- Internet connection for online practice",
+  
+  "learning_outcomes": "✓ Master all JAMB UTME syllabus topics\n✓ Practice with 500+ past JAMB questions\n✓ Complete 10+ full mock exams\n✓ Score 250+ in JAMB UTME\n✓ Understand exam strategies and time management",
+  
+  "target_audience": "O-Level graduates seeking university admission in Nigeria",
+  
+  "featured": true,
+  "priority_order": 1,
+  
+  "_comment_courses": "These are ExamCourse objects - subject courses within the exam package",
+  "_course_fields": "ExamCourse: title, course_code, description, short_description, subject, difficulty, estimated_hours, order, is_published, learning_objectives",
+  "courses": [
+    {
+      "_comment": "ExamCourse - e.g., 'Mathematics for JAMB 2026'",
+      "title": "Use of English for JAMB 2026",
+      "course_code": "JAMB2026-ENG",
+      "description": "Comprehensive English preparation covering comprehension, grammar, and vocabulary for JAMB UTME 2026",
+      "short_description": "Master Use of English for JAMB with practice questions and mock tests",
+      
+      "_comment_subject": "Subject name - will auto-create if doesn't exist",
+      "subject": "English Language",
+      
+      "difficulty": "intermediate",
+      "estimated_hours": 40,
+      "order": 0,
+      "is_published": true,
+      
+      "learning_objectives": [
+        "Master English comprehension skills",
+        "Understand grammar rules tested in JAMB",
+        "Build vocabulary for exam success",
+        "Practice with past JAMB questions"
+      ],
+      
+      "_comment_modules": "ExamModule - modules within this exam course",
+      "_module_fields": "ExamModule: title, description, order, is_published, duration_minutes, learning_objectives",
+      "modules": [
+        {
+          "_comment": "ExamModule - e.g., 'Module 1: Reading Comprehension'",
+          "title": "Module 1: Reading Comprehension",
+          "description": "Learn strategies for tackling JAMB comprehension passages",
+          "order": 0,
+          "is_published": true,
+          "duration_minutes": 180,
+          "learning_objectives": [
+            "Identify main ideas and supporting details",
+            "Understand inference and conclusion questions",
+            "Master vocabulary in context questions"
+          ],
+          "_comment_lessons": "ExamLesson - lessons within this module",
+          "_lesson_fields": "ExamLesson: title, description, lesson_type, order, content, duration_minutes, is_published, is_preview, learning_objectives",
+          "_lesson_types": "Options: 'video', 'reading', 'practice', 'quiz', 'mixed'",
+          "lessons": [
+            {
+              "_comment": "ExamLesson - individual lesson",
+              "title": "Introduction to JAMB Comprehension",
+              "description": "Understanding the structure and question types in JAMB English comprehension",
+              "lesson_type": "reading",
+              "order": 0,
+              "duration_minutes": 30,
+              "is_published": true,
+              "is_preview": true,
+              "learning_objectives": [
+                "Understand JAMB comprehension format",
+                "Learn effective reading strategies",
+                "Identify question patterns"
+              ],
+              "_comment_sections": "ExamLessonSection - sections within this lesson",
+              "_section_fields": "ExamLessonSection: title, section_type, order, text_content, video_url, video_file, image, file, is_published",
+              "_IMPORTANT": "Use 'text_content' NOT 'content'! Sections do NOT have duration_minutes, is_preview, or description",
+              "_section_types": "Options: 'text', 'video', 'image', 'pdf', 'quiz', 'practice', 'tips', 'formula'",
+              "sections": [
+                {
+                  "title": "What to Expect in JAMB English",
+                  "section_type": "text",
+                  "order": 0,
+                  "text_content": "# JAMB Use of English - Comprehension Section\n\n## Exam Format:\n- **40 questions** in 45 minutes\n- **Sections**: Comprehension, Grammar, Vocabulary\n- **Comprehension**: 3-4 passages with 10-15 questions\n\n## Question Types:\n1. **Main Idea**: What is the passage mainly about?\n2. **Details**: Specific information from the text\n3. **Inference**: What can be concluded?\n4. **Vocabulary**: Meaning of words in context\n5. **Author's Purpose**: Why did the author write this?\n\n## Time Management:\n- Read passage: 2-3 minutes\n- Answer questions: 1 minute per question\n- Review: 2 minutes\n\n## Scoring Strategy:\n- Each question = 2.5 marks\n- No negative marking\n- Attempt all questions",
+                  "is_published": true
+                },
+                {
+                  "title": "Video: Reading Strategies for JAMB",
+                  "section_type": "video",
+                  "order": 1,
+                  "video_url": "https://example.com/videos/jamb-reading-strategies.mp4",
+                  "is_published": true
+                }
+              ],
+              
+              "_comment_resources": "ExamResource - resources attached to this lesson (NOT to sections!)",
+              "_resource_fields": "ExamResource: title, description, resource_type, file, url, content, file_size, duration_minutes, is_required, is_downloadable, order, is_published",
+              "_resource_types": "Options: 'study_guide', 'video', 'pdf', 'article', 'flashcards', 'formula_sheet', 'tips', 'link'",
+              "resources": [
+                {
+                  "title": "JAMB English Syllabus 2026",
+                  "description": "Official JAMB syllabus for Use of English",
+                  "resource_type": "pdf",
+                  "url": "https://example.com/resources/jamb-english-syllabus-2026.pdf",
+                  "order": 0
+                }
+              ]
+            },
+            {
+              "title": "Practice: Sample Comprehension Passage",
+              "description": "Practice with a JAMB-style comprehension passage",
+              "lesson_type": "practice",
+              "order": 1,
+              "duration_minutes": 30,
+              "is_published": true,
+              "is_preview": false,
+              "sections": [
+                {
+                  "title": "Sample Passage: Education in Nigeria",
+                  "section_type": "text",
+                  "order": 0,
+                  "text_content": "**Read the passage below and answer the questions that follow:**\n\nEducation has long been recognized as a fundamental human right and a key driver of social and economic development. In Nigeria, the education system has undergone significant transformations since independence, with efforts to increase access, improve quality, and align curricula with national development goals...\n\n[Full passage would be included here]",
+                  "is_published": true
+                },
+                {
+                  "title": "Practice Questions",
+                  "section_type": "quiz",
+                  "order": 1,
+                  "text_content": "Answer the following questions based on the passage above",
+                  "is_published": true
+                }
+              ],
+              "resources": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Mathematics for JAMB 2026",
+      "course_code": "JAMB2026-MATH",
+      "description": "Complete mathematics preparation covering all JAMB topics with step-by-step solutions",
+      "short_description": "Master JAMB Mathematics with video lessons and practice questions",
+      "subject": "Mathematics",
+      "difficulty": "intermediate",
+      "estimated_hours": 50,
+      "order": 1,
+      "is_published": true,
+      "learning_objectives": [
+        "Solve all JAMB mathematics question types",
+        "Master algebraic manipulation",
+        "Understand geometry and trigonometry",
+        "Apply calculus basics"
+      ],
+      "modules": [
+        {
+          "title": "Module 1: Number Systems and Algebra",
+          "description": "Master number operations and algebraic expressions for JAMB",
+          "order": 0,
+          "is_published": true,
+          "duration_minutes": 300,
+          "learning_objectives": [
+            "Perform operations with integers and fractions",
+            "Simplify algebraic expressions",
+            "Solve linear and quadratic equations"
+          ],
+          "lessons": [
+            {
+              "title": "Number Operations for JAMB",
+              "description": "Review and practice number operations commonly tested in JAMB",
+              "lesson_type": "video",
+              "order": 0,
+              "duration_minutes": 45,
+              "is_published": true,
+              "is_preview": true,
+              "sections": [
+                {
+                  "title": "JAMB Mathematics Overview",
+                  "section_type": "text",
+                  "order": 0,
+                  "text_content": "# JAMB Mathematics Preparation\n\n## Exam Structure:\n- **40 questions** in 45 minutes\n- **Coverage**: Algebra, Geometry, Trigonometry, Calculus\n- **Calculator**: Scientific calculator allowed\n\n## Topic Distribution:\n1. Number & Numeration (5-7 questions)\n2. Algebra (10-12 questions)\n3. Geometry & Mensuration (8-10 questions)\n4. Trigonometry (6-8 questions)\n5. Calculus (4-6 questions)\n\n## Scoring Tips:\n- Show working in draft (helps you think)\n- Check units in your answer\n- Verify answers make sense\n- Practice mental math for speed",
+                  "is_published": true
+                }
+              ],
+              "resources": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  
+  "_comment_mock_exams": "MockExam - Practice/mock exams for the entire exam package",
+  "_mock_exam_fields": "MockExam: title, description, is_timed, time_limit_minutes, total_marks, passing_marks, difficulty, show_answers_after, show_score_immediately, allow_review, attempts_allowed, shuffle_questions, shuffle_options, is_published, order, is_featured, instructions",
+  "_difficulty_choices": "Options: 'easy', 'medium', 'hard', 'actual'",
+  "mock_exams": [
+    {
+      "_comment": "MockExam - Full practice test with questions",
+      "title": "Mock Test 1: Diagnostic Assessment",
+      "description": "Complete diagnostic test covering all 4 subjects to assess your current level and identify areas for improvement",
+      "is_timed": true,
+      "time_limit_minutes": 180,
+      "total_marks": 400,
+      "passing_marks": 200,
+      "total_questions": 160,
+      "difficulty": "medium",
+      "show_answers_after": true,
+      "show_score_immediately": true,
+      "allow_review": true,
+      "attempts_allowed": 3,
+      "shuffle_questions": false,
+      "shuffle_options": true,
+      "is_published": true,
+      "order": 0,
+      "is_featured": true,
+      "instructions": "📋 INSTRUCTIONS:\n\n1. This is a FULL mock exam (160 questions, 3 hours)\n2. You have 3 attempts to take this test\n3. Answer ALL questions - no negative marking\n4. Use the on-screen timer to manage your time\n5. You can review your answers after submission\n\n⏱️ TIME ALLOCATION:\n- English: 45 minutes (40 questions)\n- Mathematics: 45 minutes (40 questions)\n- Physics: 45 minutes (40 questions)\n- Chemistry: 45 minutes (40 questions)\n\nGood luck! 🍀",
+      
+      "_comment_questions": "MockExamQuestion - Questions in this mock exam",
+      "_question_fields": "MockExamQuestion: question_text, question_type, order, options, correct_answer, explanation, marks, difficulty, course_code (to link to subject)",
+      "_question_types": "Options: 'multiple_choice', 'true_false', 'essay', 'short_answer', 'fill_blank', 'matching'",
+      "questions": [
+        {
+          "_comment": "Sample English question",
+          "course_code": "JAMB2026-ENG",
+          "question_text": "In the sentence 'Neither the students nor the teacher was present', which word makes the sentence grammatically correct?",
+          "question_type": "multiple_choice",
+          "order": 0,
+          "options": [
+            {"id": "A", "text": "was"},
+            {"id": "B", "text": "were"},
+            {"id": "C", "text": "is"},
+            {"id": "D", "text": "are"}
+          ],
+          "correct_answer": "A",
+          "explanation": "When subjects are joined by 'neither...nor', the verb agrees with the subject closest to it. Since 'teacher' (singular) is closest to the verb, we use 'was' (singular). Rule: Neither X nor Y = verb agrees with Y.",
+          "marks": 2.5,
+          "difficulty": "medium"
+        },
+        {
+          "_comment": "Sample Mathematics question",
+          "course_code": "JAMB2026-MATH",
+          "question_text": "If 2x + 3 = 11, what is the value of x?",
+          "question_type": "multiple_choice",
+          "order": 1,
+          "options": [
+            {"id": "A", "text": "2"},
+            {"id": "B", "text": "3"},
+            {"id": "C", "text": "4"},
+            {"id": "D", "text": "5"}
+          ],
+          "correct_answer": "C",
+          "explanation": "Solving: 2x + 3 = 11\nSubtract 3 from both sides: 2x = 8\nDivide by 2: x = 4\n\nVerification: 2(4) + 3 = 8 + 3 = 11 ✓",
+          "marks": 2.5,
+          "difficulty": "easy"
+        },
+        {
+          "_comment": "Add more questions here - typically 40 per subject = 160 total",
+          "course_code": "JAMB2026-MATH",
+          "question_text": "What is the value of π (pi) to 2 decimal places?",
+          "question_type": "multiple_choice",
+          "order": 2,
+          "options": [
+            {"id": "A", "text": "3.12"},
+            {"id": "B", "text": "3.14"},
+            {"id": "C", "text": "3.16"},
+            {"id": "D", "text": "3.18"}
+          ],
+          "correct_answer": "B",
+          "explanation": "π (pi) ≈ 3.14159... which rounds to 3.14 to 2 decimal places. This is a fundamental constant in mathematics representing the ratio of a circle's circumference to its diameter.",
+          "marks": 2.5,
+          "difficulty": "easy"
+        }
+      ]
+    },
+    {
+      "_comment": "Second mock exam - harder difficulty",
+      "title": "Mock Test 2: Advanced Practice",
+      "description": "Advanced level practice test with harder questions to prepare you for challenging exam scenarios",
+      "is_timed": true,
+      "time_limit_minutes": 180,
+      "total_marks": 400,
+      "passing_marks": 250,
+      "total_questions": 160,
+      "difficulty": "hard",
+      "show_answers_after": true,
+      "show_score_immediately": true,
+      "allow_review": true,
+      "attempts_allowed": 3,
+      "shuffle_questions": true,
+      "shuffle_options": true,
+      "is_published": true,
+      "order": 1,
+      "is_featured": false,
+      "instructions": "⚠️ ADVANCED MOCK EXAM\n\nThis test contains harder questions to challenge you. Passing mark is 250/400 (62.5%).\n\nRecommended for students who have:\n✓ Completed all course modules\n✓ Scored 70%+ on Mock Test 1\n✓ Practiced with past papers\n\nGood luck! 💪",
+      "questions": [
+        {
+          "_comment": "Include advanced questions here - structure same as above",
+          "course_code": "JAMB2026-MATH",
+          "question_text": "If log₁₀(x) = 2, what is the value of x?",
+          "question_type": "multiple_choice",
+          "order": 0,
+          "options": [
+            {"id": "A", "text": "10"},
+            {"id": "B", "text": "20"},
+            {"id": "C", "text": "100"},
+            {"id": "D", "text": "200"}
+          ],
+          "correct_answer": "C",
+          "explanation": "log₁₀(x) = 2 means 10² = x\nTherefore x = 100\n\nRemember: log_b(x) = y means b^y = x",
+          "marks": 2.5,
+          "difficulty": "hard"
+        }
+      ]
+    }
+  ],
+  
+  "_comment_past_papers": "PastPaper - Historical exam papers with solutions",
+  "_past_paper_fields": "PastPaper: year, session, title, description, total_marks, duration_minutes, is_published, is_free, order, question_paper (file URL), answer_key (file URL), marking_scheme (file URL), solutions_pdf (file URL)",
+  "past_papers": [
+    {
+      "_comment": "PastPaper - Actual past exam papers",
+      "year": 2025,
+      "session": "First Sitting",
+      "title": "JAMB 2025 - First Sitting",
+      "description": "Official JAMB UTME 2025 past questions from the first sitting. Includes all 4 subjects with detailed solutions.",
+      "total_marks": 400,
+      "duration_minutes": 180,
+      "is_published": true,
+      "is_free": false,
+      "order": 0
+    },
+    {
+      "year": 2024,
+      "session": "First Sitting",
+      "title": "JAMB 2024 - First Sitting",
+      "description": "Official JAMB UTME 2024 past questions with comprehensive solutions and marking scheme.",
+      "total_marks": 400,
+      "duration_minutes": 180,
+      "is_published": true,
+      "is_free": false,
+      "order": 1
+    },
+    {
+      "year": 2023,
+      "session": "First Sitting",
+      "title": "JAMB 2023 - First Sitting",
+      "description": "Official JAMB UTME 2023 past questions - great for understanding question patterns and difficulty trends.",
+      "total_marks": 400,
+      "duration_minutes": 180,
+      "is_published": true,
+      "is_free": true,
+      "order": 2
+    }
+  ]
+}

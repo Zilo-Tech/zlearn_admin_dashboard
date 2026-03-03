@@ -18,15 +18,18 @@ import {
   FileText,
   ClipboardList,
   FileQuestion,
+  Users,
   Plus,
   Edit2,
   Trash2,
 } from 'lucide-react';
 import {
   useGetExamQuery,
+  useGetExamStatisticsQuery,
   useGetExamCoursesQuery,
   useGetMockExamsQuery,
   useGetPastPapersQuery,
+  useGetExamEnrollmentsQuery,
   useCreateExamCourseMutation,
   useUpdateExamCourseMutation,
   useDeleteExamCourseMutation,
@@ -41,9 +44,11 @@ export const ExamDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: exam, isLoading } = useGetExamQuery(id!);
+  const { data: stats, isLoading: loadingStats } = useGetExamStatisticsQuery(id!, { skip: !id });
   const { data: courses = [], isLoading: loadingCourses } = useGetExamCoursesQuery(id!);
   const { data: mocks = [], isLoading: loadingMocks } = useGetMockExamsQuery(id!);
   const { data: papers = [], isLoading: loadingPapers } = useGetPastPapersQuery(id!);
+  const { data: enrollments = [], isLoading: loadingEnrollments } = useGetExamEnrollmentsQuery(id!);
 
   const [createCourse, { isLoading: isCreatingCourse }] = useCreateExamCourseMutation();
   const [updateCourse, { isLoading: isUpdatingCourse }] = useUpdateExamCourseMutation();
@@ -53,7 +58,7 @@ export const ExamDetailPage: React.FC = () => {
   const [createPastPaper, { isLoading: isCreatingPaper }] = useCreatePastPaperMutation();
   const [deletePastPaper] = useDeletePastPaperMutation();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'subjects' | 'mocks' | 'papers'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'subjects' | 'mocks' | 'papers' | 'enrollments'>('overview');
   const [subjectModal, setSubjectModal] = useState<'add' | 'edit' | null>(null);
   const [editingCourse, setEditingCourse] = useState<ExamCourse | null>(null);
   const [mockModal, setMockModal] = useState(false);
@@ -101,12 +106,18 @@ export const ExamDetailPage: React.FC = () => {
     );
   }
 
+  const subjectDisplayValue = (s: ExamCourse['subject']): string => {
+    if (s == null) return '';
+    if (typeof s === 'string') return s;
+    return String((s as { id?: number; name?: string }).id ?? (s as { name?: string }).name ?? '');
+  };
+
   const handleOpenSubjectModal = (course?: ExamCourse) => {
     if (course) {
       setEditingCourse(course);
       setCourseForm({
         title: course.title,
-        subject: course.subject || '',
+        subject: subjectDisplayValue(course.subject),
         order: course.order ?? 0,
         is_published: course.is_published ?? true,
       });
@@ -256,6 +267,7 @@ export const ExamDetailPage: React.FC = () => {
     { id: 'subjects' as const, label: 'Subjects', icon: BookOpen },
     { id: 'mocks' as const, label: 'Mock Exams', icon: ClipboardList },
     { id: 'papers' as const, label: 'Past Papers', icon: FileQuestion },
+    { id: 'enrollments' as const, label: 'Enrollments', icon: Users },
   ];
 
   const TableRow = ({ children }: { children: React.ReactNode }) => (
@@ -328,39 +340,87 @@ export const ExamDetailPage: React.FC = () => {
         </div>
 
         {activeTab === 'overview' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Exam Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Description</p>
-                  <p className="text-gray-900">{exam.description}</p>
+          <>
+            {loadingStats ? (
+              <Card>
+                <CardContent className="py-8 flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-surface-border border-t-zlearn-primary" />
+                </CardContent>
+              </Card>
+            ) : stats ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Dashboard statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <div className="rounded-lg border border-surface-borderLight p-4">
+                      <p className="text-xs font-medium text-gray-500 uppercase">Content</p>
+                      <p className="text-lg font-semibold mt-1">
+                        {stats.content.courses} courses · {stats.content.modules} modules · {stats.content.lessons} lessons
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {stats.content.sections} sections · {stats.content.resources} resources
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-surface-borderLight p-4">
+                      <p className="text-xs font-medium text-gray-500 uppercase">Assessments</p>
+                      <p className="text-lg font-semibold mt-1">
+                        {stats.assessments.mock_exams} mocks · {stats.assessments.mock_questions} questions · {stats.assessments.past_papers} past papers
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-surface-borderLight p-4">
+                      <p className="text-xs font-medium text-gray-500 uppercase">Enrollments</p>
+                      <p className="text-lg font-semibold mt-1">{stats.enrollments.total} total</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {stats.enrollments.active} active · {stats.enrollments.completed} completed
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-surface-borderLight p-4">
+                      <p className="text-xs font-medium text-gray-500 uppercase">Engagement</p>
+                      <p className="text-lg font-semibold mt-1">{stats.engagement.total_attempts} attempts</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Avg score {stats.engagement.average_score}% · Completion {stats.engagement.completion_rate}%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
+            <Card>
+              <CardHeader>
+                <CardTitle>Exam Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">Description</p>
+                    <p className="text-gray-900">{exam.description || '—'}</p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-surface-borderLight">
+                    <div>
+                      <p className="text-xs text-gray-500">Exam Date</p>
+                      <p className="font-medium">
+                        {exam.exam_date ? new Date(exam.exam_date).toLocaleDateString() : '—'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Total Marks</p>
+                      <p className="font-medium">{exam.total_marks ?? '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Duration</p>
+                      <p className="font-medium">{exam.duration_minutes ? `${exam.duration_minutes} min` : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Enrollments</p>
+                      <p className="font-medium">{exam.enrollment_count ?? 0}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-surface-borderLight">
-                  <div>
-                    <p className="text-xs text-gray-500">Exam Date</p>
-                    <p className="font-medium">
-                      {exam.exam_date ? new Date(exam.exam_date).toLocaleDateString() : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Total Marks</p>
-                    <p className="font-medium">{exam.total_marks || '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Duration</p>
-                    <p className="font-medium">{exam.duration_minutes ? `${exam.duration_minutes} min` : '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Enrollments</p>
-                    <p className="font-medium">{exam.enrollment_count ?? 0}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </>
         )}
 
         {activeTab === 'subjects' && (
@@ -396,7 +456,13 @@ export const ExamDetailPage: React.FC = () => {
                         <TableRow key={c.id}>
                           <td className="py-3">
                             <p className="font-medium text-gray-900">{c.title}</p>
-                            {c.subject && <p className="text-sm text-gray-500">{c.subject}</p>}
+                            {c.subject && (
+                              <p className="text-sm text-gray-500">
+                                {typeof c.subject === 'object' && c.subject !== null && 'name' in c.subject
+                                  ? c.subject.name
+                                  : String(c.subject)}
+                              </p>
+                            )}
                           </td>
                           <td className="py-3">
                             <Badge variant={c.is_published ? 'published' : 'draft'}>
@@ -405,14 +471,22 @@ export const ExamDetailPage: React.FC = () => {
                           </td>
                           <td className="py-3 text-right">
                             <button
+                              onClick={() => navigate(`/admin/exams/exams/${id}/courses/${c.id}`)}
+                              className="text-zlearn-primary hover:text-zlearn-primaryHover font-medium text-sm transition-colors duration-150 mr-3"
+                            >
+                              Manage →
+                            </button>
+                            <button
                               onClick={() => handleOpenSubjectModal(c)}
                               className="p-2 text-gray-500 hover:text-zlearn-primary rounded-lg mr-1"
+                              title="Edit"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteCourse(c)}
                               className="p-2 text-gray-500 hover:text-red-600 rounded-lg"
+                              title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -461,9 +535,13 @@ export const ExamDetailPage: React.FC = () => {
                       {mocks.map((m) => (
                         <TableRow key={m.id}>
                           <td className="py-3 font-medium text-gray-900">{m.title}</td>
-                          <td className="py-3 text-gray-600">{m.duration_minutes ?? '—'} min</td>
                           <td className="py-3 text-gray-600">
-                            {m.total_marks ?? '—'} / Pass: {m.passing_score ?? '—'}
+                            {(m.time_limit_minutes ?? m.duration_minutes) != null
+                              ? `${m.time_limit_minutes ?? m.duration_minutes} min`
+                              : '—'}
+                          </td>
+                          <td className="py-3 text-gray-600">
+                            {m.total_marks ?? '—'} / Pass: {m.passing_marks ?? m.passing_score ?? '—'}
                           </td>
                           <td className="py-3">
                             <Badge variant={m.is_published ? 'published' : 'draft'}>
@@ -472,8 +550,15 @@ export const ExamDetailPage: React.FC = () => {
                           </td>
                           <td className="py-3 text-right">
                             <button
+                              onClick={() => navigate(`/admin/exams/exams/${id}/mocks/${m.id}`)}
+                              className="text-zlearn-primary hover:text-zlearn-primaryHover font-medium text-sm transition-colors duration-150 mr-3"
+                            >
+                              Manage →
+                            </button>
+                            <button
                               onClick={() => handleDeleteMock(m)}
                               className="p-2 text-gray-500 hover:text-red-600 rounded-lg"
+                              title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -537,6 +622,65 @@ export const ExamDetailPage: React.FC = () => {
                           </td>
                         </TableRow>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'enrollments' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Enrollments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingEnrollments ? (
+                <div className="py-8 flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-surface-border border-t-zlearn-primary" />
+                </div>
+              ) : enrollments.length === 0 ? (
+                <p className="text-center py-12 text-gray-500">No enrollments yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs font-medium text-gray-500 uppercase">
+                        <th className="pb-3">Student</th>
+                        <th className="pb-3">Status</th>
+                        <th className="pb-3">Progress</th>
+                        <th className="pb-3">Mock attempts</th>
+                        <th className="pb-3">Best score</th>
+                        <th className="pb-3">Last accessed</th>
+                        <th className="pb-3">Enrolled</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {enrollments.map((en) => {
+                        const student = en.student ?? (en as any).user;
+                        const name =
+                          student && typeof student === 'object'
+                            ? [student.first_name, student.last_name].filter(Boolean).join(' ') || student.email || en.id
+                            : en.id;
+                        return (
+                          <TableRow key={en.id}>
+                            <td className="py-3 font-medium text-gray-900">{name}</td>
+                            <td className="py-3">
+                              <Badge variant={en.status === 'completed' ? 'published' : 'draft'}>{en.status ?? 'active'}</Badge>
+                            </td>
+                            <td className="py-3 text-gray-600">{en.progress_percent != null ? `${en.progress_percent}%` : '—'}</td>
+                            <td className="py-3 text-gray-600">{en.mock_exam_attempts ?? '—'}</td>
+                            <td className="py-3 text-gray-600">{en.best_mock_score ?? '—'}</td>
+                            <td className="py-3 text-gray-600">
+                              {en.last_accessed ? new Date(en.last_accessed).toLocaleDateString() : '—'}
+                            </td>
+                            <td className="py-3 text-gray-600">
+                              {en.enrolled_at ? new Date(en.enrolled_at).toLocaleDateString() : '—'}
+                            </td>
+                          </TableRow>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
