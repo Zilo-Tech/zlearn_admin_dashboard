@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Button } from '../../components/common';
 import { useImportCourseMutation } from '../../store/api/coursesApi';
-import { Upload, FileJson, Download, CheckCircle, XCircle, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { useImportContentCourseMutation } from '../../store/api/contentApi';
+import { useImportExamPackageMutation } from '../../store/api/examsApi';
+import { Upload, FileJson, Download, CheckCircle, XCircle, FileText, ChevronDown, ChevronUp, Briefcase, GraduationCap, Award } from 'lucide-react';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -17,17 +19,17 @@ const SAMPLE_TEMPLATES = [
   {
     label: 'Professional Course',
     file: 'sample_professional_course.json',
-    description: 'Python Developer Bootcamp – career-focused professional course',
+    description: 'Courses app – bootcamps, certifications, hobby courses (use with Professional import)',
   },
   {
-    label: 'Academic Course',
-    file: 'sample_academic_course.json',
-    description: 'Grade 10 Mathematics (WAEC) – curriculum-aligned academic course',
+    label: 'Academic / Content Course',
+    file: 'sample_content_academic_course.json',
+    description: 'Content app – school curriculum, university courses (use with Academic import)',
   },
   {
-    label: 'Exam Prep Course',
-    file: 'sample_exam_prep_course.json',
-    description: 'JAMB UTME Preparation – exam-focused prep course',
+    label: 'Exam Package',
+    file: 'sample_exam_package.json',
+    description: 'Exams app – full exam packages with multiple subjects (use with Exam Package import)',
   },
 ] as const;
 
@@ -94,7 +96,7 @@ I want to upload a high-standard, curriculum-aligned academic course on the Z-Le
 
 Z-Learn uses a flexible dynamic sections structure (text, video, code, image, embed, quiz, pdf, downloadable resources, etc.). Use this flexibility to maximize clarity and learning outcomes for academic delivery.
 
-I will attach a sample JSON structure format (sample_academic_course.json). You must strictly follow that structure when generating the course content.
+I will attach a sample JSON structure format (sample_content_academic_course.json). You must strictly follow that structure when generating the course content.
 
 When creating the course:
 
@@ -116,7 +118,7 @@ Avoid unnecessary emojis or informal language.
 
 Keep formatting clean and ready for dashboard upload.
 
-For academic courses, you MUST include school, faculty, and class_level (these must exist in the database).
+For Content app academic courses, include subject, class_level, exam_system, program as in the sample.
 
 Now create the course using the following details:
 
@@ -127,63 +129,48 @@ Difficulty Level: [Beginner / Intermediate / Advanced]
 Estimated Duration: [INSERT HOURS OR WEEKS]
 Primary Goal of the Course: [INSERT LEARNING OUTCOMES]
 
-Academic-specific fields (REQUIRED — must exist in database):
-School: [INSERT SCHOOL ID or exact name, e.g., university-of-buea, mit, harvard-university]
-Faculty: [INSERT FACULTY ID or exact name, e.g., faculty-of-science, school-of-engineering]
-Class Level: [INSERT CLASS LEVEL ID or exact name, e.g., cm-secondary-form4, us-grade-10]
-Academic Year: [Format: YYYY/YYYY or Semester Year, e.g., 2025/2026 or Fall 2025]
-Semester: [fall / spring / summer / 1 / 2 / 3 — depending on school system]
-Course Credits: [NUMBER — optional, typically for university courses]
+Content/Academic fields (see sample_content_academic_course.json):
+Subject: [e.g., Mathematics, Physics – auto-creates if needed]
+Class Level: [e.g., Form 1, cm-secondary-form1]
+Exam System: [e.g., GCE_OL, WAEC, BACCALAUREAT]
+Program: [optional – program code or ID]
+Course Type: [regular / entrance_exam / advanced / review]
 
 Generate the full course accordingly.`,
   },
   exam_prep: {
-    label: 'Exam Prep Course',
-    filename: 'zlearn_exam_prep_course_prompt.txt',
-    content: `Z-Learn Exam Prep Course Creation Prompt (Reusable Template)
+    label: 'Exam Package',
+    filename: 'zlearn_exam_package_prompt.txt',
+    content: `Z-Learn Exam Package Creation Prompt (Reusable Template)
 
-I want to upload a comprehensive exam preparation course on the Z-Learn platform. The course must help students prepare for a specific exam (JAMB, SAT, GRE, WAEC, etc.) with targeted content, practice questions, mock exams, and test-taking strategies.
+I want to upload a complete exam package on the Z-Learn platform (e.g., JAMB UTME 2026, SAT 2026). The package must include multiple subject courses, exam details (date, marks, format), and optional mock exams and past papers.
 
-Z-Learn uses a flexible dynamic sections structure (text, video, code, image, embed, quiz, pdf, downloadable resources, etc.). Use this to create exam-style questions, timed drills, and diagnostic content.
+I will attach a sample JSON structure format (sample_exam_package.json). You must strictly follow that structure. The root object defines the exam package (title, exam_code, exam_board, exam_date, total_marks, courses array, etc.).
 
-I will attach a sample JSON structure format (sample_exam_prep_course.json). You must strictly follow that structure when generating the course content. The course object must include exam-specific fields: course_type, exam, exam_board, target_exam_date, exam_subjects.
+When creating the package:
 
-When creating the course:
+Provide complete exam package with courses array (each course has modules and lessons).
 
-Provide complete modules and lessons (not summaries).
+Include exam metadata: exam_code, exam_board, exam_date, total_marks, scoring_system, section_details.
 
-Include exam-style practice questions with correct answers and explanations.
+Include exam-style practice questions and optional mock exams/past papers as in the sample.
 
-Add timed mock exam sections where appropriate.
-
-Include test-taking strategies and time management tips.
-
-Cover all exam subjects comprehensively.
-
-Include diagnostic content to identify weak areas.
-
-Maintain logical progression aligned with exam syllabus.
+Cover all exam subjects in the courses array.
 
 Avoid unnecessary emojis or informal language.
 
 Keep formatting clean and ready for dashboard upload.
 
-Now create the course using the following details:
+Now create the exam package using the following details:
 
-Course Title: [INSERT COURSE TITLE]
-Short Description: [INSERT SHORT DESCRIPTION]
-Target Exam: [e.g., JAMB UTME 2026, SAT, GRE]
-Target Audience: [INSERT TARGET AUDIENCE]
-Difficulty Level: [Beginner / Intermediate / Advanced]
-Estimated Duration: [INSERT HOURS OR WEEKS]
+Package Title: [INSERT TITLE, e.g., JAMB UTME 2026 Preparation]
+Exam Code: [e.g., JAMB_UTME_2026]
+Exam Board: [JAMB, SAT, GRE, WAEC, College Board, etc.]
+Exam Date: [YYYY-MM-DD]
+Total Marks: [e.g., 400]
+Subjects: [List of subject names for the courses array]
 
-Exam-specific fields (REQUIRED):
-Exam: [INSERT EXAM ID or slug, e.g., jamb-2026, sat-2026 — link to Exam package if exists]
-Exam Board: [JAMB, SAT, GRE, WAEC, GCE, etc.]
-Target Exam Date: [YYYY-MM-DD, e.g., 2026-05-15]
-Exam Subjects: [List of subjects, e.g., Use of English, Mathematics, Physics, Chemistry]
-
-Generate the full course accordingly.`,
+Generate the full exam package accordingly.`,
   },
 } as const;
 
@@ -217,16 +204,19 @@ const validateJsonFile = (file: File): Promise<Record<string, any>> => {
         const content = JSON.parse((e.target?.result as string) || '{}');
         const course = content.course || content;
         const modules = content.modules;
-        if (!course?.title) {
+        const courses = content.courses;
+        if (!course?.title && !content.title) {
           reject(new Error('JSON must contain "title" (or "course.title")'));
           return;
         }
-        if (!course?.course_code) {
-          reject(new Error('JSON must contain "course_code" (or "course.course_code")'));
+        const code = course?.course_code ?? course?.code ?? content.exam_code;
+        if (!code && !content.exam_code) {
+          reject(new Error('JSON must contain "course_code", "code", or "exam_code"'));
           return;
         }
-        if (!modules || !Array.isArray(modules)) {
-          reject(new Error('JSON must contain "modules" array'));
+        const hasStructure = (modules && Array.isArray(modules)) || (courses && Array.isArray(courses));
+        if (!hasStructure) {
+          reject(new Error('JSON must contain "modules" or "courses" array'));
           return;
         }
         resolve(content);
@@ -239,19 +229,34 @@ const validateJsonFile = (file: File): Promise<Record<string, any>> => {
   });
 };
 
+export type ImportType = 'professional' | 'academic' | 'exam_package';
+
+const IMPORT_TYPES: { type: ImportType; label: string; description: string; icon: React.ElementType }[] = [
+  { type: 'professional', label: 'Professional Development', description: 'Bootcamps, certification courses, hobby classes', icon: Briefcase },
+  { type: 'academic', label: 'Academic / Educational', description: 'School curriculum, university courses, single-subject exam prep', icon: GraduationCap },
+  { type: 'exam_package', label: 'Exam Package', description: 'Full exam packages with multiple subjects, mock tests, past papers', icon: Award },
+];
+
 export const CourseImportPage: React.FC = () => {
   const navigate = useNavigate();
-  const [importCourse, { isLoading: isImporting }] = useImportCourseMutation();
+  const [importProfessional, { isLoading: isImportingProfessional }] = useImportCourseMutation();
+  const [importAcademic, { isLoading: isImportingAcademic }] = useImportContentCourseMutation();
+  const [importExamPackage, { isLoading: isImportingExamPackage }] = useImportExamPackageMutation();
 
+  const isImporting = isImportingProfessional || isImportingAcademic || isImportingExamPackage;
+
+  const [importType, setImportType] = useState<ImportType>('professional');
   const [promptExpanded, setPromptExpanded] = useState(false);
   const [selectedPromptType, setSelectedPromptType] = useState<CoursePromptType>('professional');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [jsonPreview, setJsonPreview] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{
+    type: ImportType;
     message: string;
-    course: { id: string; title: string; course_code: string; status: string };
-    stats: { modules: number; lessons: number; sections: number; quizzes: number; resources: number };
+    course?: { id: string; title: string; course_code?: string; status?: string };
+    exam?: { id: string; title: string; slug?: string; status?: string };
+    stats?: { modules?: number; lessons?: number; sections?: number; quizzes?: number; resources?: number };
   } | null>(null);
 
   const handleFileSelect = useCallback(
@@ -282,8 +287,31 @@ export const CourseImportPage: React.FC = () => {
     setResult(null);
 
     try {
-      const data = await importCourse(selectedFile).unwrap();
-      setResult(data);
+      if (importType === 'professional') {
+        const data = await importProfessional(selectedFile).unwrap();
+        setResult({
+          type: 'professional',
+          message: data.message,
+          course: data.course,
+          stats: data.stats,
+        });
+      } else if (importType === 'academic') {
+        const data = await importAcademic(selectedFile).unwrap();
+        setResult({
+          type: 'academic',
+          message: data.message,
+          course: data.course,
+          stats: data.stats,
+        });
+      } else {
+        const data = await importExamPackage(selectedFile).unwrap();
+        setResult({
+          type: 'exam_package',
+          message: data.message,
+          exam: data.exam,
+          stats: data.stats,
+        });
+      }
       setSelectedFile(null);
       setJsonPreview(null);
     } catch (err: any) {
@@ -311,6 +339,41 @@ export const CourseImportPage: React.FC = () => {
           <h1 className="text-2xl font-semibold text-gray-900">Import Course from JSON</h1>
           <p className="text-gray-500 mt-1">Upload a complete course structure in JSON format</p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>What are you importing?</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-4">
+              Choose the type that matches your JSON. Each type uses a different backend and admin section.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {IMPORT_TYPES.map(({ type, label, description, icon: Icon }) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setImportType(type)}
+                  className={`flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-colors ${
+                    importType === type
+                      ? 'border-zlearn-primary bg-zlearn-primaryMuted/30'
+                      : 'border-surface-border hover:border-surface-borderLight bg-white'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    importType === type ? 'bg-zlearn-primary text-white' : 'bg-surface-muted text-gray-500'
+                  }`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-900 block">{label}</span>
+                    <span className="text-xs text-gray-500">{description}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -522,25 +585,55 @@ export const CourseImportPage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-emerald-800">Course Imported Successfully</h3>
-                  <p className="text-emerald-700 mt-1">
-                    <strong>{result.course.title}</strong>
-                  </p>
-                  <p className="text-sm text-emerald-600">Code: {result.course.course_code}</p>
-                  <p className="text-sm text-emerald-600">Status: {result.course.status}</p>
-                  <ul className="text-sm text-emerald-700 mt-2 space-y-0.5">
-                    <li>{result.stats.modules} modules</li>
-                    <li>{result.stats.lessons} lessons</li>
-                    <li>{result.stats.sections} sections</li>
-                    <li>{result.stats.quizzes} quizzes</li>
-                    <li>{result.stats.resources} resources</li>
-                  </ul>
+                  <h3 className="font-semibold text-emerald-800">
+                    {result.type === 'exam_package' ? 'Exam Package' : 'Course'} Imported Successfully
+                  </h3>
+                  {result.course && (
+                    <>
+                      <p className="text-emerald-700 mt-1">
+                        <strong>{result.course.title}</strong>
+                      </p>
+                      {result.course.course_code && (
+                        <p className="text-sm text-emerald-600">Code: {result.course.course_code}</p>
+                      )}
+                      {result.course.status && (
+                        <p className="text-sm text-emerald-600">Status: {result.course.status}</p>
+                      )}
+                    </>
+                  )}
+                  {result.exam && (
+                    <>
+                      <p className="text-emerald-700 mt-1">
+                        <strong>{result.exam.title}</strong>
+                      </p>
+                      {result.exam.status && (
+                        <p className="text-sm text-emerald-600">Status: {result.exam.status}</p>
+                      )}
+                    </>
+                  )}
+                  {result.stats && (
+                    <ul className="text-sm text-emerald-700 mt-2 space-y-0.5">
+                      {result.stats.modules != null && <li>{result.stats.modules} modules</li>}
+                      {result.stats.lessons != null && <li>{result.stats.lessons} lessons</li>}
+                      {result.stats.sections != null && <li>{result.stats.sections} sections</li>}
+                      {result.stats?.quizzes != null && <li>{result.stats.quizzes} quizzes</li>}
+                      {result.stats?.resources != null && <li>{result.stats.resources} resources</li>}
+                    </ul>
+                  )}
                   <Button
                     size="sm"
                     className="mt-4"
-                    onClick={() => navigate(`/admin/courses/courses/${result.course.id}`)}
+                    onClick={() => {
+                      if (result.type === 'professional' && result.course) {
+                        navigate(`/admin/courses/courses/${result.course.id}`);
+                      } else if (result.type === 'academic' && result.course) {
+                        navigate(`/admin/content/courses/${result.course.id}`);
+                      } else if (result.type === 'exam_package' && result.exam) {
+                        navigate(`/admin/exams/exams/${result.exam.id}`);
+                      }
+                    }}
                   >
-                    Edit Course
+                    {result.type === 'exam_package' ? 'View Exam Package' : 'Edit Course'}
                   </Button>
                 </div>
               </div>

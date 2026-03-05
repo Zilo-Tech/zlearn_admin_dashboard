@@ -118,6 +118,21 @@ export const contentApi = createApi({
       }),
       invalidatesTags: ['ContentCourse'],
     }),
+    importContentCourse: builder.mutation<
+      { message: string; course: { id: string; title: string; course_code?: string; status?: string }; stats?: { modules: number; lessons: number; sections: number } },
+      File
+    >({
+      query: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: '/content/admin/courses/import_course/',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['ContentCourse'],
+    }),
 
     // Modules
     getModules: builder.query<ContentModule[], any>({
@@ -363,6 +378,7 @@ export const {
   useUpdateCourseMutation,
   useDeleteCourseMutation,
   useDuplicateCourseMutation,
+  useImportContentCourseMutation,
   useGetModulesQuery,
   useCreateModuleMutation,
   useUpdateModuleMutation,

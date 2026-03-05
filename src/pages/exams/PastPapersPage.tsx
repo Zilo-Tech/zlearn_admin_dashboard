@@ -22,7 +22,8 @@ import type { PastPaper } from '../../interfaces/exam';
 export const PastPapersPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: pastPapers = [], isLoading } = useGetPastPapersListQuery({});
-  const { data: exams = [] } = useGetExamsQuery({});
+  const { data: examsData } = useGetExamsQuery({});
+  const exams = examsData?.results ?? [];
   const [createPastPaper, { isLoading: isCreating }] = useCreatePastPaperMutation();
   const [deletePastPaper] = useDeletePastPaperMutation();
 

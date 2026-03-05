@@ -8,7 +8,8 @@ import { BarChart3, Users, BookOpen, ClipboardList, Award } from 'lucide-react';
 
 export const AnalyticsPage: React.FC = () => {
   const { data: students = [], isLoading: loadingStudents } = useGetUsersQuery({});
-  const { data: exams = [], isLoading: loadingExams } = useGetExamsQuery({});
+  const { data: examsData, isLoading: loadingExams } = useGetExamsQuery({});
+  const exams = examsData?.results ?? [];
   const { data: mockExams = [], isLoading: loadingMocks } = useGetMockExamsListQuery({});
   const { isLoading: loadingPapers } = useGetPastPapersListQuery({});
 

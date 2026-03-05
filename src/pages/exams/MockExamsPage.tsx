@@ -22,7 +22,8 @@ import type { MockExam } from '../../interfaces/exam';
 export const MockExamsPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: mockExams = [], isLoading } = useGetMockExamsListQuery({});
-  const { data: exams = [] } = useGetExamsQuery({});
+  const { data: examsData } = useGetExamsQuery({});
+  const exams = examsData?.results ?? [];
   const [createMockExam, { isLoading: isCreating }] = useCreateMockExamMutation();
   const [deleteMockExam] = useDeleteMockExamMutation();
 

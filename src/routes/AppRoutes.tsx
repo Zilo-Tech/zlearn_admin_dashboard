@@ -13,7 +13,14 @@ import {
   AnalyticsPage,
   SettingsPage,
 } from '../pages';
-import { ExamsPage, ExamDetailPage, MockExamsPage, PastPapersPage } from '../pages/exams';
+import {
+  ExamsPage,
+  ExamDetailPage,
+  ExamCourseDetailPage,
+  MockExamsPage,
+  PastPapersPage,
+} from '../pages/exams';
+import { MockExamDetailPage } from '../pages/exams/MockExamDetailPage';
 import {
   SubjectsPage,
   CoursesPage as ContentCoursesPage,
@@ -157,6 +164,22 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <ExamDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/exams/exams/:examId/courses/:courseId"
+        element={
+          <ProtectedRoute>
+            <ExamCourseDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/exams/exams/:examId/mocks/:mockId"
+        element={
+          <ProtectedRoute>
+            <MockExamDetailPage />
           </ProtectedRoute>
         }
       />
