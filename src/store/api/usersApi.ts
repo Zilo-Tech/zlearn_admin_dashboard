@@ -27,19 +27,19 @@ export const usersApi = createApi({
     // Students
     getUsers: builder.query<User[], any>({
       query: (params = {}) => ({
-        url: '/accounts/admin/students/',
+        url: '/admin/students/',
         params,
       }),
       transformResponse: transformArrayResponse<User>,
       providesTags: ['User'],
     }),
     getUser: builder.query<User, string>({
-      query: (id) => `/accounts/admin/students/${id}/`,
+      query: (id) => `/admin/students/${id}/`,
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }),
     updateUser: builder.mutation<User, { id: string; data: Partial<User> }>({
       query: ({ id, data }) => ({
-        url: `/accounts/admin/students/${id}/`,
+        url: `/admin/students/${id}/`,
         method: 'PATCH',
         body: data,
       }),
@@ -47,7 +47,7 @@ export const usersApi = createApi({
     }),
     deleteUser: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/accounts/admin/students/${id}/`,
+        url: `/admin/students/${id}/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['User'],
@@ -55,18 +55,18 @@ export const usersApi = createApi({
 
     // Enrollments
     getUserEnrollments: builder.query<UserEnrollment[], string>({
-      query: (userId) => `/accounts/admin/students/${userId}/enrollments/`,
+      query: (userId) => `/admin/students/${userId}/enrollments/`,
       transformResponse: transformArrayResponse<UserEnrollment>,
       providesTags: ['UserEnrollment'],
     }),
     getUserExamEnrollments: builder.query<UserEnrollment[], string>({
-      query: (userId) => `/accounts/admin/students/${userId}/exam-enrollments/`,
+      query: (userId) => `/admin/students/${userId}/exam-enrollments/`,
       transformResponse: transformArrayResponse<UserEnrollment>,
       providesTags: ['UserEnrollment'],
     }),
     getAllEnrollments: builder.query<UserEnrollment[], any>({
       query: (params = {}) => ({
-        url: '/accounts/admin/enrollments/',
+        url: '/admin/enrollments/',
         params,
       }),
       transformResponse: transformArrayResponse<UserEnrollment>,
@@ -75,12 +75,12 @@ export const usersApi = createApi({
 
     // Progress (overall metrics - returns object)
     getUserProgress: builder.query<Record<string, any>, string>({
-      query: (userId) => `/accounts/admin/students/${userId}/progress/`,
+      query: (userId) => `/admin/students/${userId}/progress/`,
       providesTags: ['UserProgress'],
     }),
     // Course-specific progress (returns array)
     getUserCourseProgress: builder.query<UserProgress[], string>({
-      query: (userId) => `/accounts/admin/students/${userId}/course-progress/`,
+      query: (userId) => `/admin/students/${userId}/course-progress/`,
       transformResponse: transformArrayResponse<UserProgress>,
       providesTags: ['UserProgress'],
     }),

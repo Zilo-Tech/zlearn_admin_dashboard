@@ -17,6 +17,7 @@ import {
 } from '../../store/api/coursesApi';
 import type { Course } from '../../interfaces/course';
 import { Alert } from '../../components/common/Alert';
+import { userStorage } from '../../utils/storage';
 import { Badge } from '../../components/common/Badge';
 
 export const CoursesPage: React.FC = () => {
@@ -31,6 +32,18 @@ export const CoursesPage: React.FC = () => {
   // Ensure categories is always an array
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
 
+
+
+  const getCurrentAcademicYear = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+
+  // Academic year logic (e.g., 2025/2026)
+  const nextYear = year + 1;
+
+  return `${year}/${nextYear}`;
+};
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +53,7 @@ export const CoursesPage: React.FC = () => {
     short_description: '',
     course_code: '',
     category: '',
+    course_type: 'regular',
     level: 'beginner' as 'beginner' | 'intermediate' | 'advanced' | 'expert',
     status: 'draft' as 'draft' | 'published' | 'archived' | 'suspended',
     // Media files
@@ -60,6 +74,7 @@ export const CoursesPage: React.FC = () => {
     learning_outcomes: '',
     // Metadata
     language: 'en',
+  academic_year: getCurrentAcademicYear(),
     tags: [] as string[],
     featured: false,
     featured_order: 0,
@@ -108,6 +123,8 @@ export const CoursesPage: React.FC = () => {
           duration_hours: fullCourse.duration_hours || 0,
           requirements: fullCourse.requirements || '',
           learning_outcomes: fullCourse.learning_outcomes || '',
+          course_type: fullCourse.course_type || 'regular',
+          academic_year: fullCourse.academic_year || '',
           language: fullCourse.language || 'en',
           tags: fullCourse.tags || [],
           featured: fullCourse.featured,
@@ -149,8 +166,10 @@ export const CoursesPage: React.FC = () => {
         short_description: '',
         course_code: '',
         category: '',
-        level: 'beginner',
-        status: 'draft',
+  level: 'beginner',
+  status: 'draft',
+  course_type: 'regular',
+    academic_year: getCurrentAcademicYear(),
         thumbnail: null,
         banner_image: null,
         video_intro: null,
@@ -214,8 +233,20 @@ export const CoursesPage: React.FC = () => {
       }
 
       // Course details
-      formDataObj.append('level', data.level);
-      formDataObj.append('status', data.status);
+  formDataObj.append('level', data.level);
+  formDataObj.append('status', data.status);
+  // Course type (required by backend)
+  if (data.course_type) formDataObj.append('course_type', data.course_type);
+
+      // Instructor - set from logged-in admin if available
+      try {
+        const adminUser = userStorage.getUser();
+        if (adminUser?.id) {
+          formDataObj.append('instructor', String(adminUser.id));
+        }
+      } catch (e) {
+        // ignore
+      }
 
       // Media files
       if (data.thumbnail) formDataObj.append('thumbnail', data.thumbnail);
@@ -240,6 +271,8 @@ export const CoursesPage: React.FC = () => {
       if (data.duration_hours) {
         formDataObj.append('duration_hours', String(data.duration_hours));
       }
+      // Academic year (always include to avoid DB NOT NULL constraints)
+      formDataObj.append('academic_year', data.academic_year || '');
 
       // Requirements & Outcomes
       if (data.requirements?.trim()) {
@@ -338,7 +371,19 @@ export const CoursesPage: React.FC = () => {
     // Course details - always include
     payload.level = data.level;
     payload.status = data.status;
-
+    // Course type - required by backend
+    payload.course_type = data.course_type || 'regular';
+    // Instructor - include current admin user if available
+    try {
+      const adminUser = userStorage.getUser();
+      if (adminUser?.id) {
+        payload.instructor = String(adminUser.id);
+      }
+    } catch (e) {
+      // ignore
+    }
+    // Academic year - always include to avoid DB NOT NULL constraint
+payload.academic_year = data.academic_year?.trim() || getCurrentAcademicYear();
     // Pricing - always include
     payload.price = parseFloat(data.price) || 0.00;
     payload.currency = data.currency || 'USD';
@@ -473,9 +518,33 @@ export const CoursesPage: React.FC = () => {
     try {
       if (editingCourse) {
         const updateData = prepareCourseData(formData, true);
+        // Debug: log outgoing payload for update
+        if (updateData instanceof FormData) {
+          const preview: Record<string, any> = {};
+          (updateData as any).forEach((value: any, key: any) => {
+            preview[key] = value instanceof File ? value.name : value;
+          });
+          // eslint-disable-next-line no-console
+          console.log('update payload (from FormData):', JSON.stringify(preview, null, 2));
+        } else {
+          // eslint-disable-next-line no-console
+          console.log('update payload', JSON.stringify(updateData, null, 2));
+        }
         await updateCourse({ id: editingCourse.id, data: updateData }).unwrap();
       } else {
         const createData = prepareCourseData(formData, false);
+        // Debug: log outgoing payload for create
+        if (createData instanceof FormData) {
+          const preview: Record<string, any> = {};
+          (createData as any).forEach((value: any, key: any) => {
+            preview[key] = value instanceof File ? value.name : value;
+          });
+          // eslint-disable-next-line no-console
+          console.log('create payload (from FormData):', JSON.stringify(preview, null, 2));
+        } else {
+          // eslint-disable-next-line no-console
+          console.log('create payload', JSON.stringify(createData, null, 2));
+        }
         await createCourse(createData).unwrap();
       }
       handleCloseModal();
@@ -529,6 +598,16 @@ export const CoursesPage: React.FC = () => {
                 <BookOpen className="w-6 h-6" />
               </div>
             )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Academic Year *</label>
+                <Input
+                  label=""
+                  value={formData.academic_year}
+                  onChange={(e) => setFormData({ ...formData, academic_year: e.target.value })}
+                  placeholder="e.g. 2025/2026"
+                  required
+                />
+              </div>
           </div>
           <div>
             <p className="font-medium text-gray-900">{course.title}</p>
@@ -667,13 +746,14 @@ export const CoursesPage: React.FC = () => {
             {/* Course Details */}
             <div className="space-y-4 border-b pb-4">
               <h3 className="text-lg font-semibold text-gray-800">Course Details</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Level *</label>
                   <select
                     value={formData.level}
                     onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
                     className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
+                    required
                   >
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>
@@ -682,16 +762,31 @@ export const CoursesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status *</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                     className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
+                    required
                   >
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>
                     <option value="archived">Archived</option>
                     <option value="suspended">Suspended</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Course Type *</label>
+                  <select
+                    value={formData.course_type}
+                    onChange={(e) => setFormData({ ...formData, course_type: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
+                    required
+                  >
+                    <option value="regular">Regular</option>
+                    <option value="entrance_exam">Entrance Exam</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="review">Review</option>
                   </select>
                 </div>
                 <Input

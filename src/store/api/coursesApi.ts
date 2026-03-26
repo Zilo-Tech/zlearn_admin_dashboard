@@ -77,14 +77,14 @@ export const coursesApi = createApi({
     // Courses
     getCourses: builder.query<Course[], any>({
       query: (params = {}) => ({
-        url: '/courses/admin/courses/',
+        url: '/admin/courses/',
         params,
       }),
       transformResponse: transformArrayResponse<Course>,
       providesTags: ['Course'],
     }),
     getCourse: builder.query<Course, string>({
-      query: (id) => `/courses/admin/courses/${id}/`,
+      query: (id) => `/admin/courses/${id}/`,
       providesTags: (result, error, id) => [{ type: 'Course', id }],
     }),
     createCourse: builder.mutation<Course, Partial<Course> | FormData>({
@@ -92,7 +92,7 @@ export const coursesApi = createApi({
         // Check if data is FormData (for file uploads) or regular object
         const isFormData = data instanceof FormData;
         return {
-          url: '/courses/admin/courses/',
+          url: '/admin/courses/',
           method: 'POST',
           body: data,
           // Don't set Content-Type header for FormData - browser will set it with boundary
@@ -103,7 +103,7 @@ export const coursesApi = createApi({
     }),
     updateCourse: builder.mutation<Course, { id: string; data: Partial<Course> }>({
       query: ({ id, data }) => ({
-        url: `/courses/admin/courses/${id}/`,
+          url: `/admin/courses/${id}/`,
         method: 'PATCH',
         body: data,
       }),
@@ -111,14 +111,14 @@ export const coursesApi = createApi({
     }),
     deleteCourse: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/courses/admin/courses/${id}/`,
+          url: `/admin/courses/${id}/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Course'],
     }),
     duplicateCourse: builder.mutation<Course, { id: string; data: any }>({
       query: ({ id, data }) => ({
-        url: `/courses/admin/courses/${id}/duplicate/`,
+          url: `/admin/courses/${id}/duplicate/`,
         method: 'POST',
         body: data,
       }),
@@ -132,7 +132,7 @@ export const coursesApi = createApi({
         const formData = new FormData();
         formData.append('file', file);
         return {
-          url: '/courses/admin/courses/import_course/',
+          url: '/admin/courses/import_course/',
           method: 'POST',
           body: formData,
         };

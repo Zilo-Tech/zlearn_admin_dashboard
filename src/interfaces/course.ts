@@ -52,6 +52,7 @@ export interface ContentCourse {
   enrollment_deadline?: string;
   // Metadata
   language?: string;
+  academic_year?: string;
   // Computed fields
   module_count?: number;
   modules?: ContentModule[];
@@ -200,6 +201,7 @@ export interface Course {
   description: string;
   short_description?: string;
   course_code?: string;
+  course_type?: string;
   instructor: string;
   instructor_name?: string;
   category: string;
@@ -221,6 +223,7 @@ export interface Course {
   requirements?: string;
   learning_outcomes?: string;
   language?: string;
+  academic_year?: string;
   tags?: string[];
   featured: boolean;
   featured_order?: number;
