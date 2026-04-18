@@ -91,9 +91,9 @@ export const ExamsPage: React.FC = () => {
         exam_type: exam.exam_type,
         exam_board: exam.exam_board || '',
         country: exam.country || '',
-        exam_date: exam.exam_date ? new Date(exam.exam_date).toISOString().slice(0, 16) : '',
+        exam_date: exam.exam_date ? new Date(exam.exam_date).toISOString().slice(0, 10) : '',
         registration_deadline: exam.registration_deadline
-          ? new Date(exam.registration_deadline).toISOString().slice(0, 16)
+          ? new Date(exam.registration_deadline).toISOString().slice(0, 10)
           : '',
         thumbnail: null,
         banner_image: null,
@@ -174,9 +174,9 @@ export const ExamsPage: React.FC = () => {
       formDataObj.append('exam_type', data.exam_type);
       if (data.exam_board) formDataObj.append('exam_board', data.exam_board);
       if (data.country) formDataObj.append('country', data.country);
-      if (data.exam_date) formDataObj.append('exam_date', new Date(data.exam_date).toISOString());
+      if (data.exam_date) formDataObj.append('exam_date', data.exam_date.split('T')[0]);
       if (data.registration_deadline)
-        formDataObj.append('registration_deadline', new Date(data.registration_deadline).toISOString());
+        formDataObj.append('registration_deadline', data.registration_deadline.split('T')[0]);
       if (data.thumbnail) formDataObj.append('thumbnail', data.thumbnail);
       if (data.banner_image) formDataObj.append('banner_image', data.banner_image);
       formDataObj.append('price', data.price);
@@ -216,9 +216,9 @@ export const ExamsPage: React.FC = () => {
     if (data.short_description) payload.short_description = data.short_description.trim();
     if (data.exam_board) payload.exam_board = data.exam_board;
     if (data.country) payload.country = data.country;
-    if (data.exam_date) payload.exam_date = new Date(data.exam_date).toISOString();
+    if (data.exam_date) payload.exam_date = data.exam_date.split('T')[0];
     if (data.registration_deadline)
-      payload.registration_deadline = new Date(data.registration_deadline).toISOString();
+      payload.registration_deadline = data.registration_deadline.split('T')[0];
     if (data.discount_price) payload.discount_price = data.discount_price;
     if (data.discount_start_date)
       payload.discount_start_date = new Date(data.discount_start_date).toISOString();
@@ -490,13 +490,13 @@ export const ExamsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Exam Date"
-                  type="datetime-local"
+                  type="date"
                   value={formData.exam_date}
                   onChange={(e) => setFormData({ ...formData, exam_date: e.target.value })}
                 />
                 <Input
                   label="Registration Deadline"
-                  type="datetime-local"
+                  type="date"
                   value={formData.registration_deadline}
                   onChange={(e) => setFormData({ ...formData, registration_deadline: e.target.value })}
                 />
