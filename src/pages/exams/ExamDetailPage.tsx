@@ -22,6 +22,7 @@ import {
   Plus,
   Edit2,
   Trash2,
+  Upload,
 } from 'lucide-react';
 import {
   useGetExamQuery,
@@ -33,6 +34,7 @@ import {
   useCreateExamCourseMutation,
   useUpdateExamCourseMutation,
   useDeleteExamCourseMutation,
+  useImportExamCourseMutation,
   useCreateMockExamMutation,
   useDeleteMockExamMutation,
   useCreatePastPaperMutation,
@@ -53,10 +55,13 @@ export const ExamDetailPage: React.FC = () => {
   const [createCourse, { isLoading: isCreatingCourse }] = useCreateExamCourseMutation();
   const [updateCourse, { isLoading: isUpdatingCourse }] = useUpdateExamCourseMutation();
   const [deleteCourse] = useDeleteExamCourseMutation();
+  const [importExamCourse, { isLoading: isImportingCourse }] = useImportExamCourseMutation();
   const [createMockExam, { isLoading: isCreatingMock }] = useCreateMockExamMutation();
   const [deleteMockExam] = useDeleteMockExamMutation();
   const [createPastPaper, { isLoading: isCreatingPaper }] = useCreatePastPaperMutation();
   const [deletePastPaper] = useDeletePastPaperMutation();
+
+  const courseFileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'subjects' | 'mocks' | 'papers' | 'enrollments'>('overview');
   const [subjectModal, setSubjectModal] = useState<'add' | 'edit' | null>(null);
@@ -64,6 +69,7 @@ export const ExamDetailPage: React.FC = () => {
   const [mockModal, setMockModal] = useState(false);
   const [paperModal, setPaperModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showJsonTemplate, setShowJsonTemplate] = useState(false);
 
   const [courseForm, setCourseForm] = useState({ title: '', subject: '', order: 0, is_published: true });
   const [mockForm, setMockForm] = useState({
@@ -164,6 +170,24 @@ export const ExamDetailPage: React.FC = () => {
     }
   };
 
+  const handleImportCourse = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !id) return;
+
+    setError(null);
+    try {
+      await importExamCourse({ examId: id, file }).unwrap();
+      if (courseFileInputRef.current) {
+        courseFileInputRef.current.value = '';
+      }
+    } catch (err: any) {
+      setError(err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to import subject');
+      if (courseFileInputRef.current) {
+        courseFileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleOpenMockModal = () => {
     setMockForm({
       title: '',
@@ -230,25 +254,46 @@ export const ExamDetailPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     if (!paperForm.question_paper) {
-      setError('Question paper (PDF) is required');
+      setError('Past Paper JSON file is required');
       return;
     }
+
     try {
-      const fd = new FormData();
-      fd.append('exam', exam.id);
-      fd.append('title', paperForm.title.trim());
-      fd.append('year', String(paperForm.year));
-      if (paperForm.exam_board) fd.append('exam_board', paperForm.exam_board);
-      if (paperForm.description) fd.append('description', paperForm.description);
-      fd.append('is_published', String(paperForm.is_published));
-      fd.append('question_paper', paperForm.question_paper);
-      if (paperForm.answer_key) fd.append('answer_key', paperForm.answer_key);
-      if (paperForm.marking_scheme) fd.append('marking_scheme', paperForm.marking_scheme);
-      if (paperForm.solutions_pdf) fd.append('solutions_pdf', paperForm.solutions_pdf);
-      await createPastPaper(fd).unwrap();
-      setPaperModal(false);
+      const file = paperForm.question_paper;
+      const fileReader = new FileReader();
+
+      fileReader.onload = async (event) => {
+        try {
+          const jsonContent = JSON.parse(event.target?.result as string);
+
+          const payload: any = {
+            exam: exam.id,
+            title: paperForm.title.trim(),
+            year: paperForm.year,
+            session: paperForm.session || '',
+            is_published: paperForm.is_published,
+            content: jsonContent,
+          };
+
+          if (paperForm.exam_board) payload.exam_board = paperForm.exam_board;
+          if (paperForm.description) payload.description = paperForm.description;
+
+          await createPastPaper(payload).unwrap();
+          setPaperModal(false);
+          setPaperForm({ ...paperForm, question_paper: null, title: '' });
+        } catch (err: any) {
+          setError(err?.data ? JSON.stringify(err.data) : err?.message || 'Invalid JSON format in the uploaded file');
+        }
+      };
+
+      fileReader.onerror = () => {
+        setError('Failed to read the file');
+      };
+
+      fileReader.readAsText(file);
+
     } catch (err: any) {
-      setError(err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to upload');
+      setError(err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to initialize upload');
     }
   };
 
@@ -326,11 +371,10 @@ export const ExamDetailPage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors duration-150 -mb-px ${
-                  activeTab === tab.id
-                    ? 'border-zlearn-primary text-zlearn-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors duration-150 -mb-px ${activeTab === tab.id
+                  ? 'border-zlearn-primary text-zlearn-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
@@ -427,11 +471,27 @@ export const ExamDetailPage: React.FC = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Exam Subjects</CardTitle>
-                <Button size="sm" onClick={() => handleOpenSubjectModal()}>
-                  <Plus className="w-4 h-4" />
-                  Add Subject
-                </Button>
+                <div className="flex flex-col">
+                  <CardTitle>Exam Subjects</CardTitle>
+                  <a href="/sample_uploads/sample_subject.json" download className="text-xs text-zlearn-primary hover:underline mt-0.5">Download Subject Template</a>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="file"
+                    ref={courseFileInputRef}
+                    className="hidden"
+                    accept=".json"
+                    onChange={handleImportCourse}
+                  />
+                  <Button size="sm" variant="outline" onClick={() => courseFileInputRef.current?.click()} disabled={isImportingCourse}>
+                    <Upload className="w-4 h-4 mr-2 hidden sm:block" />
+                    {isImportingCourse ? 'Importing...' : 'Import Subject JSON'}
+                  </Button>
+                  <Button size="sm" onClick={() => handleOpenSubjectModal()}>
+                    <Plus className="w-4 h-4" />
+                    Add Subject
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -650,33 +710,29 @@ export const ExamDetailPage: React.FC = () => {
                         <th className="pb-3">Student</th>
                         <th className="pb-3">Status</th>
                         <th className="pb-3">Progress</th>
-                        <th className="pb-3">Mock attempts</th>
-                        <th className="pb-3">Best score</th>
-                        <th className="pb-3">Last accessed</th>
+                        <th className="pb-3">Avg Mock Score</th>
+                        <th className="pb-3">Best Score</th>
+                        <th className="pb-3">Total Study Hours</th>
                         <th className="pb-3">Enrolled</th>
                       </tr>
                     </thead>
                     <tbody>
                       {enrollments.map((en) => {
-                        const student = en.student ?? (en as any).user;
-                        const name =
-                          student && typeof student === 'object'
-                            ? [student.first_name, student.last_name].filter(Boolean).join(' ') || student.email || en.id
-                            : en.id;
+                        const name = (en as any).student_full_name || (en as any).student_email || `ID: ${en.id}` || 'Unknown User';
                         return (
                           <TableRow key={en.id}>
                             <td className="py-3 font-medium text-gray-900">{name}</td>
                             <td className="py-3">
                               <Badge variant={en.status === 'completed' ? 'published' : 'draft'}>{en.status ?? 'active'}</Badge>
                             </td>
-                            <td className="py-3 text-gray-600">{en.progress_percent != null ? `${en.progress_percent}%` : '—'}</td>
-                            <td className="py-3 text-gray-600">{en.mock_exam_attempts ?? '—'}</td>
-                            <td className="py-3 text-gray-600">{en.best_mock_score ?? '—'}</td>
+                            <td className="py-3 text-gray-600">{(en as any).progress_percentage != null ? `${(en as any).progress_percentage}%` : '—'}</td>
+                            <td className="py-3 text-gray-600">{(en as any).mocks_average_score != null ? `${(en as any).mocks_average_score}%` : '—'}</td>
+                            <td className="py-3 text-gray-600">{(en as any).best_mock_score != null ? `${(en as any).best_mock_score}%` : '—'}</td>
                             <td className="py-3 text-gray-600">
-                              {en.last_accessed ? new Date(en.last_accessed).toLocaleDateString() : '—'}
+                              {(en as any).total_study_hours != null ? `${(en as any).total_study_hours} hrs` : '—'}
                             </td>
                             <td className="py-3 text-gray-600">
-                              {en.enrolled_at ? new Date(en.enrolled_at).toLocaleDateString() : '—'}
+                              {(en as any).created_at ? new Date((en as any).created_at).toLocaleDateString() : '—'}
                             </td>
                           </TableRow>
                         );
@@ -839,31 +895,49 @@ export const ExamDetailPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Question Paper (PDF) *</label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-sm font-medium text-gray-700">Past Paper (JSON) *</label>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowJsonTemplate(!showJsonTemplate);
+                }}
+                className="text-xs text-zlearn-primary hover:underline font-medium"
+              >
+                {showJsonTemplate ? 'Hide JSON Template' : 'View JSON Template'}
+              </button>
+            </div>
+            {showJsonTemplate && (
+              <div className="mb-3 p-3 bg-surface-muted border border-surface-borderLight rounded-lg overflow-x-auto text-xs font-mono text-gray-700 max-h-48 overflow-y-auto">
+                <pre>{`{
+  "instructions": "Answer all questions. You have 2 hours.",
+  "total_marks": 7,
+  "questions": [
+    {
+      "question_number": 1,
+      "text": "What is the capital of France?",
+      "type": "multiple_choice",
+      "options": {
+        "A": "London",
+        "B": "Berlin",
+        "C": "Paris",
+        "D": "Madrid"
+      },
+      "correct_answer": "C",
+      "marks": 2,
+      "ai_explanation": "Paris is the capital."
+    }
+  ]
+}`}</pre>
+              </div>
+            )}
             <input
               type="file"
-              accept=".pdf,application/pdf"
+              accept=".json,application/json"
               onChange={(e) => setPaperForm({ ...paperForm, question_paper: e.target.files?.[0] || null })}
               className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
               required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Answer Key (PDF)</label>
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={(e) => setPaperForm({ ...paperForm, answer_key: e.target.files?.[0] || null })}
-              className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Marking Scheme (PDF)</label>
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={(e) => setPaperForm({ ...paperForm, marking_scheme: e.target.files?.[0] || null })}
-              className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
             />
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
