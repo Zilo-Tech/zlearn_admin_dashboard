@@ -1,0 +1,28 @@
+{
+    "instructions": "Answer all questions. You have 2 hours.",
+    "total_marks": 7,
+    "questions": [
+        {
+            "question_number": 1,
+            "text": "What is the capital of France?",
+            "type": "multiple_choice",
+            "options": {
+                "A": "London",
+                "B": "Berlin",
+                "C": "Paris",
+                "D": "Madrid"
+            },
+            "correct_answer": "C",
+            "marks": 2,
+            "ai_explanation": "Paris is the capital and most populous city of France, situated on the Seine River. The AI guide can use this text to help students understand why this is the correct answer."
+        },
+        {
+            "question_number": 2,
+            "text": "Define Newton's Second Law of Motion.",
+            "type": "essay",
+            "correct_answer": "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass (F = ma).",
+            "marks": 5,
+            "ai_explanation": "For an essay question, the AI guide will compare the student's semantic answer against this expected correct_answer to assign a grade. The core concepts (Force, mass, acceleration) must be present."
+        }
+    ]
+}

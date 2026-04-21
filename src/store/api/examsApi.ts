@@ -96,6 +96,22 @@ export const examsApi = createApi({
       },
       invalidatesTags: ['Exam'],
     }),
+    importExamCourse: builder.mutation<
+      { message: string; course: any },
+      { examId: string; file: File }
+    >({
+      query: ({ examId, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('exam_id', examId);
+        return {
+          url: '/exams/admin/courses/import-course/',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['ExamCourse', 'Exam'],
+    }),
 
     // Exam Courses (Subjects within an exam)
     getExamCourses: builder.query<ExamCourse[], string>({
@@ -409,7 +425,7 @@ export const examsApi = createApi({
       transformResponse: transformArrayResponse<PastPaper>,
       providesTags: ['PastPaper'],
     }),
-    createPastPaper: builder.mutation<PastPaper, FormData>({
+    createPastPaper: builder.mutation<PastPaper, Partial<PastPaper> & { exam: string }>({
       query: (data) => ({
         url: '/exams/admin/past-papers/',
         method: 'POST',
@@ -417,7 +433,7 @@ export const examsApi = createApi({
       }),
       invalidatesTags: ['PastPaper'],
     }),
-    updatePastPaper: builder.mutation<PastPaper, { id: string; data: FormData }>({
+    updatePastPaper: builder.mutation<PastPaper, { id: string; data: Partial<PastPaper> }>({
       query: ({ id, data }) => ({
         url: `/exams/admin/past-papers/${id}/`,
         method: 'PATCH',
@@ -457,6 +473,7 @@ export const {
   useUpdateExamMutation,
   useDeleteExamMutation,
   useImportExamPackageMutation,
+  useImportExamCourseMutation,
   useGetExamStatisticsQuery,
   useGetExamCoursesQuery,
   useGetExamCourseQuery,
