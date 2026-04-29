@@ -107,9 +107,8 @@ export const AdminDashboard: React.FC = () => {
                       {stat.value}
                     </p>
                     <span
-                      className={`inline-flex items-center gap-1 text-xs font-medium mt-2 ${
-                        stat.changePositive ? 'text-emerald-600' : 'text-red-600'
-                      }`}
+                      className={`inline-flex items-center gap-1 text-xs font-medium mt-2 ${stat.changePositive ? 'text-emerald-600' : 'text-red-600'
+                        }`}
                     >
                       <TrendingUp className="w-3.5 h-3.5" />
                       {stat.change} vs last month

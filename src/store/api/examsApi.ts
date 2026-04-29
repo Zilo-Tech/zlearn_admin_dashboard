@@ -456,6 +456,22 @@ export const examsApi = createApi({
       }),
       invalidatesTags: ['PastPaper'],
     }),
+    importPastPapers: builder.mutation<
+      { message: string; count: number },
+      { examId: string; file: File }
+    >({
+      query: ({ examId, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('exam_id', examId);
+        return {
+          url: '/exams/admin/past-papers/import-past-papers/',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['PastPaper', 'Exam'],
+    }),
 
     // Enrollments
     getExamEnrollments: builder.query<ExamEnrollment[], string>({
@@ -519,5 +535,6 @@ export const {
   useUpdatePastPaperMutation,
   useDeletePastPaperMutation,
   useReorderPastPapersMutation,
+  useImportPastPapersMutation,
   useGetExamEnrollmentsQuery,
 } = examsApi;

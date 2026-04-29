@@ -39,6 +39,7 @@ import {
   useDeleteMockExamMutation,
   useCreatePastPaperMutation,
   useDeletePastPaperMutation,
+  useImportPastPapersMutation,
 } from '../../store/api/examsApi';
 import type { ExamCourse, MockExam, PastPaper } from '../../interfaces/exam';
 
@@ -60,8 +61,10 @@ export const ExamDetailPage: React.FC = () => {
   const [deleteMockExam] = useDeleteMockExamMutation();
   const [createPastPaper, { isLoading: isCreatingPaper }] = useCreatePastPaperMutation();
   const [deletePastPaper] = useDeletePastPaperMutation();
+  const [importPastPapers, { isLoading: isImportingPapers }] = useImportPastPapersMutation();
 
   const courseFileInputRef = React.useRef<HTMLInputElement>(null);
+  const pastPapersFileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'subjects' | 'mocks' | 'papers' | 'enrollments'>('overview');
   const [subjectModal, setSubjectModal] = useState<'add' | 'edit' | null>(null);
@@ -85,6 +88,7 @@ export const ExamDetailPage: React.FC = () => {
   const [paperForm, setPaperForm] = useState({
     title: '',
     year: new Date().getFullYear(),
+    session: '',
     exam_board: '',
     description: '',
     is_published: false,
@@ -188,6 +192,27 @@ export const ExamDetailPage: React.FC = () => {
     }
   };
 
+  const handleImportPastPapers = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !id) return;
+
+    setError(null);
+    try {
+      const result = await importPastPapers({ examId: id, file }).unwrap();
+      if (pastPapersFileInputRef.current) {
+        pastPapersFileInputRef.current.value = '';
+      }
+      alert(result.message || 'Import successful');
+    } catch (err: any) {
+      const errorMsg = err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to import past papers';
+      setError(errorMsg);
+      alert('Error: ' + errorMsg);
+      if (pastPapersFileInputRef.current) {
+        pastPapersFileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleOpenMockModal = () => {
     setMockForm({
       title: '',
@@ -238,6 +263,7 @@ export const ExamDetailPage: React.FC = () => {
     setPaperForm({
       title: '',
       year: new Date().getFullYear(),
+      session: '',
       exam_board: '',
       description: '',
       is_published: false,
@@ -637,11 +663,27 @@ export const ExamDetailPage: React.FC = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Past Papers</CardTitle>
-                <Button size="sm" onClick={handleOpenPaperModal}>
-                  <Plus className="w-4 h-4" />
-                  Upload Past Paper
-                </Button>
+                <div className="flex flex-col">
+                  <CardTitle>Past Papers</CardTitle>
+                  <a href="/sample_uploads/sample_bulk_past_papers.json" download className="text-xs text-zlearn-primary hover:underline mt-0.5">Download Bulk JSON Template</a>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="file"
+                    ref={pastPapersFileInputRef}
+                    className="hidden"
+                    accept=".json"
+                    onChange={handleImportPastPapers}
+                  />
+                  <Button size="sm" variant="outline" onClick={() => pastPapersFileInputRef.current?.click()} disabled={isImportingPapers}>
+                    <Upload className="w-4 h-4 mr-2 hidden sm:block" />
+                    {isImportingPapers ? 'Uploading...' : 'Bulk Upload JSON'}
+                  </Button>
+                  <Button size="sm" onClick={handleOpenPaperModal}>
+                    <Plus className="w-4 h-4" />
+                    Upload Past Paper
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
