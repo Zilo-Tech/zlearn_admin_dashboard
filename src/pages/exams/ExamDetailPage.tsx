@@ -713,8 +713,7 @@ export const ExamDetailPage: React.FC = () => {
                             <Badge variant={p.is_published ? 'published' : 'draft'}>
                               {p.is_published ? 'Published' : 'Draft'}
                             </Badge>
-                          </td>
-                          <td className="py-3 text-right">
+                          </td>                          <td className="py-3 text-right">
                             <button
                               onClick={() => handleDeletePaper(p)}
                               className="p-2 text-gray-500 hover:text-red-600 rounded-lg"
