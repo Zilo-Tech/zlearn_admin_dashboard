@@ -1,0 +1,33 @@
+{
+    "title": "Sample Subject Name",
+    "subject": "General Knowledge",
+    "order": 1,
+    "is_published": true,
+    "estimated_hours": 10,
+    "difficulty": "beginner",
+    "short_description": "A sample subject inside an exam package.",
+    "course_code": "GK_101",
+    "_COMMENT": "This is a single subject/course structure. It does NOT contain exam attributes like exam_code or country.",
+    "modules": [
+        {
+            "title": "Module 1",
+            "order": 1,
+            "is_published": true,
+            "lessons": [
+                {
+                    "title": "Lesson 1",
+                    "order": 1,
+                    "is_published": true,
+                    "content": "<p>Content goes here</p>",
+                    "sections": [
+                        {
+                            "title": "Section 1",
+                            "order": 1,
+                            "content": "Section content..."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

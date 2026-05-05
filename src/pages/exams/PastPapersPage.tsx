@@ -28,6 +28,7 @@ export const PastPapersPage: React.FC = () => {
   const [deletePastPaper] = useDeletePastPaperMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showJsonTemplate, setShowJsonTemplate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     exam: '',
@@ -72,31 +73,41 @@ export const PastPapersPage: React.FC = () => {
       return;
     }
     if (!formData.question_paper) {
-      setError('Question paper (PDF) is required');
+      setError('Past Paper JSON file is required');
       return;
     }
-    try {
-      const fd = new FormData();
-      fd.append('exam', formData.exam);
-      fd.append('title', formData.title.trim());
-      fd.append('year', String(formData.year));
-      if (formData.exam_board) fd.append('exam_board', formData.exam_board);
-      if (formData.description) fd.append('description', formData.description);
-      fd.append('is_published', String(formData.is_published));
-      fd.append('question_paper', formData.question_paper);
-      if (formData.answer_key) fd.append('answer_key', formData.answer_key);
-      if (formData.marking_scheme) fd.append('marking_scheme', formData.marking_scheme);
-      if (formData.solutions_pdf) fd.append('solutions_pdf', formData.solutions_pdf);
 
-      await createPastPaper(fd).unwrap();
-      handleCloseModal();
+    try {
+      const file = formData.question_paper;
+      const fileReader = new FileReader();
+
+      fileReader.onload = async (event) => {
+        try {
+          const jsonContent = JSON.parse(event.target?.result as string);
+
+          const payload: any = {
+            exam: formData.exam,
+            title: formData.title.trim(),
+            year: formData.year,
+            session: '',
+            is_published: formData.is_published,
+            content: jsonContent,
+          };
+          if (formData.exam_board) payload.exam_board = formData.exam_board;
+          if (formData.description) payload.description = formData.description;
+
+          await createPastPaper(payload).unwrap();
+          handleCloseModal();
+        } catch (err: any) {
+          setError(err?.data ? JSON.stringify(err.data) : err?.message || 'Invalid JSON format in the uploaded file');
+        }
+      };
+
+      fileReader.onerror = () => setError('Failed to read the file');
+      fileReader.readAsText(file);
+
     } catch (err: any) {
-      const msg = err?.data
-        ? Object.entries(err.data)
-            .map(([k, v]) => (Array.isArray(v) ? `${k}: ${v.join(', ')}` : `${k}: ${v}`))
-            .join(' | ')
-        : err?.message || 'Failed to create past paper';
-      setError(msg);
+      setError(err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to initialize upload');
     }
   };
 
@@ -234,50 +245,51 @@ export const PastPapersPage: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Question Paper (PDF) *
-              </label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-sm font-medium text-gray-700">Past Paper (JSON) *</label>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowJsonTemplate(!showJsonTemplate);
+                  }}
+                  className="text-xs text-zlearn-primary hover:underline font-medium"
+                >
+                  {showJsonTemplate ? 'Hide JSON Template' : 'View JSON Template'}
+                </button>
+              </div>
+              {showJsonTemplate && (
+                <div className="mb-3 p-3 bg-surface-muted border border-surface-borderLight rounded-lg overflow-x-auto text-xs font-mono text-gray-700 max-h-48 overflow-y-auto">
+                  <pre>{`{
+  "instructions": "Answer all questions. You have 2 hours.",
+  "total_marks": 7,
+  "questions": [
+    {
+      "question_number": 1,
+      "text": "What is the capital of France?",
+      "type": "multiple_choice",
+      "options": {
+        "A": "London",
+        "B": "Berlin",
+        "C": "Paris",
+        "D": "Madrid"
+      },
+      "correct_answer": "C",
+      "marks": 2,
+      "ai_explanation": "Paris is the capital."
+    }
+  ]
+}`}</pre>
+                </div>
+              )}
               <input
                 type="file"
-                accept=".pdf,application/pdf"
+                accept=".json,application/json"
                 onChange={(e) =>
                   setFormData({ ...formData, question_paper: e.target.files?.[0] || null })
                 }
                 className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
                 required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Answer Key (PDF)</label>
-              <input
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={(e) =>
-                  setFormData({ ...formData, answer_key: e.target.files?.[0] || null })
-                }
-                className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Marking Scheme (PDF)</label>
-              <input
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={(e) =>
-                  setFormData({ ...formData, marking_scheme: e.target.files?.[0] || null })
-                }
-                className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Solutions (PDF)</label>
-              <input
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={(e) =>
-                  setFormData({ ...formData, solutions_pdf: e.target.files?.[0] || null })
-                }
-                className="w-full px-3 py-2.5 border border-surface-border rounded-lg"
               />
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
