@@ -85,6 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       { icon: BookOpen, label: 'Exam Packages', path: '/admin/exams/exams' },
       { icon: ClipboardList, label: 'Mock Exams', path: '/admin/exams/mocks' },
       { icon: FileQuestion, label: 'Past Papers', path: '/admin/exams/papers' },
+      // Modules / Lessons / Sections intentionally omitted here — managed within Exam Packages
     ],
   };
 

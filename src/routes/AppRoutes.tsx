@@ -33,6 +33,8 @@ import {
   CoursesPage as ProfessionalCoursesPage,
   CourseDetailPage as ProfessionalCourseDetailPage,
   CourseImportPage,
+  ModuleImportPage,
+  LessonImportPage,
   CourseModulesPage,
   CourseLessonsPage,
 } from '../pages/courses';
@@ -275,6 +277,22 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+          <Route
+            path="/admin/courses/import-module"
+            element={
+              <ProtectedRoute>
+                <ModuleImportPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/courses/import-lesson"
+            element={
+              <ProtectedRoute>
+                <LessonImportPage />
+              </ProtectedRoute>
+            }
+          />
       <Route
         path="/admin/courses/modules"
         element={

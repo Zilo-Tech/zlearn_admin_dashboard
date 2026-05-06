@@ -97,10 +97,10 @@ export const ExamsPage: React.FC = () => {
           : '',
         thumbnail: null,
         banner_image: null,
-        price: exam.price,
+        price: exam.price != null ? String(exam.price) : '0.00',
         currency: exam.currency,
         is_free: exam.is_free,
-        discount_price: exam.discount_price || '',
+        discount_price: exam.discount_price != null ? String(exam.discount_price) : '',
         discount_start_date: exam.discount_start_date
           ? new Date(exam.discount_start_date).toISOString().slice(0, 16)
           : '',
@@ -115,9 +115,9 @@ export const ExamsPage: React.FC = () => {
         scoring_system: exam.scoring_system || '',
         instructions: exam.instructions || '',
         requirements: exam.requirements || '',
-        max_students: exam.max_students ? String(exam.max_students) : '',
+        max_students: exam.max_students != null ? String(exam.max_students) : '',
         featured: exam.featured,
-        featured_order: exam.featured_order || 0,
+        featured_order: exam.featured_order != null ? exam.featured_order : 0,
         status: exam.status,
       });
     } else {
@@ -548,21 +548,33 @@ export const ExamsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Thumbnail</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFormData({ ...formData, thumbnail: e.target.files?.[0] || null })}
-                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
-                  />
+                    {editingExam?.thumbnail ? (
+                      <div className="mb-2">
+                        <img src={editingExam.thumbnail} alt="thumbnail" className="w-40 h-24 object-cover rounded" />
+                        <p className="text-xs text-gray-500 mt-1">Current thumbnail (upload a new file to replace)</p>
+                      </div>
+                    ) : null}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setFormData({ ...formData, thumbnail: e.target.files?.[0] || null })}
+                      className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
+                    />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Banner Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFormData({ ...formData, banner_image: e.target.files?.[0] || null })}
-                    className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
-                  />
+                    {editingExam?.banner_image ? (
+                      <div className="mb-2">
+                        <img src={editingExam.banner_image} alt="banner" className="w-full h-24 object-cover rounded" />
+                        <p className="text-xs text-gray-500 mt-1">Current banner (upload a new file to replace)</p>
+                      </div>
+                    ) : null}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setFormData({ ...formData, banner_image: e.target.files?.[0] || null })}
+                      className="w-full px-3 py-2.5 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-zlearn-primary/20 focus:border-zlearn-primary transition-colors duration-150"
+                    />
                 </div>
               </div>
             </div>

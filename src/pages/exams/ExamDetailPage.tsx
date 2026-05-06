@@ -23,6 +23,7 @@ import {
   Edit2,
   Trash2,
   Upload,
+  Download,
 } from 'lucide-react';
 import {
   useGetExamQuery,
@@ -96,6 +97,7 @@ export const ExamDetailPage: React.FC = () => {
     answer_key: null as File | null,
     marking_scheme: null as File | null,
     solutions_pdf: null as File | null,
+    session: '',
   });
 
   if (isLoading) {
@@ -271,6 +273,7 @@ export const ExamDetailPage: React.FC = () => {
       answer_key: null,
       marking_scheme: null,
       solutions_pdf: null,
+      session: '',
     });
     setPaperModal(true);
     setError(null);
@@ -499,7 +502,12 @@ export const ExamDetailPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <CardTitle>Exam Subjects</CardTitle>
-                  <a href="/sample_uploads/sample_subject.json" download className="text-xs text-zlearn-primary hover:underline mt-0.5">Download Subject Template</a>
+                  <a href="/sample_uploads/sample_subject.json" download>
+                    <Button size="sm" variant="outline" className="!px-3 mt-1">
+                      <Download className="w-4 h-4 text-zlearn-primary mr-2" />
+                      <span className="text-xs text-zlearn-primary hidden sm:inline">Download Subject Template</span>
+                    </Button>
+                  </a>
                 </div>
                 <div className="flex gap-3 items-center">
                   <input

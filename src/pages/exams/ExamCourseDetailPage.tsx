@@ -12,11 +12,15 @@ import {
   FileText,
   Folder,
   BookOpen,
+  Upload,
+  Download,
 } from 'lucide-react';
 import {
   useGetExamQuery,
   useGetExamCourseQuery,
   useGetCourseModulesQuery,
+  useImportModulePackageMutation,
+  useImportLessonPackageMutation,
   useGetModuleLessonsQuery,
   useGetLessonSectionsQuery,
   useGetLessonResourcesQuery,
@@ -50,6 +54,8 @@ export const ExamCourseDetailPage: React.FC = () => {
   const [createSection] = useCreateExamSectionMutation();
   const [updateSection] = useUpdateExamSectionMutation();
   const [deleteSection] = useDeleteExamSectionMutation();
+  const [importModulePackage, { isLoading: isImportingModule }] = useImportModulePackageMutation();
+  const [importLessonPackage, { isLoading: isImportingLesson }] = useImportLessonPackageMutation();
   const [createResource] = useCreateExamResourceMutation();
   const [deleteResource] = useDeleteExamResourceMutation();
 
@@ -60,6 +66,11 @@ export const ExamCourseDetailPage: React.FC = () => {
   const [creatingLesson, setCreatingLesson] = useState<string | null>(null);
   const [creatingSection, setCreatingSection] = useState<string | null>(null);
   const [creatingResource, setCreatingResource] = useState<string | null>(null);
+  const moduleFileInputRef = React.useRef<HTMLInputElement>(null);
+  const lessonFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [lessonImportTargetModule, setLessonImportTargetModule] = useState<string | null>(null);
+  const [moduleImportError, setModuleImportError] = useState<string | null>(null);
+  const [lessonImportError, setLessonImportError] = useState<string | null>(null);
   const [editingModule, setEditingModule] = useState<ExamModule | null>(null);
   const [editingLesson, setEditingLesson] = useState<ExamLesson | null>(null);
   const [editingSection, setEditingSection] = useState<ExamLessonSection | null>(null);
@@ -270,10 +281,49 @@ export const ExamCourseDetailPage: React.FC = () => {
             <Layers className="w-5 h-5" />
             Curriculum – Modules ({modules.length})
           </h2>
-          <Button size="sm" onClick={() => { setCreatingModule(true); setModuleForm({ title: '', description: '', order: modules.length, is_published: true }); }}>
-            <Plus className="w-4 h-4" />
-            Add Module
-          </Button>
+          <div className="flex items-center gap-3">
+            <a href="/sample_uploads/sample_exam_module.json" download>
+              <Button size="sm" variant="outline" className="!px-3">
+                <Download className="w-4 h-4 text-zlearn-primary mr-2" />
+                <span className="text-xs text-zlearn-primary hidden sm:inline">Download Module Template</span>
+              </Button>
+            </a>
+            <input type="file" ref={moduleFileInputRef} className="hidden" accept=".json" onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setModuleImportError(null);
+              try {
+                await importModulePackage({ examCourseId: courseId, file }).unwrap();
+                if (moduleFileInputRef.current) moduleFileInputRef.current.value = '';
+              } catch (err: any) {
+                setModuleImportError(err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to import modules');
+                if (moduleFileInputRef.current) moduleFileInputRef.current.value = '';
+              }
+            }} />
+            <input type="file" ref={lessonFileInputRef} className="hidden" accept=".json" onChange={async (e) => {
+              const file = e.target.files?.[0];
+              const moduleId = lessonImportTargetModule;
+              if (!file || !moduleId) return;
+              setLessonImportError(null);
+              try {
+                await importLessonPackage({ moduleId, file }).unwrap();
+                if (lessonFileInputRef.current) lessonFileInputRef.current.value = '';
+                setLessonImportTargetModule(null);
+              } catch (err: any) {
+                setLessonImportError(err?.data ? JSON.stringify(err.data) : err?.message || 'Failed to import lessons');
+                if (lessonFileInputRef.current) lessonFileInputRef.current.value = '';
+                setLessonImportTargetModule(null);
+              }
+            }} />
+            <Button size="sm" variant="outline" onClick={() => moduleFileInputRef.current?.click()} disabled={isImportingModule}>
+              <Upload className="w-4 h-4 mr-2 hidden sm:block" />
+              {isImportingModule ? 'Importing...' : 'Import Module JSON'}
+            </Button>
+            <Button size="sm" onClick={() => { setCreatingModule(true); setModuleForm({ title: '', description: '', order: modules.length, is_published: true }); }}>
+              <Plus className="w-4 h-4" />
+              Add Module
+            </Button>
+          </div>
         </div>
 
         {loadingModules ? (
@@ -300,6 +350,7 @@ export const ExamCourseDetailPage: React.FC = () => {
                 onToggleLesson={toggleLesson}
                 onEditLesson={(l) => { setEditingLesson(l); setLessonForm({ title: l.title, description: l.description || '', order: l.order, lesson_type: l.lesson_type || 'mixed', is_published: l.is_published ?? true }); }}
                 onEditSection={(s) => { setEditingSection(s); setSectionForm({ title: s.title, section_type: s.section_type, order: s.order, text_content: (s as any).text_content || '' }); }}
+                onRequestLessonImport={(modId: string) => { setLessonImportTargetModule(modId); lessonFileInputRef.current?.click(); }}
               />
             ))}
           </div>
@@ -405,6 +456,7 @@ function ModuleCard({
   onToggleLesson,
   onEditLesson,
   onEditSection,
+  onRequestLessonImport,
 }: {
   module: ExamModule;
   isExpanded: boolean;
@@ -421,6 +473,7 @@ function ModuleCard({
   onToggleLesson: (id: string) => void;
   onEditLesson: (l: ExamLesson) => void;
   onEditSection: (s: ExamLessonSection) => void;
+  onRequestLessonImport?: (moduleId: string) => void;
 }) {
   const { data: lessons = [] } = useGetModuleLessonsQuery(module.id, { skip: !isExpanded });
   return (
@@ -450,7 +503,7 @@ function ModuleCard({
               <h4 className="font-medium text-gray-700 flex items-center gap-2"><FileText className="w-4 h-4" /> Lessons</h4>
               <Button size="sm" variant="outline" onClick={onCreateLesson}><Plus className="w-4 h-4 mr-2" /> Add Lesson</Button>
             </div>
-            {lessons.length === 0 ? (
+              {lessons.length === 0 ? (
               <p className="text-center py-6 text-gray-500 text-sm">No lessons yet. Click &quot;Add Lesson&quot;.</p>
             ) : (
               lessons.map((lesson) => (
@@ -459,6 +512,7 @@ function ModuleCard({
                   lesson={lesson}
                   onCreateSection={() => onCreateSection(lesson.id)}
                   onCreateResource={() => onCreateResource(lesson.id)}
+                  onRequestLessonImport={() => onRequestLessonImport?.(module.id)}
                   onDeleteLesson={onDeleteLesson}
                   onDeleteSection={onDeleteSection}
                   onDeleteResource={onDeleteResource}
@@ -487,6 +541,7 @@ function LessonCard({
   onDeleteSection,
   onDeleteResource,
   onEditSection,
+  onRequestLessonImport,
 }: {
   lesson: ExamLesson;
   isExpanded: boolean;
@@ -498,6 +553,7 @@ function LessonCard({
   onDeleteSection: (id: string) => void;
   onDeleteResource: (id: string) => void;
   onEditSection: (s: ExamLessonSection) => void;
+  onRequestLessonImport?: () => void;
 }) {
   const { data: sections = [] } = useGetLessonSectionsQuery(lesson.id, { skip: !isExpanded });
   const { data: resources = [] } = useGetLessonResourcesQuery(lesson.id, { skip: !isExpanded });
@@ -524,7 +580,18 @@ function LessonCard({
           <div>
             <div className="flex items-center justify-between mb-2">
               <h6 className="text-sm font-medium text-gray-700 flex items-center gap-2"><Folder className="w-3 h-3" /> Sections</h6>
-              <Button size="sm" variant="outline" onClick={onCreateSection}><Plus className="w-3 h-3 mr-1" /> Add Section</Button>
+              <div className="flex items-center gap-2">
+                <a href="/sample_uploads/sample_exam_lesson.json" download>
+                  <Button size="sm" variant="outline" className="!px-3">
+                    <Download className="w-3 h-3 text-zlearn-primary mr-2" />
+                    <span className="text-xs text-zlearn-primary hidden sm:inline">Download Lesson Template</span>
+                  </Button>
+                </a>
+                <Button size="sm" variant="outline" onClick={onCreateSection}><Plus className="w-3 h-3 mr-1" /> Add Section</Button>
+                <Button size="sm" variant="outline" onClick={() => onRequestLessonImport?.()}>
+                  <Upload className="w-3 h-3 mr-1" /> Import Lesson JSON
+                </Button>
+              </div>
             </div>
             {sections.length === 0 ? <p className="text-center py-3 text-gray-500 text-xs">No sections yet.</p> : (
               <div className="space-y-2">

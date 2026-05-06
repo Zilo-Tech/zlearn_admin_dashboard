@@ -1,0 +1,7 @@
+{
+  "title": "Sample Section",
+  "section_type": "text",
+  "order": 0,
+  "text_content": "This is a sample section. Use markdown and KaTeX where needed, for example: $\\int_0^1 x^2 dx$.",
+  "is_published": true
+}
