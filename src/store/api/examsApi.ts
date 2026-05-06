@@ -113,6 +113,41 @@ export const examsApi = createApi({
       invalidatesTags: ['ExamCourse', 'Exam'],
     }),
 
+    importModulePackage: builder.mutation<
+      { message: string; modules: any[] },
+      { examId?: string; examCourseId?: string; file: File }
+    >({
+      query: ({ examCourseId, file, examId }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (examCourseId) formData.append('exam_course_id', String(examCourseId));
+        if (examId) formData.append('exam_id', String(examId));
+        return {
+          url: '/exams/admin/exams/import-module/',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['ExamModule', 'ExamCourse', 'Exam'],
+    }),
+
+    importLessonPackage: builder.mutation<
+      { message: string; lessons: any[] },
+      { moduleId?: string; file: File }
+    >({
+      query: ({ moduleId, file }) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (moduleId) formData.append('module_id', String(moduleId));
+        return {
+          url: '/exams/admin/exams/import-lesson/',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['ExamLesson', 'ExamModule', 'Exam'],
+    }),
+
     // Exam Courses (Subjects within an exam)
     getExamCourses: builder.query<ExamCourse[], string>({
       query: (examId) => `/exams/admin/exams/${examId}/courses/`,
@@ -474,6 +509,8 @@ export const {
   useDeleteExamMutation,
   useImportExamPackageMutation,
   useImportExamCourseMutation,
+  useImportModulePackageMutation,
+  useImportLessonPackageMutation,
   useGetExamStatisticsQuery,
   useGetExamCoursesQuery,
   useGetExamCourseQuery,

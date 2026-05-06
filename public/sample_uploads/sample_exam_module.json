@@ -1,0 +1,25 @@
+{
+  "title": "Sample Module Title",
+  "order": 0,
+  "is_published": true,
+  "description": "A sample module with lessons and sections",
+  "duration_minutes": 120,
+  "lessons": [
+    {
+      "title": "Sample Lesson 1",
+      "description": "Lesson description",
+      "lesson_type": "reading",
+      "order": 0,
+      "is_published": true,
+      "sections": [
+        {
+          "title": "Introduction",
+          "section_type": "text",
+          "order": 0,
+          "text_content": "# Introduction\n\nThis section contains markdown-formatted content, including KaTeX like $\\frac{a}{b}$ which should be rendered by the markdown converter.",
+          "is_published": true
+        }
+      ]
+    }
+  ]
+}
