@@ -138,24 +138,25 @@ export const AdminDashboard: React.FC = () => {
                 ) : recentStudents.length === 0 ? (
                   <div className="py-4 text-center text-sm text-gray-500">No recent students found</div>
                 ) : (
-                  recentStudents.map((user) => (
+                  recentStudents.map((student) => (
                     <div
-                      key={user.id}
-                      className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-surface-muted/50 -mx-2 px-2 rounded-lg transition-colors duration-150"
+                      key={student.id}
+                      onClick={() => navigate(`/admin/users/${student.id}`)}
+                      className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-surface-muted/50 -mx-2 px-2 rounded-lg transition-colors duration-150 cursor-pointer"
                     >
                       <div className="w-10 h-10 bg-zlearn-primaryMuted rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-medium text-zlearn-primary uppercase">
-                          {(user.full_name || user.first_name || user.email || '?').charAt(0)}
+                          {(student.full_name || student.first_name || student.email || '?').charAt(0)}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-900 truncate">
-                          {user.full_name || `${user.first_name} ${user.last_name}`.trim() || 'Unknown User'}
+                          {student.full_name || `${student.first_name || ''} ${student.last_name || ''}`.trim() || 'Unknown User'}
                         </p>
-                        <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                        <p className="text-sm text-gray-500 truncate">{student.email}</p>
                       </div>
                       <span className="text-xs text-gray-400 flex-shrink-0">
-                        {user.date_joined ? formatTimeAgo(user.date_joined) : 'N/A'}
+                        {student.date_joined ? formatTimeAgo(student.date_joined) : 'N/A'}
                       </span>
                     </div>
                   ))
