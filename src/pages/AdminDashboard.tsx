@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../components/layout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/common';
 import { useAdminAuth } from '../context/AdminAuthContext';
-import { formatNumber } from '../utils';
+import { formatNumber, formatTimeAgo } from '../utils';
+import { useGetUsersQuery } from '../store/api/usersApi';
+import { useGetCoursesQuery } from '../store/api/coursesApi';
 import { TrendingUp, Users, BookOpen, DollarSign, Award, Upload, Sparkles } from 'lucide-react';
 
 interface StatCard {
@@ -18,51 +20,51 @@ interface StatCard {
 export const AdminDashboard: React.FC = () => {
   const { user } = useAdminAuth();
   const navigate = useNavigate();
+  const { data: users = [], isLoading: isUsersLoading } = useGetUsersQuery({ ordering: '-date_joined' });
+  const { data: courses = [], isLoading: isCoursesLoading } = useGetCoursesQuery({});
+
+  const recentStudents = [...users]
+    .sort((a, b) => new Date(b.date_joined).getTime() - new Date(a.date_joined).getTime())
+    .slice(0, 5);
+
+  const activeCoursesCount = courses.filter(c => c.status === 'published').length;
+
+  const popularCoursesList = [...courses]
+    .sort((a, b) => (b.current_enrollments || 0) - (a.current_enrollments || 0))
+    .slice(0, 5);
 
   const stats: StatCard[] = [
     {
       label: 'Total Students',
-      value: '12,543',
-      change: '+12%',
+      value: isUsersLoading ? '...' : formatNumber(users.length),
+      change: '+12%', // Still dummy since we need historical data for this
       changePositive: true,
       icon: Users,
     },
     {
       label: 'Active Courses',
-      value: '342',
+      value: isCoursesLoading ? '...' : formatNumber(activeCoursesCount),
       change: '+8%',
       changePositive: true,
       icon: BookOpen,
     },
     {
       label: 'Revenue',
-      value: '$45,231',
+      value: '$45,231', // Placeholder
       change: '+23%',
       changePositive: true,
       icon: DollarSign,
     },
     {
       label: 'Completion Rate',
-      value: '87%',
+      value: '87%', // Placeholder
       change: '+5%',
       changePositive: true,
       icon: Award,
     },
   ];
 
-  const recentUsers = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', time: '2h ago' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', time: '3h ago' },
-    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', time: '5h ago' },
-    { id: 4, name: 'Alice Brown', email: 'alice@example.com', time: '1d ago' },
-  ];
 
-  const popularCourses = [
-    { id: 1, name: 'Introduction to React', students: 1234 },
-    { id: 2, name: 'Advanced Django', students: 987 },
-    { id: 3, name: 'Python Basics', students: 1543 },
-    { id: 4, name: 'JavaScript Mastery', students: 876 },
-  ];
 
   return (
     <AdminLayout>
@@ -131,23 +133,34 @@ export const AdminDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="divide-y divide-surface-borderLight">
-                {recentUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-surface-muted/50 -mx-2 px-2 rounded-lg transition-colors duration-150"
-                  >
-                    <div className="w-10 h-10 bg-zlearn-primaryMuted rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-medium text-zlearn-primary">
-                        {user.name.charAt(0)}
+                {isUsersLoading ? (
+                  <div className="py-4 text-center text-sm text-gray-500">Loading recent students...</div>
+                ) : recentStudents.length === 0 ? (
+                  <div className="py-4 text-center text-sm text-gray-500">No recent students found</div>
+                ) : (
+                  recentStudents.map((student) => (
+                    <div
+                      key={student.id}
+                      onClick={() => navigate(`/admin/users/${student.id}`)}
+                      className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-surface-muted/50 -mx-2 px-2 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <div className="w-10 h-10 bg-zlearn-primaryMuted rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-medium text-zlearn-primary uppercase">
+                          {(student.full_name || student.first_name || student.email || '?').charAt(0)}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">
+                          {student.full_name || `${student.first_name || ''} ${student.last_name || ''}`.trim() || 'Unknown User'}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">{student.email}</p>
+                      </div>
+                      <span className="text-xs text-gray-400 flex-shrink-0">
+                        {student.date_joined ? formatTimeAgo(student.date_joined) : 'N/A'}
                       </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{user.name}</p>
-                      <p className="text-sm text-gray-500 truncate">{user.email}</p>
-                    </div>
-                    <span className="text-xs text-gray-400 flex-shrink-0">{user.time}</span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -158,23 +171,41 @@ export const AdminDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="divide-y divide-surface-borderLight">
-                {popularCourses.map((course) => (
-                  <div
-                    key={course.id}
-                    className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-surface-muted/50 -mx-2 px-2 rounded-lg transition-colors duration-150"
-                  >
-                    <div className="w-10 h-10 bg-surface-muted rounded-lg flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{course.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {formatNumber(course.students)} enrollments
-                      </p>
+                {isCoursesLoading ? (
+                  <div className="py-4 text-center text-sm text-gray-500">Loading popular courses...</div>
+                ) : popularCoursesList.length === 0 ? (
+                  <div className="py-4 text-center text-sm text-gray-500">No popular courses found</div>
+                ) : (
+                  popularCoursesList.map((course) => (
+                    <div
+                      key={course.id}
+                      className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-surface-muted/50 -mx-2 px-2 rounded-lg transition-colors duration-150"
+                    >
+                      {course.thumbnail ? (
+                        <img 
+                          src={course.thumbnail} 
+                          alt={course.title} 
+                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0" 
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-surface-muted rounded-lg flex-shrink-0 flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{course.title}</p>
+                        <p className="text-sm text-gray-500">
+                          {formatNumber(course.current_enrollments || 0)} enrollments
+                        </p>
+                      </div>
+                      <span className={`text-xs font-medium flex-shrink-0 ${
+                        course.status === 'published' ? 'text-emerald-600' : 'text-amber-600'
+                      }`}>
+                        {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
+                      </span>
                     </div>
-                    <span className="text-xs font-medium text-emerald-600 flex-shrink-0">
-                      Active
-                    </span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
