@@ -1,22 +1,22 @@
 {
-  "title": "Sample Module Title",
-  "order": 0,
+  "title": "Module 2: Kinematics — Motion in One Dimension",
+  "order": 1,
   "is_published": true,
-  "description": "A sample module with lessons and sections",
+  "description": "Master the fundamental concepts of kinematics, including displacement, velocity, and equations of uniform acceleration.",
   "duration_minutes": 120,
   "lessons": [
     {
-      "title": "Sample Lesson 1",
-      "description": "Lesson description",
+      "title": "Lesson 2.1: Linear Motion and SUVAT Equations",
+      "description": "Learn to apply the SUVAT equations to solve constant acceleration problems.",
       "lesson_type": "reading",
       "order": 0,
       "is_published": true,
       "sections": [
         {
-          "title": "Introduction",
+          "title": "Equations of Uniform Acceleration (SUVAT)",
           "section_type": "text",
           "order": 0,
-          "text_content": "# Introduction\n\nThis section contains markdown-formatted content, including KaTeX like $\\frac{a}{b}$ which should be rendered by the markdown converter.",
+          "text_content": "# Equations of Uniform Acceleration (SUVAT)\n\nFor **constant acceleration** (uniform motion), the five variables are:\n- $s$ = displacement\n- $u$ = initial velocity\n- $v$ = final velocity\n- $a$ = acceleration\n- $t$ = time\n\nThe four SUVAT equations:\n$$v = u + at \\tag{1}$$\n$$s = ut + \\frac{1}{2}at^2 \\tag{2}$$\n$$v^2 = u^2 + 2as \\tag{3}$$\n$$s = \\frac{(u+v)}{2}t \\tag{4}$$\n\n**Example:** A car starts from rest and accelerates at 3.0 m s⁻² for 8.0 s. Find the distance travelled.\n- $u = 0$, $a = 3.0$ m s⁻², $t = 8.0$ s, find $s$.\n$$s = ut + \\frac{1}{2}at^2 = 0 + \\frac{1}{2}(3.0)(8.0)^2 = 96\\text{ m}$$",
           "is_published": true
         }
       ]

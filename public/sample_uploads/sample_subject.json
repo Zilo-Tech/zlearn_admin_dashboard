@@ -1,33 +1,54 @@
-{
-    "title": "Sample Subject Name",
-    "subject": "General Knowledge",
-    "order": 1,
-    "is_published": true,
-    "estimated_hours": 10,
-    "difficulty": "beginner",
-    "short_description": "A sample subject inside an exam package.",
-    "course_code": "GK_101",
-    "_COMMENT": "This is a single subject/course structure. It does NOT contain exam attributes like exam_code or country.",
-    "modules": [
-        {
-            "title": "Module 1",
+[
+  {
+    "name": "Physics",
+    "code": "ENAFM_PHY",
+    "icon": "⚛️",
+    "color": "#3B82F6",
+    "description": "Comprehensive Physics notes covering the full GCE A/L and Bac C/D syllabus for the Cameroon National Qualifying Examination for Medical Training (ENAFM). Covers mechanics, waves, electricity, thermodynamics, optics, and modern physics.",
+    "courses": [
+      {
+        "_COMMENT": "Complete Physics Notes for Cameroon ENAFM Medical Concours. KaTeX used for all mathematical expressions.",
+        "title": "Physics for Cameroon Medical Concours (ENAFM)",
+        "subject": "Physics",
+        "order": 1,
+        "is_published": true,
+        "estimated_hours": 50,
+        "difficulty": "advanced",
+        "short_description": "Comprehensive Physics notes covering the full GCE A/L and Bac C/D syllabus.",
+        "course_code": "ENAFM_PHY_001",
+        "modules": [
+          {
+            "title": "Module 1: Measurements, Units, and Scalars & Vectors",
             "order": 1,
             "is_published": true,
+            "duration_minutes": 180,
+            "learning_objectives": [
+              "Perform dimensional analysis and check homogeneity of equations",
+              "Add and resolve vectors using components and graphical methods"
+            ],
             "lessons": [
-                {
-                    "title": "Lesson 1",
+              {
+                "title": "Lesson 1.1: Physical Quantities, SI Units, and Dimensional Analysis",
+                "order": 1,
+                "is_published": true,
+                "lesson_type": "reading",
+                "duration_minutes": 55,
+                "is_preview": true,
+                "sections": [
+                  {
+                    "title": "SI Units and Dimensional Analysis",
+                    "section_type": "text",
                     "order": 1,
                     "is_published": true,
-                    "content": "<p>Content goes here</p>",
-                    "sections": [
-                        {
-                            "title": "Section 1",
-                            "order": 1,
-                            "content": "Section content..."
-                        }
-                    ]
-                }
+                    "text_content": "# Physical Quantities, SI Units, and Dimensional Analysis\n\n## Example Formula\nYou can write formulas using KaTeX formatting.\nFor example, the formula for checking homogeneity:\n$v = u + at$\n\nWhere:\n- $[v] = \\text{LT}^{-1}$\n- $[u] = \\text{LT}^{-1}$\n- $[at] = \\text{LT}^{-2} \\times \\text{T} = \\text{LT}^{-1}$\n\nHere is an example equation for absolute uncertainty:\n$\\frac{\\Delta z}{z} = \\frac{\\Delta x}{x} + \\frac{\\Delta y}{y}$",
+                    "description": "SI Units and Dimensional Analysis"
+                  }
+                ]
+              }
             ]
-        }
+          }
+        ]
+      }
     ]
-}
+  }
+]
