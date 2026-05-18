@@ -1,22 +1,22 @@
 {
-  "title": "Sample Lesson",
-  "description": "A lesson with multiple sections demonstrating markdown and KaTeX",
+  "title": "Lesson 11.2: Nuclear Energy — Mass Defect, Binding Energy, Fission, and Fusion",
+  "description": "Calculate energy released in fission and fusion using E=mc² and understand binding energy.",
   "lesson_type": "reading",
-  "order": 0,
+  "order": 1,
   "is_published": true,
   "sections": [
     {
-      "title": "Text Section",
+      "title": "Nuclear Energy and Medical Applications",
       "section_type": "text",
       "order": 0,
-      "text_content": "# Topic Heading\n\nHere is some content with math: $\\frac{1}{2}$ and an expression: $x^2 + y^2 = z^2$.",
+      "text_content": "# Mass Defect and Binding Energy\n\n**Mass defect** $\\Delta m$: the difference between the mass of the separated nucleons and the actual mass of the nucleus:\n$$\\Delta m = Zm_p + Nm_n - m_{nucleus}$$\n\n**Binding energy** (Einstein's mass-energy equivalence):\n$$E = \\Delta m \\cdot c^2$$\nwhere $c = 3 \\times 10^8$ m s⁻¹\n\n**Nuclear Fission Example:**\n$${}^{235}_{92}\\text{U} + {}^1_0\\text{n} \\rightarrow {}^{141}_{56}\\text{Ba} + {}^{92}_{36}\\text{Kr} + 3{}^1_0\\text{n} + \\text{energy}$$\n\n- Energy released ≈ 200 MeV per fission event",
       "is_published": true
     },
     {
-      "title": "Video Section",
+      "title": "Video: Fission vs Fusion",
       "section_type": "video",
       "order": 1,
-      "video_url": "https://example.com/video.mp4",
+      "video_url": "https://example.com/video/fission-fusion.mp4",
       "is_published": true
     }
   ]

@@ -377,6 +377,18 @@ export const educationApi = createApi({
       }),
       invalidatesTags: ['Subject'],
     }),
+    importSubjects: builder.mutation<{ message: string }, File>({
+      query: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: 'subjects/import_subjects/',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['Subject'],
+    }),
   }),
 });
 
@@ -423,5 +435,6 @@ export const {
   useCreateSubjectMutation,
   useUpdateSubjectMutation,
   useDeleteSubjectMutation,
+  useImportSubjectsMutation,
 } = educationApi;
 
